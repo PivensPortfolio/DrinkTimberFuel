@@ -785,52 +785,6 @@
         </div>
       </div>
 
-      <!-- BUILD YOUR OWN energy refresher -->
-      <div class="eb-launch">
-        <button class="cb-start" id="ebStart"><span class="bolt">⚡</span> Create Your Drink</button>
-        <p class="eb-sub">Mix your own refresher</p>
-      </div>
-
-      <div class="cb-card eb-card" id="ebCard" hidden>
-        <button class="cb-close" id="ebClose" aria-label="Cancel">×</button>
-        <div class="cb-progress" id="ebProgress"></div>
-        <div class="cb-steps" id="ebSteps">
-          <div class="cb-step" data-estep="emix">
-            <h3 class="cb-q">Mix your flavors</h3>
-            <p class="cb-hint">Combine as many as you like.</p>
-            <div class="cb-chips" id="ebFlavors">
-              <button class="cb-chip" data-val="Georgia Peach">Georgia Peach</button>
-              <button class="cb-chip" data-val="Green Apple">Green Apple</button>
-              <button class="cb-chip" data-val="Watermelon">Watermelon</button>
-              <button class="cb-chip" data-val="Blue Raspberry">Blue Raspberry</button>
-              <button class="cb-chip" data-val="Spicy Mango">Spicy Mango</button>
-            </div>
-          </div>
-          <div class="cb-step" data-estep="esize">
-            <h3 class="cb-q">Pick your size</h3>
-            <div class="cb-options cb-3">
-              <button class="cb-opt cb-size" data-size="Small"><span class="cb-tick">✓</span><span class="cb-opt-oz">12 oz</span><span class="cb-opt-t">Small</span><span class="cb-opt-d">$?.??</span></button>
-              <button class="cb-opt cb-size" data-size="Medium"><span class="cb-tick">✓</span><span class="cb-opt-oz">16 oz</span><span class="cb-opt-t">Medium</span><span class="cb-opt-d">$?.??</span></button>
-              <button class="cb-opt cb-size" data-size="Large"><span class="cb-tick">✓</span><span class="cb-opt-oz">20 oz</span><span class="cb-opt-t">Large</span><span class="cb-opt-d">$3.00</span></button>
-            </div>
-          </div>
-          <div class="cb-step" data-estep="edone">
-            <div class="cb-done">
-              <div class="cb-check">✓</div>
-              <h3>Added to your order!</h3>
-              <p class="cb-sum" id="ebDoneSummary"></p>
-              <div class="cb-done-actions">
-                <button class="cb-next" id="ebAnother">Make another</button>
-                <button class="cb-back" id="ebViewCart">View order →</button>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="cb-nav" id="ebNav">
-          <button class="cb-back" id="ebBack" hidden>← Back</button>
-          <button class="cb-next" id="ebNext" hidden>Next →</button>
-        </div>
-      </div>
     </div>
   </section>
 
@@ -1068,37 +1022,6 @@
       setTimeout(()=>{ b.classList.remove('added'); b.innerHTML=t; }, 1400);
     }
   });
-
-  /* ===== ENERGY: build-your-own custom mix ===== */
-  const ebCard=document.getElementById('ebCard'), ebLaunch=document.querySelector('.eb-launch');
-  const ebStepsEls=[...document.querySelectorAll('#ebSteps .cb-step')];
-  const ebFlow=['emix','esize'];
-  let ebIdx=0; const ebOrder={flavors:[], size:null};
-  const ebProg=document.getElementById('ebProgress'), ebBack=document.getElementById('ebBack'), ebNext=document.getElementById('ebNext'), ebNav=document.getElementById('ebNav'), ebFlavorsEl=document.getElementById('ebFlavors');
-  const ebStepEl=n=>ebStepsEls.find(s=>s.dataset.estep===n);
-  function ebRenderProg(){ ebProg.innerHTML=''; ebFlow.forEach((_,i)=>{ const b=document.createElement('i'); if(i<ebIdx)b.className='done'; if(i===ebIdx)b.className='cur'; ebProg.appendChild(b); }); }
-  function ebUpdateNav(){ const n=ebFlow[ebIdx]; ebBack.hidden=false;
-    if(n==='emix'){ ebNext.hidden=false; ebNext.textContent='Next →'; ebNext.disabled=ebOrder.flavors.length===0; }
-    else if(n==='esize'){ ebNext.hidden=false; ebNext.textContent='Add to Order'; ebNext.disabled=!ebOrder.size; }
-    else ebNext.hidden=true; }
-  function ebShow(i,dir){ ebIdx=i; const n=ebFlow[i]; ebNav.style.display='';
-    ebStepsEls.forEach(s=>s.classList.remove('is-active','in-right','in-left'));
-    ebStepEl(n).classList.add('is-active', dir==='back'?'in-left':'in-right');
-    ebRenderProg(); ebUpdateNav();
-    ebStepEl('esize').querySelectorAll('.cb-opt').forEach(o=>o.classList.toggle('sel', o.dataset.size===ebOrder.size)); }
-  function ebOpen(){ ebLaunch.hidden=true; ebCard.hidden=false; ebOrder.flavors=[]; ebOrder.size=null; ebFlavorsEl.querySelectorAll('.cb-chip').forEach(c=>c.classList.remove('sel')); ebNav.style.display=''; ebShow(0,'fwd'); }
-  function ebClose(){ ebCard.hidden=true; ebLaunch.hidden=false; }
-  function ebAdd(){ const detail=ebOrder.flavors.join(' + '); cart.push({name:'Custom Refresher', detail, size:ebOrder.size}); bumpCart(); renderCart();
-    document.getElementById('ebDoneSummary').textContent=`${SIZE_OZ[ebOrder.size]} Custom Refresher — ${detail}`;
-    ebStepsEls.forEach(s=>s.classList.remove('is-active','in-right','in-left')); ebNav.style.display='none'; ebStepEl('edone').classList.add('is-active','in-right'); }
-  document.getElementById('ebStart').addEventListener('click', ebOpen);
-  document.getElementById('ebClose').addEventListener('click', ebClose);
-  ebFlavorsEl.addEventListener('click', e=>{ const c=e.target.closest('.cb-chip'); if(!c) return; c.classList.toggle('sel'); ebOrder.flavors=[...ebFlavorsEl.querySelectorAll('.cb-chip.sel')].map(x=>x.dataset.val); ebUpdateNav(); });
-  ebStepEl('esize').addEventListener('click', e=>{ const o=e.target.closest('.cb-opt'); if(!o) return; ebOrder.size=o.dataset.size; ebStepEl('esize').querySelectorAll('.cb-opt').forEach(x=>x.classList.toggle('sel', x===o)); ebUpdateNav(); });
-  ebBack.addEventListener('click', ()=>{ if(ebIdx>0) ebShow(ebIdx-1,'back'); else ebClose(); });
-  ebNext.addEventListener('click', ()=>{ const n=ebFlow[ebIdx]; if(n==='emix'&&ebOrder.flavors.length) ebShow(ebIdx+1,'fwd'); else if(n==='esize'&&ebOrder.size) ebAdd(); });
-  document.getElementById('ebAnother').addEventListener('click', ebOpen);
-  document.getElementById('ebViewCart').addEventListener('click', openCart);
 
   /* init */
   buildFlow(); show(0,'fwd'); renderCart();
