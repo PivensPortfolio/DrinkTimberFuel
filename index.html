@@ -256,6 +256,11 @@
   .spotlight .ord{ margin-top:20px; }
   .spotlight .ord-sizes{ margin-inline:0; }
 
+  /* featured spotlight banner image */
+  .spot-banner{ max-width:880px; margin:0 auto 10px; text-align:center; }
+  .spot-banner > img{ width:100%; height:auto; display:block; border-radius:14px; box-shadow:0 22px 50px rgba(0,0,0,.5); }
+  .spot-banner .ord{ margin-top:18px; }
+
   /* build-your-own energy launcher */
   .eb-launch{ text-align:center; margin-top:48px; }
   .eb-launch[hidden]{ display:none; }
@@ -722,24 +727,16 @@
         <h2>Energy <em>Refreshers</em></h2>
       </div>
 
-      <!-- FEATURED: Spicy Mango (above the standard 4) -->
-      <div class="spotlight">
-        <div>
-          <span class="badge"><span class="bolt">⚡</span> Limited Time · Spotlight Drink</span>
-          <h3>Spicy Mango</h3>
-          <p class="kick">"Sweet Mango with a Kick!"</p>
-          <div class="ord" data-drink="Spicy Mango">
-            <button class="ord-btn"><span class="bolt">⚡</span> Add to Order</button>
-            <div class="ord-sizes" hidden>
-              <button class="ord-size" data-size="Small"><b>12 oz</b> Small <span>$?.??</span></button>
-              <button class="ord-size" data-size="Medium"><b>16 oz</b> Medium <span>$?.??</span></button>
-              <button class="ord-size" data-size="Large"><b>20 oz</b> Large <span>$3.00</span></button>
-            </div>
+      <!-- FEATURED: Spicy Mango banner (above the standard 4) -->
+      <div class="spot-banner">
+        <img src="assets/Feature_EnerygyDrink.png" alt="Spotlight Drink — Spicy Mango Energy Refresher · Sweet Mango with a Kick! · Limited Time Feature" />
+        <div class="ord" data-drink="Spicy Mango">
+          <button class="ord-btn"><span class="bolt">⚡</span> Add to Order</button>
+          <div class="ord-sizes" hidden>
+            <button class="ord-size" data-size="Small"><b>12 oz</b> Small <span>$?.??</span></button>
+            <button class="ord-size" data-size="Medium"><b>16 oz</b> Medium <span>$?.??</span></button>
+            <button class="ord-size" data-size="Large"><b>20 oz</b> Large <span>$3.00</span></button>
           </div>
-        </div>
-        <div class="spotlight-visual">
-          <span class="so-glow"></span>
-          <img src="assets/SpicyMango.png" alt="Spicy Mango refresher" />
         </div>
       </div>
 
