@@ -104,8 +104,13 @@
 
   /* flanking drink photos */
   .hero-cup{ position:absolute; bottom:104px; z-index:3; pointer-events:none; filter:drop-shadow(0 22px 30px rgba(0,0,0,.55)); }
-  .hero-cup.left{ left:max(2%, calc(50% - 560px)); width:clamp(264px,31.2vw,432px); bottom:139px; animation:riseL 1s .25s var(--ease) both; }
-  .hero-cup.right{ right:max(2%, calc(50% - 540px)); width:clamp(200px,24vw,320px); animation:riseR 1s .25s var(--ease) both; }
+  .hero-cup.left{ left:max(2%, calc(50% - 560px)); width:432px; bottom:139px; animation:riseL 1s .25s var(--ease) both; }
+  .hero-cup.right{ right:max(2%, calc(50% - 540px)); width:320px; animation:riseR 1s .25s var(--ease) both; }
+  /* cups stay full size until the viewport drops below 900px */
+  @media (max-width:900px){
+    .hero-cup.left{ width:38vw; }
+    .hero-cup.right{ width:28vw; }
+  }
 
   /* treeline blend */
   .treeline{ position:absolute; left:0; right:0; bottom:0; z-index:2; line-height:0; }
