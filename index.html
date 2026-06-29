@@ -263,7 +263,25 @@
   .cart-count.bump{ animation:cbBump .45s var(--ease); }
   @keyframes cbBump{ 0%{transform:scale(1);} 40%{transform:scale(1.5);} 100%{transform:scale(1);} }
 
+  /* landing intro */
+  .cb-landing{ max-width:860px; margin:0 auto; animation:cbInR .4s var(--ease) both; }
+  .cb-landing[hidden]{ display:none; }
+  .cb-showcase{ display:grid; grid-template-columns:1fr 1fr; gap:20px; }
+  .cb-drink{ position:relative; background:linear-gradient(180deg, var(--bg-tab), #0c1109); border:1.5px solid var(--gold-faint); border-radius:18px; padding:24px 18px 22px; cursor:pointer; text-align:center; color:var(--cream); display:flex; flex-direction:column; align-items:center; transition:transform .22s var(--ease), border-color .22s var(--ease), box-shadow .22s var(--ease); overflow:hidden; }
+  .cb-drink::after{ content:""; position:absolute; inset:0; background:radial-gradient(70% 50% at 50% 18%, rgba(245,197,24,.12), transparent 60%); opacity:0; transition:opacity .22s var(--ease); }
+  .cb-drink:hover{ transform:translateY(-6px); border-color:var(--gold); box-shadow:0 24px 46px rgba(0,0,0,.45); }
+  .cb-drink:hover::after{ opacity:1; }
+  .cb-drink img{ position:relative; height:210px; width:auto; object-fit:contain; filter:drop-shadow(0 18px 26px rgba(0,0,0,.5)); }
+  .cb-drink-name{ position:relative; font-family:"Anton",sans-serif; font-size:24px; text-transform:uppercase; color:#fff; margin-top:14px; }
+  .cb-drink-tag{ position:relative; font-family:"Barlow Condensed",sans-serif; font-size:15px; color:var(--cream-85); margin-top:4px; letter-spacing:.5px; }
+  .cb-drink .cb-drink-go{ position:relative; margin-top:12px; font-family:"Oswald",sans-serif; font-weight:700; font-size:11px; letter-spacing:2px; text-transform:uppercase; color:var(--gold); opacity:0; transform:translateY(4px); transition:.22s var(--ease); }
+  .cb-drink:hover .cb-drink-go{ opacity:1; transform:none; }
+  .cb-start{ display:block; margin:26px auto 0; font-family:"Anton",sans-serif; font-size:22px; text-transform:uppercase; letter-spacing:1px; color:var(--bg); background:var(--gold); border:none; border-radius:999px; padding:17px 44px; cursor:pointer; box-shadow:0 6px 20px rgba(245,197,24,.35); transition:transform .15s var(--ease), box-shadow .15s var(--ease); animation:cbPulse 2.4s ease-in-out infinite; }
+  .cb-start:hover{ transform:translateY(-2px); box-shadow:0 10px 28px rgba(245,197,24,.55); animation:none; }
+  @keyframes cbPulse{ 0%,100%{box-shadow:0 6px 20px rgba(245,197,24,.35);} 50%{box-shadow:0 6px 30px rgba(245,197,24,.6);} }
+
   .cb-card{ position:relative; max-width:760px; margin:0 auto; background:linear-gradient(180deg, var(--bg-tab), #0c1109); border:1px solid var(--gold-faint); border-radius:18px; padding:30px 34px 26px; box-shadow:0 30px 60px rgba(0,0,0,.45); overflow:hidden; }
+  .cb-card[hidden]{ display:none; }
 
   /* progress */
   .cb-progress{ display:flex; gap:8px; justify-content:center; margin-bottom:24px; }
@@ -510,7 +528,25 @@
         </button>
       </div>
 
-      <div class="cb-card">
+      <div class="cb-landing" id="cbLanding">
+        <div class="cb-showcase">
+          <button class="cb-drink" data-brew="Iced Coffee">
+            <img src="assets/iced-coffee.png" alt="Iced Coffee" />
+            <span class="cb-drink-name">Iced Coffee</span>
+            <span class="cb-drink-tag">Bright, crisp, flash-chilled over ice</span>
+            <span class="cb-drink-go">Start with this →</span>
+          </button>
+          <button class="cb-drink" data-brew="Cold Brew">
+            <img src="assets/cold-brew.png" alt="Cold Brew" />
+            <span class="cb-drink-name">Cold Brew</span>
+            <span class="cb-drink-tag">Rich, smooth, steeped 18+ hours</span>
+            <span class="cb-drink-go">Start with this →</span>
+          </button>
+        </div>
+        <button class="cb-start" id="cbStart"><span class="bolt">⚡</span> Create Your Drink</button>
+      </div>
+
+      <div class="cb-card" id="cbCard" hidden>
         <div class="cb-progress" id="cbProgress"></div>
 
         <div class="cb-steps" id="cbSteps">
@@ -692,6 +728,8 @@
   const cbNav    = document.getElementById('cbNav');
   const cbSigWrap= document.getElementById('cbSignatures');
   const cbFlavors= document.getElementById('cbFlavors');
+  const cbLanding= document.getElementById('cbLanding');
+  const cbCard   = document.getElementById('cbCard');
 
   let flow = ['brew','style'];
   let idx  = 0;
@@ -776,7 +814,19 @@
     chip.classList.toggle('sel');
     order.flavors = [...cbFlavors.querySelectorAll('.cb-chip.sel')].map(c=>c.dataset.val);
   });
-  cbBack.addEventListener('click', ()=>{ if(idx>0) show(idx-1,'back'); });
+  /* landing <-> wizard */
+  function showLanding(){ cbCard.hidden=true; cbLanding.hidden=false; }
+  function startWizard(brew){
+    cbLanding.hidden=true; cbCard.hidden=false;
+    order={brew:brew||null, style:null, signature:null, flavors:[], milk:null, size:null};
+    buildFlow(); cbFlavors.querySelectorAll('.cb-chip').forEach(c=>c.classList.remove('sel'));
+    cbNav.style.display='';
+    show(brew ? flow.indexOf('style') : 0, 'fwd');
+  }
+  document.getElementById('cbStart').addEventListener('click', ()=>startWizard(null));
+  document.querySelectorAll('.cb-drink').forEach(d=>d.addEventListener('click', ()=>startWizard(d.dataset.brew)));
+
+  cbBack.addEventListener('click', ()=>{ if(idx>0) show(idx-1,'back'); else showLanding(); });
   cbNext.addEventListener('click', ()=>{
     const name=flow[idx];
     if(name==='flavors'){ next(); }
