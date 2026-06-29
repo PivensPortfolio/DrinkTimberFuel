@@ -19,6 +19,7 @@
     --gold:      #f5c518;
     --fire:      #e8620a;
     --amber:     #c87418;
+    --sf:        #39c0aa;
     --cream:     #e8e0c4;
     --cream-85:  rgba(232,224,196,.85);
     --muted:     #69616b;
@@ -328,12 +329,20 @@
   .cb-opt .cb-tick{ position:absolute; top:12px; right:12px; width:22px; height:22px; border-radius:50%; background:var(--gold); color:var(--bg); display:none; align-items:center; justify-content:center; font-size:13px; font-weight:700; }
   .cb-opt.sel .cb-tick{ display:flex; }
 
-  /* flavor chips — fixed-height area (centered, no scrollbar) so the card stays the
-     same size whether the admin lists 2 flavors or a dozen */
-  .cb-chips{ display:flex; flex-wrap:wrap; gap:11px; justify-content:center; align-content:center; height:230px; overflow:hidden; margin-top:18px; }
-  .cb-chip{ font-family:"Oswald",sans-serif; font-weight:600; text-transform:uppercase; font-size:14px; color:var(--gold); background:var(--bg); border:1.5px solid var(--gold); border-radius:999px; padding:11px 18px; cursor:pointer; transition:transform .14s var(--ease), background .16s var(--ease), color .16s var(--ease); }
+  /* flavors: two clearly-distinct panels — Classic (gold) vs Sugar-Free (teal) —
+     so no one taps sugar-free by accident. Fixed height = constant card, no scrollbar. */
+  .cb-fcols{ display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:16px; height:236px; }
+  .cb-fcol{ display:flex; flex-direction:column; gap:12px; padding:14px 14px 10px; border:1px solid var(--gold-faint); border-radius:12px; background:rgba(245,197,24,.04); overflow:hidden; }
+  .cb-fcol-sf{ border-color:rgba(57,192,170,.30); background:rgba(57,192,170,.07); }
+  .cb-flabel{ font-family:"Oswald",sans-serif; font-weight:700; text-transform:uppercase; letter-spacing:2px; font-size:12px; color:var(--gold); }
+  .cb-flabel-sf{ color:var(--sf); }
+  .cb-flabel-sf::before{ content:"🍃 "; }
+  .cb-chips{ display:flex; flex-wrap:wrap; gap:9px; align-content:flex-start; overflow:hidden; }
+  .cb-chip{ font-family:"Oswald",sans-serif; font-weight:600; text-transform:uppercase; font-size:13px; color:var(--gold); background:var(--bg); border:1.5px solid var(--gold); border-radius:999px; padding:8px 13px; cursor:pointer; transition:transform .14s var(--ease), background .16s var(--ease), color .16s var(--ease); }
   .cb-chip:hover{ transform:translateY(-2px); }
   .cb-chip.sel{ background:var(--gold); color:var(--bg); }
+  .cb-chip-sf{ color:var(--sf); border-color:var(--sf); }
+  .cb-chip-sf.sel{ background:var(--sf); color:#06201b; }
 
   /* nav */
   .cb-nav{ display:flex; align-items:center; justify-content:space-between; margin-top:26px; gap:14px; }
@@ -404,7 +413,8 @@
     .cb-card{ padding:22px 16px 20px; border-radius:14px; }
     .cb-steps{ min-height:320px; }
     #cbSignatures{ height:auto; overflow:visible; }
-    .cb-chips{ height:auto; overflow:visible; }
+    .cb-fcols{ grid-template-columns:1fr; height:auto; gap:12px; }
+    .cb-fcol{ overflow:visible; }
     .cb-q{ font-size:22px; }
     .cb-options{ gap:10px; margin-top:18px; }
     .cb-opt{ padding:15px 13px; }
@@ -592,15 +602,30 @@
           <div class="cb-step" data-step="flavors">
             <h3 class="cb-q">Add your flavors</h3>
             <p class="cb-hint">Tap all you like — mix and match.</p>
-            <div class="cb-chips" id="cbFlavors">
-              <button class="cb-chip" data-val="Cinnamon">Cinnamon</button>
-              <button class="cb-chip" data-val="Chocolate">Chocolate</button>
-              <button class="cb-chip" data-val="Caramel">Caramel</button>
-              <button class="cb-chip" data-val="Toasted Marshmallow">Toasted Marshmallow</button>
-              <button class="cb-chip" data-val="Vanilla">Vanilla</button>
-              <button class="cb-chip" data-val="French Vanilla">French Vanilla</button>
-              <button class="cb-chip" data-val="Hazelnut">Hazelnut</button>
-              <button class="cb-chip" data-val="Pumpkin Spice">Pumpkin Spice</button>
+            <div class="cb-fcols">
+              <div class="cb-fcol">
+                <span class="cb-flabel">Classic</span>
+                <div class="cb-chips" id="cbFlavors">
+                  <button class="cb-chip" data-val="Cinnamon">Cinnamon</button>
+                  <button class="cb-chip" data-val="Chocolate">Chocolate</button>
+                  <button class="cb-chip" data-val="Caramel">Caramel</button>
+                  <button class="cb-chip" data-val="Toasted Marshmallow">Toasted Marshmallow</button>
+                  <button class="cb-chip" data-val="Vanilla">Vanilla</button>
+                  <button class="cb-chip" data-val="French Vanilla">French Vanilla</button>
+                  <button class="cb-chip" data-val="Hazelnut">Hazelnut</button>
+                  <button class="cb-chip" data-val="Pumpkin Spice">Pumpkin Spice</button>
+                </div>
+              </div>
+              <div class="cb-fcol cb-fcol-sf">
+                <span class="cb-flabel cb-flabel-sf">Sugar-Free</span>
+                <div class="cb-chips" id="cbFlavorsSF">
+                  <button class="cb-chip cb-chip-sf" data-val="Sugar-Free Vanilla">Vanilla</button>
+                  <button class="cb-chip cb-chip-sf" data-val="Sugar-Free Caramel">Caramel</button>
+                  <button class="cb-chip cb-chip-sf" data-val="Sugar-Free Hazelnut">Hazelnut</button>
+                  <button class="cb-chip cb-chip-sf" data-val="Sugar-Free French Vanilla">French Vanilla</button>
+                  <button class="cb-chip cb-chip-sf" data-val="Sugar-Free Mocha">Mocha</button>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -743,6 +768,7 @@
   const cbNav    = document.getElementById('cbNav');
   const cbSigWrap= document.getElementById('cbSignatures');
   const cbFlavors= document.getElementById('cbFlavors');
+  const flavorsStepEl = document.querySelector('[data-step="flavors"]');
   const cbLanding= document.getElementById('cbLanding');
   const cbCard   = document.getElementById('cbCard');
 
@@ -776,7 +802,7 @@
         o.classList.toggle('sel', map[key]!=null && o.dataset.val===map[key]);
       });
     });
-    cbFlavors.querySelectorAll('.cb-chip').forEach(c=>{
+    flavorsStepEl.querySelectorAll('.cb-chip').forEach(c=>{
       c.classList.toggle('sel', order.flavors.includes(c.dataset.val));
     });
   }
@@ -824,17 +850,17 @@
     else if(step==='size'){ order.size=val; selectFlash(opt); updateNav(); }
   });
   /* flavor chips (multi-select) */
-  cbFlavors.addEventListener('click', e=>{
+  flavorsStepEl.addEventListener('click', e=>{
     const chip=e.target.closest('.cb-chip'); if(!chip) return;
     chip.classList.toggle('sel');
-    order.flavors = [...cbFlavors.querySelectorAll('.cb-chip.sel')].map(c=>c.dataset.val);
+    order.flavors = [...flavorsStepEl.querySelectorAll('.cb-chip.sel')].map(c=>c.dataset.val);
   });
   /* landing <-> wizard */
   function showLanding(){ cbCard.hidden=true; cbLanding.hidden=false; }
   function startWizard(brew){
     cbLanding.hidden=true; cbCard.hidden=false;
     order={brew:brew||null, style:null, signature:null, flavors:[], milk:null, size:null};
-    buildFlow(); cbFlavors.querySelectorAll('.cb-chip').forEach(c=>c.classList.remove('sel'));
+    buildFlow(); flavorsStepEl.querySelectorAll('.cb-chip').forEach(c=>c.classList.remove('sel'));
     cbNav.style.display='';
     show(brew ? flow.indexOf('style') : 0, 'fwd');
   }
@@ -871,7 +897,7 @@
   }
   function resetBuilder(){
     order={brew:null, style:null, signature:null, flavors:[], milk:null, size:null};
-    buildFlow(); cbFlavors.querySelectorAll('.cb-chip').forEach(c=>c.classList.remove('sel'));
+    buildFlow(); flavorsStepEl.querySelectorAll('.cb-chip').forEach(c=>c.classList.remove('sel'));
     cbNav.style.display=''; show(0,'fwd');
   }
   document.getElementById('cbAnother').addEventListener('click', resetBuilder);
