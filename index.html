@@ -274,7 +274,9 @@
   .cb-drink::after{ content:""; position:absolute; inset:0; background:radial-gradient(70% 50% at 50% 18%, rgba(245,197,24,.12), transparent 60%); opacity:0; transition:opacity .22s var(--ease); }
   .cb-drink:hover{ transform:translateY(-6px); border-color:var(--gold); box-shadow:0 24px 46px rgba(0,0,0,.45); }
   .cb-drink:hover::after{ opacity:1; }
+  .cb-drink-imgwrap{ position:relative; height:285px; display:flex; align-items:flex-end; justify-content:center; }
   .cb-drink img{ position:relative; height:210px; width:auto; object-fit:contain; filter:drop-shadow(0 18px 26px rgba(0,0,0,.5)); }
+  .cb-drink[data-brew="Iced Coffee"] img{ height:273px; }
   .cb-drink-name{ position:relative; font-family:"Anton",sans-serif; font-size:24px; text-transform:uppercase; color:#fff; margin-top:14px; }
   .cb-drink-tag{ position:relative; font-family:"Barlow Condensed",sans-serif; font-size:15px; color:var(--cream-85); margin-top:4px; letter-spacing:.5px; }
   .cb-drink .cb-drink-go{ position:relative; margin-top:12px; font-family:"Oswald",sans-serif; font-weight:700; font-size:11px; letter-spacing:2px; text-transform:uppercase; color:var(--gold); opacity:0; transform:translateY(4px); transition:.22s var(--ease); }
@@ -554,13 +556,13 @@
       <div class="cb-landing" id="cbLanding">
         <div class="cb-showcase">
           <button class="cb-drink" data-brew="Iced Coffee">
-            <img src="assets/iced-coffee.png" alt="Iced Coffee" />
+            <span class="cb-drink-imgwrap"><img src="assets/iced-coffee.png" alt="Iced Coffee" /></span>
             <span class="cb-drink-name">Iced Coffee</span>
             <span class="cb-drink-tag">Bright, crisp, flash-chilled over ice</span>
             <span class="cb-drink-go">Start with this →</span>
           </button>
           <button class="cb-drink" data-brew="Cold Brew">
-            <img src="assets/cold-brew.png" alt="Cold Brew" />
+            <span class="cb-drink-imgwrap"><img src="assets/cold-brew.png" alt="Cold Brew" /></span>
             <span class="cb-drink-name">Cold Brew</span>
             <span class="cb-drink-tag">Rich, smooth, steeped 18+ hours</span>
             <span class="cb-drink-go">Start with this →</span>
