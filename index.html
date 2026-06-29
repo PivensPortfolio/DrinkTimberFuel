@@ -294,7 +294,13 @@
   .cb-progress i.cur{ background:var(--gold); width:52px; box-shadow:0 0 12px rgba(245,197,24,.6); }
 
   /* steps viewport */
-  .cb-steps{ position:relative; min-height:330px; display:flex; flex-direction:column; }
+  .cb-steps{ position:relative; min-height:368px; display:flex; flex-direction:column; }
+  /* signatures: fixed-height scroll area so the card stays the same size for 2–6 options
+     (304px = exactly 2 rows; 4 fit cleanly, 5–6 scroll inside without resizing the card) */
+  #cbSignatures{ height:304px; align-content:start; overflow-y:auto; padding-right:6px; scrollbar-width:thin; scrollbar-color:var(--gold-20) transparent; }
+  #cbSignatures::-webkit-scrollbar{ width:6px; }
+  #cbSignatures::-webkit-scrollbar-thumb{ background:var(--gold-20); border-radius:3px; }
+  #cbSignatures::-webkit-scrollbar-thumb:hover{ background:var(--gold); }
   .cb-step{ display:none; flex:1; flex-direction:column; justify-content:center; }
   .cb-step.is-active{ display:flex; }
   .cb-step.is-active.in-right{ animation:cbInR .34s var(--ease) both; }
@@ -394,7 +400,7 @@
     .cb-wrap{ padding:48px 16px 56px; }
     .cb-head{ margin-bottom:24px; }
     .cb-card{ padding:22px 16px 20px; border-radius:14px; }
-    .cb-steps{ min-height:300px; }
+    .cb-steps{ min-height:368px; }
     .cb-q{ font-size:22px; }
     .cb-options{ gap:10px; margin-top:18px; }
     .cb-opt{ padding:15px 13px; }
@@ -720,7 +726,8 @@
     'Iced Coffee':[
       {name:'Northwoods Vanilla', desc:'Vanilla + Vanilla Cream',   icon:'assets/icon-sunrise.png'},
       {name:'Caramel Trail',      desc:'Caramel · smooth & bold',   icon:'assets/icon-pine.png'},
-      {name:'Cabin Comfort',      desc:'Cinnamon + Caramel',        icon:'assets/icon-campfire.png'}
+      {name:'Cabin Comfort',      desc:'Cinnamon + Caramel',        icon:'assets/icon-campfire.png'},
+      {name:'Glacier Mocha',      desc:'Chocolate + Cream',         icon:'assets/icon-mountains.png'}
     ]
   };
   const SIZE_OZ = {Small:'12 oz', Medium:'16 oz', Large:'20 oz'};
