@@ -258,7 +258,7 @@
 
   /* featured spotlight banner image */
   .spot-banner{ max-width:880px; margin:0 auto 10px; text-align:center; }
-  .spot-banner > img{ width:100%; height:auto; display:block; border-radius:14px; box-shadow:0 22px 50px rgba(0,0,0,.5); }
+  .spot-banner img{ width:100%; height:auto; display:block; border-radius:14px; box-shadow:0 22px 50px rgba(0,0,0,.5); }
   .spot-banner .ord{ margin-top:18px; }
 
   /* build-your-own energy launcher */
@@ -729,7 +729,10 @@
 
       <!-- FEATURED: Spicy Mango banner (above the standard 4) -->
       <div class="spot-banner">
-        <img src="assets/Feature_EnerygyDrink.png" alt="Spotlight Drink — Spicy Mango Energy Refresher · Sweet Mango with a Kick! · Limited Time Feature" />
+        <picture>
+          <source media="(max-width:600px)" srcset="assets/Feature_EnerygyDrink_mobile.png" />
+          <img src="assets/Feature_EnerygyDrink_Desktop.png" alt="Spotlight Drink — Spicy Mango Energy Refresher · Sweet Mango with a Kick! · Limited Time Feature" />
+        </picture>
         <div class="ord" data-drink="Spicy Mango">
           <button class="ord-btn"><span class="bolt">⚡</span> Add to Order</button>
           <div class="ord-sizes" hidden>
