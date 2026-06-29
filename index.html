@@ -268,6 +268,16 @@
   .eb-card{ margin-top:28px; }
   #ebFlavors{ justify-content:center; margin-top:20px; overflow:visible; }
 
+  /* HOT DRINKS featured cards */
+  .hot-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:24px; max-width:1080px; margin:96px auto 0; align-items:start; }
+  .hot-card{ position:relative; text-align:center; background:var(--bg-card); border:1px solid var(--gold-faint); border-radius:14px; padding:30px 20px 24px; display:flex; flex-direction:column; align-items:center; transition:transform .25s var(--ease), border-color .25s var(--ease), box-shadow .25s var(--ease); }
+  .hot-card::before{ content:""; position:absolute; left:50%; top:8%; width:62%; aspect-ratio:1; transform:translateX(-50%); border-radius:50%; background:radial-gradient(circle, rgba(200,116,24,.35), transparent 62%); filter:blur(16px); opacity:.5; }
+  .hot-card:hover{ transform:translateY(-6px); border-color:var(--gold-20); box-shadow:0 22px 44px rgba(0,0,0,.45); }
+  .hot-img{ position:relative; z-index:1; height:215px; width:auto; max-width:100%; object-fit:contain; margin:-58px auto 4px; filter:drop-shadow(0 16px 24px rgba(0,0,0,.55)); }
+  .hot-card h3{ position:relative; z-index:1; font-family:"Anton",sans-serif; font-size:21px; color:#fff; text-transform:uppercase; letter-spacing:1px; line-height:1.1; margin-top:4px; }
+  .hot-card p{ position:relative; z-index:1; font-family:"Barlow Condensed",sans-serif; font-size:15px; color:var(--cream-85); margin-top:9px; line-height:1.4; flex:1; }
+  .hot-card .ord{ margin-top:16px; }
+
   .spotlight{ position:relative; margin-top:8px; border-radius:16px; overflow:hidden; border:1px solid var(--gold-20);
     background:radial-gradient(70% 130% at 15% 50%, rgba(245,197,24,.16), transparent 60%), linear-gradient(120deg, #1b1405, #0c1109);
     display:grid; grid-template-columns:1.1fr .9fr; gap:24px; align-items:center; padding:36px 44px; box-shadow:0 30px 60px rgba(0,0,0,.5); }
@@ -429,6 +439,7 @@
   @media (max-width:1100px){
     .orb-grid{ grid-template-columns:repeat(2,1fr); }
     .orb-img{ height:300px; }
+    .hot-grid{ grid-template-columns:repeat(2,1fr); }
     .spotlight{ grid-template-columns:1fr; text-align:center; }
     .spotlight .meta{ justify-content:center; }
     .spotlight-visual{ order:-1; }
@@ -449,6 +460,7 @@
     .cb-fcols{ grid-template-columns:1fr; height:auto; gap:12px; }
     .cb-fcol{ overflow:visible; }
     .orb-img{ height:auto; width:88%; margin-top:-40px; }
+    .hot-grid{ grid-template-columns:1fr; }
     .cb-q{ font-size:22px; }
     .cb-options{ gap:10px; margin-top:18px; }
     .cb-opt{ padding:15px 13px; }
@@ -525,54 +537,174 @@
 </nav>
 
 <main style="background:var(--bg);">
-  <!-- ===== HOT DRINKS (built in-style; names/prices = brief placeholders) ===== -->
+  <!-- ===== HOT DRINKS — featured + mix builder ===== -->
   <section class="panel" data-panel="hot">
-    <div class="wrap" style="padding:100px 0;">
-      <div class="cold-grid">
-        <!-- LEFT: hot drink list -->
-        <div class="sig-head-wrap">
-          <div class="sig-head">
-            <span class="eyebrow">Made Fresh to Order</span>
-            <h2>Hot drinks</h2>
-            <p class="lead">Stout, smooth, and built for cold Northwoods mornings.</p>
-          </div>
-          <div class="combo-list">
-            <div class="combo-card">
-              <img class="ic" src="assets/icon-campfire.png" alt="" />
-              <div><h3>Lumberjack Latte</h3><p>Espresso + Toasted Marshmallow · Steamed &amp; Stout</p><span class="ph-note">⚡ Placeholder — owner content needed</span></div>
-            </div>
-            <div class="combo-card">
-              <img class="ic" src="assets/icon-pine.png" alt="" />
-              <div><h3>Sugar Pine Mocha</h3><p>Chocolate + French Vanilla · Rich &amp; Warming</p><span class="ph-note">⚡ Placeholder — owner content needed</span></div>
-            </div>
-            <div class="combo-card">
-              <img class="ic" src="assets/icon-mountains.png" alt="" />
-              <div><h3>Birch &amp; Toffee</h3><p>Toffee + Cinnamon · Smooth Drip</p><span class="ph-note">⚡ Placeholder — owner content needed</span></div>
+    <div class="wrap" style="padding:74px 28px 70px;">
+      <div class="energy-head">
+        <span class="eyebrow"><span class="bolt">⚡</span> Made Fresh to Order</span>
+        <h2>Hot <em>Drinks</em></h2>
+      </div>
+
+      <!-- Featured 6 -->
+      <div class="hot-grid">
+        <div class="hot-card">
+          <img class="hot-img" src="assets/hot-coffee.png" alt="The Campfire Mocha" />
+          <h3>The Campfire Mocha</h3>
+          <p>Deep chocolate and sweet marshmallow — a fire-roasted s'more in a mug.</p>
+          <div class="ord" data-drink="Campfire Mocha">
+            <button class="ord-btn">Add to Order</button>
+            <div class="ord-sizes" hidden>
+              <button class="ord-size" data-size="Small"><b>12 oz</b> Small <span>$?.??</span></button>
+              <button class="ord-size" data-size="Medium"><b>16 oz</b> Medium <span>$?.??</span></button>
+              <button class="ord-size" data-size="Large"><b>20 oz</b> Large <span>$?.??</span></button>
             </div>
           </div>
         </div>
+        <div class="hot-card">
+          <img class="hot-img" src="assets/hot-coffee.png" alt="Cinnamon Roll Latte" />
+          <h3>Cinnamon Roll Latte</h3>
+          <p>A warm cinnamon roll fresh from the oven, with a sweet vanilla icing finish.</p>
+          <div class="ord" data-drink="Cinnamon Roll Latte">
+            <button class="ord-btn">Add to Order</button>
+            <div class="ord-sizes" hidden>
+              <button class="ord-size" data-size="Small"><b>12 oz</b> Small <span>$?.??</span></button>
+              <button class="ord-size" data-size="Medium"><b>16 oz</b> Medium <span>$?.??</span></button>
+              <button class="ord-size" data-size="Large"><b>20 oz</b> Large <span>$?.??</span></button>
+            </div>
+          </div>
+        </div>
+        <div class="hot-card">
+          <img class="hot-img" src="assets/hot-coffee.png" alt="Autumn Velvet Latte" />
+          <h3>Autumn Velvet Latte</h3>
+          <p>Toasted nuttiness balanced with bright, aromatic seasonal harvest spice.</p>
+          <div class="ord" data-drink="Autumn Velvet Latte">
+            <button class="ord-btn">Add to Order</button>
+            <div class="ord-sizes" hidden>
+              <button class="ord-size" data-size="Small"><b>12 oz</b> Small <span>$?.??</span></button>
+              <button class="ord-size" data-size="Medium"><b>16 oz</b> Medium <span>$?.??</span></button>
+              <button class="ord-size" data-size="Large"><b>20 oz</b> Large <span>$?.??</span></button>
+            </div>
+          </div>
+        </div>
+        <div class="hot-card">
+          <img class="hot-img" src="assets/hot-coffee.png" alt="Toasted Marshmallow Pumpkin Hot Cocoa" />
+          <h3>Toasted Marshmallow Pumpkin Cocoa</h3>
+          <p>Caffeine-free luxury cocoa with toasted marshmallow and warm campfire spice.</p>
+          <div class="ord" data-drink="Toasted Marshmallow Pumpkin Cocoa">
+            <button class="ord-btn">Add to Order</button>
+            <div class="ord-sizes" hidden>
+              <button class="ord-size" data-size="Small"><b>12 oz</b> Small <span>$?.??</span></button>
+              <button class="ord-size" data-size="Medium"><b>16 oz</b> Medium <span>$?.??</span></button>
+              <button class="ord-size" data-size="Large"><b>20 oz</b> Large <span>$?.??</span></button>
+            </div>
+          </div>
+        </div>
+        <div class="hot-card">
+          <img class="hot-img" src="assets/hot-coffee.png" alt="Traditional French Hazelnut Café" />
+          <h3>French Hazelnut Café</h3>
+          <p>A clean, sweet aromatic baseline that lets bold, nutty accents take center stage.</p>
+          <div class="ord" data-drink="French Hazelnut Café">
+            <button class="ord-btn">Add to Order</button>
+            <div class="ord-sizes" hidden>
+              <button class="ord-size" data-size="Small"><b>12 oz</b> Small <span>$?.??</span></button>
+              <button class="ord-size" data-size="Medium"><b>16 oz</b> Medium <span>$?.??</span></button>
+              <button class="ord-size" data-size="Large"><b>20 oz</b> Large <span>$?.??</span></button>
+            </div>
+          </div>
+        </div>
+        <div class="hot-card">
+          <img class="hot-img" src="assets/hot-coffee.png" alt="Golden Caramel Macchiato" />
+          <h3>Golden Caramel Macchiato</h3>
+          <p>Custard-like vanilla milk and strong espresso, crowned with buttery caramel.</p>
+          <div class="ord" data-drink="Golden Caramel Macchiato">
+            <button class="ord-btn">Add to Order</button>
+            <div class="ord-sizes" hidden>
+              <button class="ord-size" data-size="Small"><b>12 oz</b> Small <span>$?.??</span></button>
+              <button class="ord-size" data-size="Medium"><b>16 oz</b> Medium <span>$?.??</span></button>
+              <button class="ord-size" data-size="Large"><b>20 oz</b> Large <span>$?.??</span></button>
+            </div>
+          </div>
+        </div>
+      </div>
 
-        <!-- RIGHT: customize panel (sizes + add-ons) -->
-        <aside class="byo">
-          <div>
-            <h2>Customize it</h2>
-            <p class="sub">Pick your size, then stack on a flavor.</p>
+      <!-- Mix your own hot drink -->
+      <div class="eb-launch">
+        <button class="cb-start" id="hbStart"><span class="bolt">⚡</span> Create Your Drink</button>
+        <p class="eb-sub">Mix your own hot drink</p>
+      </div>
+
+      <div class="cb-card hb-card" id="hbCard" hidden>
+        <button class="cb-close" id="hbClose" aria-label="Cancel">×</button>
+        <div class="cb-progress" id="hbProgress"></div>
+        <div class="cb-steps" id="hbSteps">
+          <div class="cb-step" data-hstep="base">
+            <h3 class="cb-q">Mocha, Latte, or Brew Coffee?</h3>
+            <div class="cb-options cb-3">
+              <button class="cb-opt" data-val="Mocha"><span class="cb-tick">✓</span><span class="cb-opt-t">Mocha</span><span class="cb-opt-d">Espresso + rich chocolate</span></button>
+              <button class="cb-opt" data-val="Latte"><span class="cb-tick">✓</span><span class="cb-opt-t">Latte</span><span class="cb-opt-d">Espresso + steamed milk</span></button>
+              <button class="cb-opt" data-val="Brew Coffee"><span class="cb-tick">✓</span><span class="cb-opt-t">Brew Coffee</span><span class="cb-opt-d">Classic hot drip</span></button>
+            </div>
           </div>
-          <div class="sizes">
-            <div class="size-chip"><div class="oz">12 oz</div><div class="lbl">Small</div><div class="pr tbd">$?.??</div></div>
-            <div class="size-chip"><div class="oz">16 oz</div><div class="lbl">Medium</div><div class="pr tbd">$?.??</div></div>
-            <div class="size-chip"><div class="oz">20 oz</div><div class="lbl">Large</div><div class="pr tbd">$?.??</div></div>
+          <div class="cb-step" data-hstep="milk">
+            <h3 class="cb-q">Choose your milk</h3>
+            <div class="cb-options cb-3">
+              <button class="cb-opt" data-val="Oatly Oat Milk"><span class="cb-tick">✓</span><span class="cb-opt-t">Oatly Oat Milk</span></button>
+              <button class="cb-opt" data-val="Regular Milk"><span class="cb-tick">✓</span><span class="cb-opt-t">Regular Milk</span></button>
+              <button class="cb-opt" data-val="No Milk"><span class="cb-tick">✓</span><span class="cb-opt-t">No Milk</span><span class="cb-opt-d">Black</span></button>
+            </div>
           </div>
-          <div class="flavor-grid addon-chips">
-            <span class="flavor-chip">Chocolate</span>
-            <span class="flavor-chip">Toffee</span>
-            <span class="flavor-chip">Toasted Marshmallow</span>
-            <span class="flavor-chip">French Vanilla</span>
-            <span class="flavor-chip">Pumpkin Spice</span>
-            <span class="flavor-chip">Lavender</span>
+          <div class="cb-step" data-hstep="flavors">
+            <h3 class="cb-q">Add your flavors</h3>
+            <p class="cb-hint">Tap all you like — or skip.</p>
+            <div class="cb-fcols">
+              <div class="cb-fcol">
+                <span class="cb-flabel">Classic</span>
+                <div class="cb-chips">
+                  <button class="cb-chip" data-val="Chocolate">Chocolate</button>
+                  <button class="cb-chip" data-val="Toffee">Toffee</button>
+                  <button class="cb-chip" data-val="Toasted Marshmallow">Toasted Marshmallow</button>
+                  <button class="cb-chip" data-val="French Vanilla">French Vanilla</button>
+                  <button class="cb-chip" data-val="Pumpkin Spice">Pumpkin Spice</button>
+                  <button class="cb-chip" data-val="Lavender">Lavender</button>
+                  <button class="cb-chip" data-val="Cinnamon">Cinnamon</button>
+                  <button class="cb-chip" data-val="Caramel">Caramel</button>
+                </div>
+              </div>
+              <div class="cb-fcol cb-fcol-sf">
+                <span class="cb-flabel cb-flabel-sf">Sugar-Free</span>
+                <div class="cb-chips">
+                  <button class="cb-chip cb-chip-sf" data-val="Sugar-Free Vanilla">Vanilla</button>
+                  <button class="cb-chip cb-chip-sf" data-val="Sugar-Free Caramel">Caramel</button>
+                  <button class="cb-chip cb-chip-sf" data-val="Sugar-Free Hazelnut">Hazelnut</button>
+                  <button class="cb-chip cb-chip-sf" data-val="Sugar-Free Mocha">Mocha</button>
+                </div>
+              </div>
+            </div>
           </div>
-          <p class="oat-note">Oat milk <b>+$0.50</b></p>
-        </aside>
+          <div class="cb-step" data-hstep="size">
+            <h3 class="cb-q">Pick your size</h3>
+            <div class="cb-options cb-3">
+              <button class="cb-opt cb-size" data-size="Small"><span class="cb-tick">✓</span><span class="cb-opt-oz">12 oz</span><span class="cb-opt-t">Small</span><span class="cb-opt-d">$?.??</span></button>
+              <button class="cb-opt cb-size" data-size="Medium"><span class="cb-tick">✓</span><span class="cb-opt-oz">16 oz</span><span class="cb-opt-t">Medium</span><span class="cb-opt-d">$?.??</span></button>
+              <button class="cb-opt cb-size" data-size="Large"><span class="cb-tick">✓</span><span class="cb-opt-oz">20 oz</span><span class="cb-opt-t">Large</span><span class="cb-opt-d">$?.??</span></button>
+            </div>
+          </div>
+          <div class="cb-step" data-hstep="done">
+            <div class="cb-done">
+              <div class="cb-check">✓</div>
+              <h3>Added to your order!</h3>
+              <p class="cb-sum" id="hbDoneSummary"></p>
+              <div class="cb-done-actions">
+                <button class="cb-next" id="hbAnother">Make another</button>
+                <button class="cb-back" id="hbViewCart">View order →</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="cb-nav" id="hbNav">
+          <button class="cb-back" id="hbBack" hidden>← Back</button>
+          <button class="cb-next" id="hbNext" hidden>Next →</button>
+        </div>
       </div>
     </div>
   </section>
@@ -1008,20 +1140,65 @@
   overlay.addEventListener('click', closeCart);
   document.getElementById('cartClear').addEventListener('click', ()=>{ cart.length=0; renderCart(); });
 
-  /* ===== ENERGY: per-drink Add to Order ===== */
-  const energyPanel=document.querySelector('[data-panel="energy"]');
-  energyPanel.addEventListener('click', e=>{
+  /* ===== per-drink Add to Order (Energy + Hot featured) ===== */
+  function ordHandler(e){
     const addBtn=e.target.closest('.ord-btn');
     if(addBtn){ const s=addBtn.parentElement.querySelector('.ord-sizes'); s.hidden=!s.hidden; return; }
     const sizeBtn=e.target.closest('.ord-size');
     if(sizeBtn){
       const ord=sizeBtn.closest('.ord'); const name=ord.dataset.drink; const size=sizeBtn.dataset.size;
-      cart.push({name, detail:'Energy Refresher', size}); bumpCart(); renderCart();
+      const isHot = !!ord.closest('[data-panel="hot"]');
+      cart.push({name, detail: isHot?'Hot Drink':'Energy Refresher', size}); bumpCart(); renderCart();
       ord.querySelector('.ord-sizes').hidden=true;
       const b=ord.querySelector('.ord-btn'); const t=b.innerHTML; b.classList.add('added'); b.textContent='Added ✓';
       setTimeout(()=>{ b.classList.remove('added'); b.innerHTML=t; }, 1400);
     }
+  }
+  document.querySelectorAll('[data-panel="energy"],[data-panel="hot"]').forEach(p=>p.addEventListener('click', ordHandler));
+
+  /* ===== HOT: Create Your Drink (mix) ===== */
+  const hbCard=document.getElementById('hbCard'), hbLaunch=document.querySelector('[data-panel="hot"] .eb-launch');
+  const hbStepsEls=[...document.querySelectorAll('#hbSteps .cb-step')];
+  const hbFlow=['base','milk','flavors','size'];
+  let hbIdx=0; const hbOrder={base:null, milk:null, flavors:[], size:null};
+  const hbProg=document.getElementById('hbProgress'), hbBack=document.getElementById('hbBack'), hbNext=document.getElementById('hbNext'), hbNav=document.getElementById('hbNav');
+  const hbFlavorsStep=document.querySelector('#hbSteps [data-hstep="flavors"]');
+  const hbStepEl=n=>hbStepsEls.find(s=>s.dataset.hstep===n);
+  function hbProgRender(){ hbProg.innerHTML=''; hbFlow.forEach((_,i)=>{ const b=document.createElement('i'); if(i<hbIdx)b.className='done'; if(i===hbIdx)b.className='cur'; hbProg.appendChild(b); }); }
+  function hbSync(){ const map={base:hbOrder.base, milk:hbOrder.milk, size:hbOrder.size};
+    hbStepsEls.forEach(s=>{ const k=s.dataset.hstep; s.querySelectorAll('.cb-opt').forEach(o=>o.classList.toggle('sel', map[k]!=null && (o.dataset.val===map[k]||o.dataset.size===map[k]))); });
+    hbFlavorsStep.querySelectorAll('.cb-chip').forEach(c=>c.classList.toggle('sel', hbOrder.flavors.includes(c.dataset.val))); }
+  function hbUpdateNav(){ const n=hbFlow[hbIdx]; hbBack.hidden=false;
+    if(n==='flavors'){ hbNext.hidden=false; hbNext.textContent='Next →'; hbNext.disabled=false; }
+    else if(n==='size'){ hbNext.hidden=false; hbNext.textContent='Add to Order'; hbNext.disabled=!hbOrder.size; }
+    else hbNext.hidden=true; }
+  function hbShow(i,dir){ hbIdx=i; const n=hbFlow[i]; hbNav.style.display='';
+    hbStepsEls.forEach(s=>s.classList.remove('is-active','in-right','in-left'));
+    hbStepEl(n).classList.add('is-active', dir==='back'?'in-left':'in-right');
+    hbProgRender(); hbSync(); hbUpdateNav(); }
+  function hbNextStep(){ if(hbIdx<hbFlow.length-1) hbShow(hbIdx+1,'fwd'); }
+  function hbOpen(){ hbLaunch.hidden=true; hbCard.hidden=false; hbOrder.base=null; hbOrder.milk=null; hbOrder.flavors=[]; hbOrder.size=null; hbFlavorsStep.querySelectorAll('.cb-chip').forEach(c=>c.classList.remove('sel')); hbNav.style.display=''; hbShow(0,'fwd'); }
+  function hbClose(){ hbCard.hidden=true; hbLaunch.hidden=false; }
+  function hbAdd(){ const flav=hbOrder.flavors.length? hbOrder.flavors.join(' + '):'No flavors'; const detail=`${hbOrder.milk} · ${flav}`;
+    cart.push({name:hbOrder.base, detail, size:hbOrder.size}); bumpCart(); renderCart();
+    document.getElementById('hbDoneSummary').textContent=`${SIZE_OZ[hbOrder.size]} ${hbOrder.base} — ${detail}`;
+    hbStepsEls.forEach(s=>s.classList.remove('is-active','in-right','in-left')); hbNav.style.display='none'; hbStepEl('done').classList.add('is-active','in-right'); }
+  document.getElementById('hbStart').addEventListener('click', hbOpen);
+  document.getElementById('hbClose').addEventListener('click', hbClose);
+  document.getElementById('hbSteps').addEventListener('click', e=>{
+    const opt=e.target.closest('.cb-opt');
+    if(opt){ const step=opt.closest('.cb-step').dataset.hstep;
+      if(step==='base'){ hbOrder.base=opt.dataset.val; opt.parentElement.querySelectorAll('.cb-opt').forEach(o=>o.classList.remove('sel')); opt.classList.add('sel'); setTimeout(hbNextStep,260); }
+      else if(step==='milk'){ hbOrder.milk=opt.dataset.val; opt.parentElement.querySelectorAll('.cb-opt').forEach(o=>o.classList.remove('sel')); opt.classList.add('sel'); setTimeout(hbNextStep,260); }
+      else if(step==='size'){ hbOrder.size=opt.dataset.size; opt.parentElement.querySelectorAll('.cb-opt').forEach(o=>o.classList.remove('sel')); opt.classList.add('sel'); hbUpdateNav(); }
+      return; }
+    const chip=e.target.closest('.cb-chip');
+    if(chip){ chip.classList.toggle('sel'); hbOrder.flavors=[...hbFlavorsStep.querySelectorAll('.cb-chip.sel')].map(c=>c.dataset.val); }
   });
+  hbBack.addEventListener('click', ()=>{ if(hbIdx>0) hbShow(hbIdx-1,'back'); else hbClose(); });
+  hbNext.addEventListener('click', ()=>{ const n=hbFlow[hbIdx]; if(n==='flavors') hbNextStep(); else if(n==='size'&&hbOrder.size) hbAdd(); });
+  document.getElementById('hbAnother').addEventListener('click', hbOpen);
+  document.getElementById('hbViewCart').addEventListener('click', openCart);
 
   /* init */
   buildFlow(); show(0,'fwd'); renderCart();
