@@ -233,10 +233,11 @@
   .orb-grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:18px; margin-bottom:26px; }
   .orb-card{ position:relative; text-align:center; padding:34px 16px 26px; background:var(--bg-card); border:1px solid var(--gold-faint); border-radius:12px; overflow:hidden; transition:transform .25s var(--ease), border-color .25s var(--ease), box-shadow .25s var(--ease); }
   .orb-card:hover{ transform:translateY(-6px); border-color:color-mix(in srgb, var(--c) 50%, transparent); box-shadow:0 20px 40px rgba(0,0,0,.45); }
-  .orb{ width:118px; height:118px; margin:0 auto 18px; border-radius:50%; position:relative; background:radial-gradient(circle at 38% 32%, color-mix(in srgb, var(--c) 80%, white) 0%, var(--c) 46%, color-mix(in srgb, var(--c) 55%, black) 100%); box-shadow:0 0 44px -4px var(--c), inset 0 -10px 24px rgba(0,0,0,.35); }
-  .orb::after{ content:""; position:absolute; inset:0; border-radius:50%; background:radial-gradient(circle at 38% 28%, rgba(255,255,255,.55), transparent 42%); }
-  .orb-card h4{ font-family:"Anton",sans-serif; font-size:19px; color:#fff; text-transform:uppercase; line-height:1.1; }
-  .orb-card .num{ position:absolute; top:12px; right:14px; font-family:"Anton",sans-serif; font-size:13px; color:var(--cream-85); opacity:.4; }
+  .orb-glow{ position:absolute; left:50%; top:42%; width:150%; aspect-ratio:1; transform:translate(-50%,-50%); border-radius:50%; background:radial-gradient(circle, var(--c), transparent 60%); opacity:.4; filter:blur(14px); z-index:0; transition:opacity .25s var(--ease); }
+  .orb-card:hover .orb-glow{ opacity:.6; }
+  .orb-img{ position:relative; z-index:1; display:block; height:160px; width:auto; max-width:100%; object-fit:contain; margin:0 auto 14px; filter:drop-shadow(0 14px 22px rgba(0,0,0,.5)); }
+  .orb-card h4{ position:relative; z-index:1; font-family:"Anton",sans-serif; font-size:19px; color:#fff; text-transform:uppercase; line-height:1.1; }
+  .orb-card .num{ position:absolute; top:12px; right:14px; z-index:2; font-family:"Anton",sans-serif; font-size:13px; color:var(--cream-85); opacity:.4; }
 
   .spotlight{ position:relative; margin-top:8px; border-radius:16px; overflow:hidden; border:1px solid var(--gold-20);
     background:radial-gradient(70% 130% at 15% 50%, rgba(245,197,24,.16), transparent 60%), linear-gradient(120deg, #1b1405, #0c1109);
@@ -714,15 +715,15 @@
         </div>
         <div class="spotlight-visual">
           <span class="so-glow"></span>
-          <img src="assets/cup-mango.png" alt="Spicy Mango refresher" />
+          <img src="assets/SpicyMango.png" alt="Spicy Mango refresher" />
         </div>
       </div>
 
       <div class="orb-grid">
-        <div class="orb-card" style="--c:#f97316"><span class="num">01</span><div class="orb"></div><h4>Georgia Peach</h4></div>
-        <div class="orb-card" style="--c:#22c55e"><span class="num">02</span><div class="orb"></div><h4>Green Apple Jolly</h4></div>
-        <div class="orb-card" style="--c:#ef4444"><span class="num">03</span><div class="orb"></div><h4>Watermelon Jolly</h4></div>
-        <div class="orb-card" style="--c:#3b82f6"><span class="num">04</span><div class="orb"></div><h4>Blue Raspberry Lemonade</h4></div>
+        <div class="orb-card" style="--c:#f97316"><span class="num">01</span><span class="orb-glow"></span><img class="orb-img" src="assets/PeachDrink.png" alt="Georgia Peach refresher" /><h4>Georgia Peach</h4></div>
+        <div class="orb-card" style="--c:#22c55e"><span class="num">02</span><span class="orb-glow"></span><img class="orb-img" src="assets/apple.png" alt="Green Apple Jolly refresher" /><h4>Green Apple Jolly</h4></div>
+        <div class="orb-card" style="--c:#ef4444"><span class="num">03</span><span class="orb-glow"></span><img class="orb-img" src="assets/watermelon.png" alt="Watermelon Jolly refresher" /><h4>Watermelon Jolly</h4></div>
+        <div class="orb-card" style="--c:#3b82f6"><span class="num">04</span><span class="orb-glow"></span><img class="orb-img" src="assets/BlueRasberry.png" alt="Blue Raspberry Lemonade refresher" /><h4>Blue Raspberry Lemonade</h4></div>
       </div>
     </div>
   </section>
