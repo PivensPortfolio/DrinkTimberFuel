@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Timber Fuel — Drinks Done Bold</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Oswald:wght@400;500;600;700&family=Barlow+Condensed:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&display=swap" rel="stylesheet" />
+<style>
+  /* =================================================================
+     TIMBER FUEL — mockup rebuilt to match Figma (node 1:2)
+     Real Figma assets in /assets. Tokens lifted from the design.
+     ================================================================= */
+  :root{
+    --bg:        #060c08;
+    --bg-tab:    #0a120d;
+    --bg-card:   #0c140f;
+    --gold:      #f5c518;
+    --fire:      #e8620a;
+    --amber:     #c87418;
+    --cream:     #e8e0c4;
+    --cream-85:  rgba(232,224,196,.85);
+    --muted:     #69616b;
+    --gold-faint:rgba(245,197,24,.12);
+    --gold-20:   rgba(245,197,24,.2);
+    --gold-60:   rgba(245,197,24,.6);
+    --hours-bg:  rgba(3,7,4,.88);
+    --maxw: 1200px;
+    --ease: cubic-bezier(.2,.7,.2,1);
+  }
+  *{ box-sizing:border-box; margin:0; padding:0; }
+  html{ scroll-behavior:smooth; scroll-padding-top:160px; }
+  body{ background:var(--bg); color:var(--cream); font-family:"Barlow Condensed",sans-serif; -webkit-font-smoothing:antialiased; overflow-x:hidden; }
+  a{ color:inherit; text-decoration:none; }
+  img{ display:block; max-width:100%; }
+
+  .anton{ font-family:"Anton",sans-serif; font-weight:400; }
+  .oswald{ font-family:"Oswald",sans-serif; }
+  .wrap{ width:100%; max-width:var(--maxw); margin:0 auto; padding:0 28px; }
+
+  .bolt{ display:inline-block; line-height:1; }
+
+  /* =================================================================
+     HEADER
+     ================================================================= */
+  .header{
+    position:sticky; top:0; z-index:120; height:84px;
+    background:rgba(6,12,8,.92); backdrop-filter:blur(12px);
+    border-bottom:1px solid var(--gold-faint);
+  }
+  .header-inner{ height:100%; display:flex; align-items:center; justify-content:space-between; }
+  .brand-logo{ height:60px; width:auto; }
+  .topnav{ display:flex; align-items:center; gap:34px; }
+  .topnav a{
+    font-family:"Oswald",sans-serif; font-weight:500; text-transform:uppercase;
+    letter-spacing:2px; font-size:13px; color:var(--cream-85);
+    display:flex; align-items:center; gap:6px; transition:color .2s var(--ease);
+  }
+  .topnav a:hover{ color:var(--gold); }
+  .topnav .caret{ font-size:9px; opacity:.7; }
+  .order-now{
+    font-family:"Oswald",sans-serif; font-weight:700; text-transform:uppercase;
+    letter-spacing:1.5px; font-size:12px; color:var(--bg); background:var(--gold);
+    padding:9px 18px; border-radius:2px; display:inline-flex; align-items:center; gap:6px;
+    box-shadow:0 4px 14px rgba(245,197,24,.28); transition:transform .2s var(--ease), box-shadow .2s var(--ease);
+  }
+  .order-now:hover{ transform:translateY(-1px); box-shadow:0 6px 20px rgba(245,197,24,.45); color:var(--bg); }
+
+  /* =================================================================
+     HERO
+     ================================================================= */
+  .hero{ position:relative; min-height:760px; overflow:hidden; isolation:isolate; }
+  .hero-bg{ position:absolute; inset:0; z-index:-3; background:url("assets/hero-bg.jpg") center top/cover no-repeat; }
+  /* gradient overlay (from Figma) */
+  .hero-bg::after{
+    content:""; position:absolute; inset:0;
+    background:
+      radial-gradient(46% 30% at 50% 50%, rgba(200,116,24,.32), rgba(232,98,10,.12) 40%, transparent 70%),
+      linear-gradient(180deg, rgba(4,8,5,.6) 0%, rgba(4,8,5,.05) 25%, rgba(4,8,5,.1) 50%, rgba(4,8,5,.75) 75%, var(--bg) 100%);
+  }
+  .hero-content{
+    position:relative; z-index:4; max-width:1100px; margin:0 auto; padding:64px 28px 150px;
+    display:flex; flex-direction:column; align-items:center; text-align:center;
+  }
+  .hero-logo{ width:min(533px,72vw); height:auto; filter:drop-shadow(0 16px 34px rgba(0,0,0,.5)); animation:rise .9s var(--ease) both; }
+
+  .divider{ display:flex; align-items:center; gap:8px; width:min(520px,80vw); margin:18px 0 6px; animation:rise .9s .1s var(--ease) both; }
+  .divider .line{ height:1px; flex:1; }
+  .divider .line.l{ background:linear-gradient(90deg, transparent, var(--gold-60)); }
+  .divider .line.r{ background:linear-gradient(270deg, transparent, var(--gold-60)); }
+  .divider .b1{ color:var(--gold); } .divider .b2{ color:var(--fire); } .divider .b3{ color:var(--gold); }
+  .divider span{ font-size:13px; }
+
+  .hero-h1{ color:#fff; font-size:clamp(28px,4.2vw,51px); line-height:1; text-transform:uppercase; letter-spacing:1px; text-shadow:0 3px 16px rgba(0,0,0,.5); animation:rise .9s .16s var(--ease) both; }
+  .hero-h2{ color:var(--gold); font-size:clamp(42px,6.2vw,72px); line-height:1; text-transform:uppercase; letter-spacing:.7px; margin-top:4px; text-shadow:0 0 30px rgba(245,197,24,.35), 0 3px 16px rgba(0,0,0,.5); animation:rise .9s .22s var(--ease) both; }
+  .hero-loc{ margin-top:12px; font-family:"Barlow Condensed",sans-serif; text-transform:uppercase; letter-spacing:5px; font-size:12px; color:var(--cream-85); animation:rise .9s .28s var(--ease) both; }
+
+  .hours{ display:flex; width:460px; max-width:90vw; margin-top:28px; background:var(--hours-bg); border:1px solid var(--gold-20); animation:rise .9s .34s var(--ease) both; }
+  .hours .cell{ flex:1; padding:12px 10px; text-align:center; }
+  .hours .cell+.cell{ border-left:1px solid var(--gold-faint); }
+  .hours .k{ font-family:"Oswald",sans-serif; font-weight:700; text-transform:uppercase; letter-spacing:1.2px; font-size:10px; color:var(--fire); }
+  .hours .v{ font-family:"Anton",sans-serif; text-transform:uppercase; font-size:16px; color:#fff; margin-top:5px; }
+
+  /* flanking drink photos */
+  .hero-cup{ position:absolute; bottom:96px; z-index:3; pointer-events:none; filter:drop-shadow(0 22px 30px rgba(0,0,0,.55)); }
+  .hero-cup.left{ left:max(2%, calc(50% - 560px)); width:clamp(220px,26vw,360px); animation:riseL 1s .25s var(--ease) both; }
+  .hero-cup.right{ right:max(2%, calc(50% - 540px)); width:clamp(200px,24vw,320px); bottom:104px; animation:riseR 1s .25s var(--ease) both; }
+
+  /* treeline blend */
+  .treeline{ position:absolute; left:0; right:0; bottom:0; z-index:2; line-height:0; }
+  .treeline svg{ width:100%; height:90px; display:block; }
+
+  @keyframes rise{ from{opacity:0; transform:translateY(22px);} to{opacity:1; transform:none;} }
+  @keyframes riseL{ from{opacity:0; transform:translateY(40px) translateX(-12px);} to{opacity:1; transform:none;} }
+  @keyframes riseR{ from{opacity:0; transform:translateY(40px) translateX(12px);} to{opacity:1; transform:none;} }
+
+  /* =================================================================
+     TAB NAVIGATION (sticky under header)
+     ================================================================= */
+  .tabnav{
+    position:sticky; top:84px; z-index:110;
+    background:var(--bg-tab); border-top:1px solid var(--gold-faint); border-bottom:1px solid var(--gold-faint);
+    display:flex; justify-content:center;
+  }
+  .tabnav .tabs{ display:flex; }
+  .tabnav button{
+    font-family:"Oswald",sans-serif; font-weight:700; text-transform:uppercase; font-size:18px;
+    color:var(--cream-85); background:none; border:none; border-bottom:4px solid transparent;
+    padding:24px 32px; cursor:pointer; transition:color .2s var(--ease), border-color .2s var(--ease);
+  }
+  .tabnav button:hover{ color:var(--gold); }
+  .tabnav button.active{ color:var(--gold); border-bottom-color:var(--gold); }
+
+  /* =================================================================
+     SECTION PANELS
+     ================================================================= */
+  .panel{ display:none; }
+  .panel.active{ display:block; animation:fade .4s var(--ease) both; }
+  @keyframes fade{ from{opacity:0; transform:translateY(10px);} to{opacity:1; transform:none;} }
+
+  /* ---- COLD DRINKS (designed) ---- */
+  .cold-grid{ position:relative; display:grid; grid-template-columns:1fr 480px; gap:40px; align-items:start; padding:100px 0; }
+
+  .eyebrow{
+    display:inline-flex; align-items:center; gap:8px; font-family:"Oswald",sans-serif; font-weight:700;
+    text-transform:uppercase; letter-spacing:1px; font-size:11px; color:var(--gold);
+    background:var(--gold-20); border:1px solid var(--gold); border-radius:2px; padding:6px 12px;
+  }
+  .sig-head h2{ font-family:"Anton",sans-serif; font-size:clamp(38px,5vw,56px); color:#fff; text-transform:uppercase; line-height:1.02; margin-top:16px; }
+  .sig-head p.lead{ font-size:20px; color:var(--cream-85); margin-top:14px; }
+
+  .combo-list{ margin-top:48px; display:flex; flex-direction:column; gap:16px; }
+  .combo-card{
+    background:var(--bg-card); border:1px solid var(--gold-faint); border-radius:8px; padding:32px;
+    display:flex; gap:20px; align-items:center; transition:transform .25s var(--ease), border-color .25s var(--ease), box-shadow .25s var(--ease);
+  }
+  .combo-card:hover{ transform:translateX(4px); border-color:var(--gold-20); box-shadow:0 16px 32px rgba(0,0,0,.35); }
+  .combo-card .ic{ width:56px; height:56px; flex-shrink:0; object-fit:contain; filter:drop-shadow(0 4px 10px rgba(0,0,0,.4)); }
+  .combo-card h3{ font-family:"Anton",sans-serif; font-size:28px; color:#fff; text-transform:uppercase; line-height:1.05; }
+  .combo-card p{ font-size:16px; color:var(--cream-85); margin-top:8px; }
+
+  /* cold brew cup floating near heading */
+  .cold-cup{ position:absolute; top:78px; right:520px; width:150px; z-index:3; pointer-events:none; filter:drop-shadow(0 20px 28px rgba(0,0,0,.55)); }
+
+  /* build your own panel */
+  .byo{ background:var(--bg-tab); border:1px solid var(--gold-faint); border-radius:8px; padding:40px; display:flex; flex-direction:column; gap:40px; position:sticky; top:180px; }
+  .byo h2{ font-family:"Anton",sans-serif; font-size:40px; color:var(--gold); text-transform:uppercase; line-height:1.05; }
+  .byo .sub{ font-size:18px; color:var(--cream-85); margin-top:12px; }
+  .flavor-grid{ display:flex; flex-wrap:wrap; gap:12px; }
+  .flavor-chip{
+    font-family:"Oswald",sans-serif; font-weight:600; text-transform:uppercase; font-size:14px; color:var(--gold);
+    background:var(--bg); border:1px solid var(--gold); border-radius:2px; padding:10px 16px; cursor:pointer;
+    transition:background .18s var(--ease), color .18s var(--ease), transform .12s var(--ease);
+  }
+  .flavor-chip:hover{ transform:translateY(-1px); }
+  .flavor-chip.selected{ background:var(--gold); color:var(--bg); }
+  .byo-cta{ display:flex; flex-direction:column; gap:20px; }
+  .byo-cta button{
+    width:100%; font-family:"Anton",sans-serif; font-size:20px; text-transform:uppercase; color:var(--bg);
+    background:var(--gold); border:none; border-radius:2px; padding:18px; cursor:pointer;
+    box-shadow:0 4px 6px rgba(245,197,24,.25); transition:transform .15s var(--ease), box-shadow .15s var(--ease);
+  }
+  .byo-cta button:hover{ transform:translateY(-1px); box-shadow:0 8px 18px rgba(245,197,24,.4); }
+  .byo-cta .note{ font-family:"Barlow Condensed",sans-serif; font-style:italic; font-size:14px; color:var(--muted); text-align:center; }
+  .byo-cta .note.live{ color:var(--gold); font-style:normal; font-weight:600; }
+
+  /* ---- placeholder panels (Hot / Energy — not yet in Figma) ---- */
+  .soon{ text-align:center; padding:120px 0 130px; }
+  .soon .ic{ width:64px; height:64px; margin:0 auto 22px; opacity:.9; }
+  .soon h2{ font-family:"Anton",sans-serif; font-size:clamp(34px,5vw,52px); color:#fff; text-transform:uppercase; }
+  .soon h2 em{ color:var(--gold); font-style:normal; }
+  .soon p{ font-size:19px; color:var(--cream-85); margin-top:14px; max-width:560px; margin-inline:auto; }
+  .soon .tag{ display:inline-block; margin-top:24px; font-family:"Oswald",sans-serif; font-weight:700; text-transform:uppercase; letter-spacing:2px; font-size:12px; color:var(--gold); border:1px solid var(--gold-20); border-radius:2px; padding:8px 16px; }
+
+  /* =================================================================
+     FOOTER TRANSITION
+     ================================================================= */
+  .footer-transition{ display:flex; flex-direction:column; align-items:center; padding:60px 0; gap:18px; }
+  .footer-transition .line{ width:100px; height:2px; background:linear-gradient(90deg, transparent, var(--muted), transparent); }
+  .footer-transition p{ font-family:"Oswald",sans-serif; font-weight:700; text-transform:uppercase; letter-spacing:2px; font-size:14px; color:var(--muted); }
+
+  /* =================================================================
+     SIZES STRIP (Hot / Energy — from brief; Figma folded pricing out of Cold)
+     ================================================================= */
+  .sizes{ display:flex; gap:12px; flex-wrap:wrap; }
+  .size-chip{ flex:1; min-width:120px; text-align:center; background:var(--bg-card); border:1px solid var(--gold-faint); border-radius:8px; padding:14px 10px; }
+  .size-chip .oz{ font-family:"Anton",sans-serif; font-size:23px; color:#fff; }
+  .size-chip .lbl{ font-family:"Oswald",sans-serif; font-weight:600; text-transform:uppercase; letter-spacing:2px; font-size:11px; color:var(--cream-85); margin:3px 0 8px; }
+  .size-chip .pr{ font-family:"Barlow Condensed",sans-serif; font-weight:700; font-size:20px; color:var(--gold); }
+  .size-chip .pr.tbd{ color:var(--amber); }
+  .size-chip.confirmed{ border-color:var(--gold-20); }
+
+  /* ---- hot add-on chips static + oat note ---- */
+  .addon-chips .flavor-chip{ cursor:default; }
+  .oat-note{ font-size:15px; color:var(--cream-85); }
+  .oat-note b{ color:var(--fire); }
+  .ph-note{ display:block; margin-top:8px; font-family:"Oswald",sans-serif; font-size:10px; letter-spacing:2px; text-transform:uppercase; color:var(--fire); opacity:.85; }
+
+  /* =================================================================
+     ENERGY REFRESHERS (built in-style; not yet in Figma)
+     ================================================================= */
+  .energy-wrap{ padding:90px 0 60px; }
+  .energy-head{ text-align:center; margin-bottom:36px; }
+  .energy-head h2{ font-family:"Anton",sans-serif; font-size:clamp(38px,5vw,56px); color:#fff; text-transform:uppercase; margin-top:16px; }
+  .energy-head h2 em{ color:var(--gold); font-style:normal; }
+  .orb-grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:18px; margin-bottom:26px; }
+  .orb-card{ position:relative; text-align:center; padding:34px 16px 26px; background:var(--bg-card); border:1px solid var(--gold-faint); border-radius:12px; overflow:hidden; transition:transform .25s var(--ease), border-color .25s var(--ease), box-shadow .25s var(--ease); }
+  .orb-card:hover{ transform:translateY(-6px); border-color:color-mix(in srgb, var(--c) 50%, transparent); box-shadow:0 20px 40px rgba(0,0,0,.45); }
+  .orb{ width:118px; height:118px; margin:0 auto 18px; border-radius:50%; position:relative; background:radial-gradient(circle at 38% 32%, color-mix(in srgb, var(--c) 80%, white) 0%, var(--c) 46%, color-mix(in srgb, var(--c) 55%, black) 100%); box-shadow:0 0 44px -4px var(--c), inset 0 -10px 24px rgba(0,0,0,.35); }
+  .orb::after{ content:""; position:absolute; inset:0; border-radius:50%; background:radial-gradient(circle at 38% 28%, rgba(255,255,255,.55), transparent 42%); }
+  .orb-card h4{ font-family:"Anton",sans-serif; font-size:19px; color:#fff; text-transform:uppercase; line-height:1.1; }
+  .orb-card .num{ position:absolute; top:12px; right:14px; font-family:"Anton",sans-serif; font-size:13px; color:var(--cream-85); opacity:.4; }
+
+  .spotlight{ position:relative; margin-top:8px; border-radius:16px; overflow:hidden; border:1px solid var(--gold-20);
+    background:radial-gradient(70% 130% at 15% 50%, rgba(245,197,24,.16), transparent 60%), linear-gradient(120deg, #1b1405, #0c1109);
+    display:grid; grid-template-columns:1.1fr .9fr; gap:24px; align-items:center; padding:36px 44px; box-shadow:0 30px 60px rgba(0,0,0,.5); }
+  .spotlight .badge{ display:inline-flex; align-items:center; gap:8px; font-family:"Oswald",sans-serif; font-weight:700; text-transform:uppercase; letter-spacing:2px; font-size:11px; color:var(--bg); background:var(--gold); padding:7px 14px; border-radius:2px; box-shadow:0 0 20px rgba(245,197,24,.5); }
+  .spotlight h3{ font-family:"Anton",sans-serif; font-size:clamp(40px,5vw,64px); color:var(--gold); text-transform:uppercase; line-height:.95; margin:16px 0 6px; text-shadow:0 0 30px rgba(245,197,24,.35); }
+  .spotlight .kick{ font-family:"Barlow Condensed",sans-serif; font-style:italic; font-weight:600; font-size:22px; color:var(--cream); }
+  .spotlight .meta{ margin-top:18px; display:flex; gap:18px; align-items:center; flex-wrap:wrap; }
+  .spotlight .meta .price{ font-family:"Anton",sans-serif; font-size:30px; color:#fff; }
+  .spotlight .meta .price small{ font-family:"Oswald",sans-serif; font-size:13px; letter-spacing:1px; color:var(--cream-85); }
+  .spotlight-visual{ position:relative; display:flex; justify-content:center; align-items:center; }
+  .spotlight-visual .so-glow{ position:absolute; inset:-12% 0; background:radial-gradient(circle, rgba(245,197,24,.5), transparent 62%); filter:blur(16px); }
+  .spotlight-visual img{ position:relative; width:min(260px,62%); filter:drop-shadow(0 22px 30px rgba(0,0,0,.55)); }
+
+  /* =================================================================
+     RESPONSIVE
+     ================================================================= */
+  @media (max-width:1100px){
+    .cold-grid{ grid-template-columns:1fr; }
+    .byo{ position:static; }
+    .cold-cup{ display:none; }
+  }
+  @media (max-width:1100px){
+    .orb-grid{ grid-template-columns:repeat(2,1fr); }
+    .spotlight{ grid-template-columns:1fr; text-align:center; }
+    .spotlight .meta{ justify-content:center; }
+    .spotlight-visual{ order:-1; }
+  }
+  @media (max-width:820px){
+    .topnav{ display:none; }
+    .hero-cup{ display:none; }
+    .tabnav button{ padding:18px 16px; font-size:14px; }
+    .tabnav{ top:84px; }
+    .combo-card{ padding:22px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ============================ HEADER ============================ -->
+<header class="header">
+  <div class="wrap header-inner">
+    <a href="#top"><img class="brand-logo" src="assets/logo.png" alt="Timber Fuel" /></a>
+    <nav class="topnav">
+      <a href="#menu">Menu <span class="caret">▼</span></a>
+      <a href="#about">About Us</a>
+      <a href="#hours">Hours</a>
+      <a href="#contact">Contact</a>
+    </nav>
+    <a href="#menu" class="order-now"><span class="bolt">⚡</span> Order Now</a>
+  </div>
+</header>
+
+<!-- ============================ HERO ============================ -->
+<section class="hero" id="top">
+  <div class="hero-bg"></div>
+
+  <img class="hero-cup left"  src="assets/cup-coldbrew.png" alt="Cold brew" />
+  <img class="hero-cup right" src="assets/cup-mango.png"    alt="Spicy Mango refresher" />
+
+  <div class="hero-content">
+    <img class="hero-logo" src="assets/logo.png" alt="Timber Fuel — Fuel for the Northwoods" />
+    <div class="divider">
+      <span class="line l"></span>
+      <span class="b1">⚡</span><span class="b2">⚡</span><span class="b3">⚡</span>
+      <span class="line r"></span>
+    </div>
+    <h1 class="hero-h1 anton">Hot · Cold · Energy</h1>
+    <div class="hero-h2 anton">Drinks Done Bold</div>
+    <div class="hero-loc">Cass Lake, Minnesota</div>
+
+    <div class="hours" id="hours">
+      <div class="cell"><div class="k">☀️ Morning Fuel</div><div class="v">6:00–7:45 AM</div></div>
+      <div class="cell"><div class="k">🌤 Midday Fuel</div><div class="v">11:00 AM–12:15 PM</div></div>
+    </div>
+  </div>
+
+  <div class="treeline">
+    <svg viewBox="0 0 1440 90" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+      <path fill="#0a140d" d="M0,90 V58 L34,40 L60,56 L86,34 L118,56 L150,40 L184,58 L214,36 L250,56 L284,42 L318,58 L352,34 L388,56 L420,42 L456,58 L490,36 L524,54 L558,42 L594,58 L628,36 L662,56 L698,44 L732,58 L766,36 L800,54 L836,42 L870,58 L904,38 L938,56 L972,44 L1006,58 L1040,36 L1074,54 L1108,42 L1142,58 L1176,38 L1210,56 L1244,44 L1278,58 L1312,38 L1346,54 L1380,44 L1410,58 L1440,40 V90 Z"/>
+      <path fill="#060c08" d="M0,90 V72 L28,52 L52,68 L80,46 L112,68 L146,50 L178,70 L210,48 L244,68 L278,52 L312,70 L346,46 L380,68 L414,52 L448,70 L482,48 L516,66 L550,52 L584,70 L618,48 L652,68 L686,54 L720,70 L754,48 L788,66 L822,52 L856,70 L890,50 L924,68 L958,54 L992,70 L1026,48 L1060,66 L1094,52 L1128,70 L1162,50 L1196,68 L1230,54 L1264,70 L1298,50 L1332,66 L1366,54 L1400,70 L1440,52 V90 Z"/>
+    </svg>
+  </div>
+</section>
+
+<!-- ============================ TAB NAVIGATION ============================ -->
+<nav class="tabnav" id="menu">
+  <div class="tabs">
+    <button data-tab="hot">Hot Drinks</button>
+    <button data-tab="cold" class="active">Cold Drinks</button>
+    <button data-tab="energy">Energy Refreshers</button>
+  </div>
+</nav>
+
+<main style="background:var(--bg);">
+  <!-- ===== HOT DRINKS (built in-style; names/prices = brief placeholders) ===== -->
+  <section class="panel" data-panel="hot">
+    <div class="wrap" style="padding:100px 0;">
+      <div class="cold-grid">
+        <!-- LEFT: hot drink list -->
+        <div class="sig-head-wrap">
+          <div class="sig-head">
+            <span class="eyebrow">Made Fresh to Order</span>
+            <h2>Hot drinks</h2>
+            <p class="lead">Stout, smooth, and built for cold Northwoods mornings.</p>
+          </div>
+          <div class="combo-list">
+            <div class="combo-card">
+              <img class="ic" src="assets/icon-campfire.png" alt="" />
+              <div><h3>Lumberjack Latte</h3><p>Espresso + Toasted Marshmallow · Steamed &amp; Stout</p><span class="ph-note">⚡ Placeholder — owner content needed</span></div>
+            </div>
+            <div class="combo-card">
+              <img class="ic" src="assets/icon-pine.png" alt="" />
+              <div><h3>Sugar Pine Mocha</h3><p>Chocolate + French Vanilla · Rich &amp; Warming</p><span class="ph-note">⚡ Placeholder — owner content needed</span></div>
+            </div>
+            <div class="combo-card">
+              <img class="ic" src="assets/icon-mountains.png" alt="" />
+              <div><h3>Birch &amp; Toffee</h3><p>Toffee + Cinnamon · Smooth Drip</p><span class="ph-note">⚡ Placeholder — owner content needed</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- RIGHT: customize panel (sizes + add-ons) -->
+        <aside class="byo">
+          <div>
+            <h2>Customize it</h2>
+            <p class="sub">Pick your size, then stack on a flavor.</p>
+          </div>
+          <div class="sizes">
+            <div class="size-chip"><div class="oz">12 oz</div><div class="lbl">Small</div><div class="pr tbd">$?.??</div></div>
+            <div class="size-chip"><div class="oz">16 oz</div><div class="lbl">Medium</div><div class="pr tbd">$?.??</div></div>
+            <div class="size-chip"><div class="oz">20 oz</div><div class="lbl">Large</div><div class="pr tbd">$?.??</div></div>
+          </div>
+          <div class="flavor-grid addon-chips">
+            <span class="flavor-chip">Chocolate</span>
+            <span class="flavor-chip">Toffee</span>
+            <span class="flavor-chip">Toasted Marshmallow</span>
+            <span class="flavor-chip">French Vanilla</span>
+            <span class="flavor-chip">Pumpkin Spice</span>
+            <span class="flavor-chip">Lavender</span>
+          </div>
+          <p class="oat-note">Oat milk <b>+$0.50</b></p>
+        </aside>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== COLD DRINKS (matches Figma) ===== -->
+  <section class="panel active" data-panel="cold">
+    <div class="wrap">
+      <div class="cold-grid">
+        <img class="cold-cup" src="assets/cup-coldbrew2.png" alt="Cold brew" />
+
+        <!-- LEFT: signature brews -->
+        <div class="sig-head-wrap">
+          <div class="sig-head">
+            <span class="eyebrow">Bold Flavor Combos · Hand-crafted by our team</span>
+            <h2>Choose your cold brew</h2>
+            <p class="lead">Smooth. Bold. Never Bitter. Cold brewed 18+ hours.</p>
+          </div>
+          <div class="combo-list">
+            <div class="combo-card">
+              <img class="ic" src="assets/icon-campfire.png" alt="" />
+              <div><h3>Campfire Cold Brew</h3><p>Chocolate + Toasted Marshmallow + Cream</p></div>
+            </div>
+            <div class="combo-card">
+              <img class="ic" src="assets/icon-sunrise.png" alt="" />
+              <div><h3>Sunrise Trail</h3><p>Vanilla + Caramel + Cream</p></div>
+            </div>
+            <div class="combo-card">
+              <img class="ic" src="assets/icon-pine.png" alt="" />
+              <div><h3>Timber Trail</h3><p>Chocolate + Caramel + Cream</p></div>
+            </div>
+            <div class="combo-card">
+              <img class="ic" src="assets/icon-mountains.png" alt="" />
+              <div><h3>Northwoods Reserve</h3><p>Hazelnut + Vanilla + Cream</p></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- RIGHT: build your own -->
+        <aside class="byo">
+          <div>
+            <h2>Prefer your own mix?</h2>
+            <p class="sub">Select any flavors to add to your cold brew</p>
+          </div>
+          <div class="flavor-grid" id="flavorGrid">
+            <button class="flavor-chip">Cinnamon</button>
+            <button class="flavor-chip">Chocolate</button>
+            <button class="flavor-chip">Caramel</button>
+            <button class="flavor-chip">Toasted Marshmallow</button>
+            <button class="flavor-chip">Vanilla</button>
+            <button class="flavor-chip">French Vanilla</button>
+            <button class="flavor-chip">Hazelnut</button>
+            <button class="flavor-chip">Pumpkin Spice</button>
+          </div>
+          <div class="byo-cta">
+            <button id="addBtn">Add to Cold Brew</button>
+            <p class="note" id="byoNote">Mix and match any combination you like.</p>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== ENERGY REFRESHERS (built in-style; not yet in Figma) ===== -->
+  <section class="panel" data-panel="energy">
+    <div class="wrap energy-wrap">
+      <div class="energy-head">
+        <span class="eyebrow">Special Pricing</span>
+        <h2>Energy <em>Refreshers</em></h2>
+      </div>
+
+      <div class="sizes" style="max-width:560px; margin:0 auto 38px;">
+        <div class="size-chip"><div class="oz">12 oz</div><div class="lbl">Small</div><div class="pr tbd">$?.??</div></div>
+        <div class="size-chip"><div class="oz">16 oz</div><div class="lbl">Medium</div><div class="pr tbd">$?.??</div></div>
+        <div class="size-chip confirmed"><div class="oz">20 oz</div><div class="lbl">Large</div><div class="pr">$3.00</div></div>
+      </div>
+
+      <div class="orb-grid">
+        <div class="orb-card" style="--c:#f97316"><span class="num">01</span><div class="orb"></div><h4>Georgia Peach</h4></div>
+        <div class="orb-card" style="--c:#22c55e"><span class="num">02</span><div class="orb"></div><h4>Green Apple Jolly</h4></div>
+        <div class="orb-card" style="--c:#ef4444"><span class="num">03</span><div class="orb"></div><h4>Watermelon Jolly</h4></div>
+        <div class="orb-card" style="--c:#3b82f6"><span class="num">04</span><div class="orb"></div><h4>Blue Raspberry Lemonade</h4></div>
+      </div>
+
+      <div class="spotlight">
+        <div>
+          <span class="badge"><span class="bolt">⚡</span> Limited Time · Spotlight Drink</span>
+          <h3>Spicy Mango</h3>
+          <p class="kick">"Sweet Mango with a Kick!"</p>
+          <div class="meta">
+            <span class="price">$3.00 <small>/ 20 oz</small></span>
+            <span style="font-family:'Oswald',sans-serif; letter-spacing:2px; text-transform:uppercase; font-size:12px; color:var(--cream-85);">12 / 16 / 20 oz available</span>
+          </div>
+        </div>
+        <div class="spotlight-visual">
+          <span class="so-glow"></span>
+          <img src="assets/cup-mango.png" alt="Spicy Mango refresher" />
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== FOOTER TRANSITION ===== -->
+  <div class="footer-transition">
+    <div class="line"></div>
+    <p>Northwoods Crafted · Est. 2024</p>
+  </div>
+</main>
+
+<script>
+  /* ---- tab switching ---- */
+  const tabBtns = document.querySelectorAll('.tabnav button');
+  const panels  = document.querySelectorAll('.panel');
+  tabBtns.forEach(btn=>btn.addEventListener('click',()=>{
+    const t = btn.dataset.tab;
+    tabBtns.forEach(b=>b.classList.toggle('active', b===btn));
+    panels.forEach(p=>p.classList.toggle('active', p.dataset.panel===t));
+    window.scrollTo({top: document.getElementById('menu').offsetTop - 80, behavior:'smooth'});
+  }));
+
+  /* ---- build-your-own chip selection ---- */
+  const grid = document.getElementById('flavorGrid');
+  const note = document.getElementById('byoNote');
+  const addBtn = document.getElementById('addBtn');
+  grid.addEventListener('click', e=>{
+    const chip = e.target.closest('.flavor-chip'); if(!chip) return;
+    chip.classList.toggle('selected');
+  });
+  addBtn.addEventListener('click', ()=>{
+    const picks = [...grid.querySelectorAll('.flavor-chip.selected')].map(c=>c.textContent);
+    if(picks.length){
+      note.textContent = 'Added: ' + picks.join(' + ');
+      note.classList.add('live');
+    } else {
+      note.textContent = 'Pick at least one flavor first.';
+      note.classList.remove('live');
+    }
+  });
+</script>
+</body>
+</html>
