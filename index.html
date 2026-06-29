@@ -704,19 +704,6 @@
       </div>
     </div>
 
-    <!-- cart drawer -->
-    <div class="cart-overlay" id="cartOverlay"></div>
-    <aside class="cart-drawer" id="cartDrawer" aria-label="Your order">
-      <header>
-        <h3>Your Order</h3>
-        <button class="cart-close" id="cartClose" aria-label="Close">×</button>
-      </header>
-      <div class="cart-items" id="cartItems"></div>
-      <div class="cart-foot">
-        <p class="pay">Pay with cash or Cash App <b>$TimberFueln94</b> at pickup.<br/>Show this order at the counter.</p>
-        <button class="cart-clear" id="cartClear">Clear order</button>
-      </div>
-    </aside>
   </section>
 
   <!-- ===== ENERGY REFRESHERS (built in-style; not yet in Figma) ===== -->
@@ -853,6 +840,20 @@
     <p>Northwoods Crafted · Est. 2024</p>
   </div>
 </main>
+
+<!-- order drawer (top-level so it works from any tab) -->
+<div class="cart-overlay" id="cartOverlay"></div>
+<aside class="cart-drawer" id="cartDrawer" aria-label="Your order">
+  <header>
+    <h3>Your Order</h3>
+    <button class="cart-close" id="cartClose" aria-label="Close">×</button>
+  </header>
+  <div class="cart-items" id="cartItems"></div>
+  <div class="cart-foot">
+    <p class="pay">Pay with cash or Cash App <b>$TimberFueln94</b> at pickup.<br/>Show this order at the counter.</p>
+    <button class="cart-clear" id="cartClear">Clear order</button>
+  </div>
+</aside>
 
 <script>
   /* ---- tab switching ---- */
