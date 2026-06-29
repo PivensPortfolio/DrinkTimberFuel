@@ -385,6 +385,13 @@
   .cb-chip.sel{ background:var(--gold); color:var(--bg); }
   .cb-chip-sf{ color:var(--sf); border-color:var(--sf); }
   .cb-chip-sf.sel{ background:var(--sf); color:#06201b; }
+  /* pump stepper inside a flavor chip */
+  .cb-chip{ display:inline-flex; align-items:center; gap:7px; }
+  .cb-chip .pm, .cb-chip .pm-q{ display:none; }
+  .cb-chip.sel{ padding-left:6px; padding-right:6px; }
+  .cb-chip.sel .pm{ display:inline-flex; align-items:center; justify-content:center; width:20px; height:20px; border-radius:50%; background:rgba(0,0,0,.18); font-family:"Anton",sans-serif; font-size:15px; line-height:1; transition:background .15s var(--ease); }
+  .cb-chip.sel .pm:hover{ background:rgba(0,0,0,.34); }
+  .cb-chip.sel .pm-q{ display:inline-block; min-width:12px; text-align:center; font-family:"Anton",sans-serif; font-size:14px; }
 
   /* nav */
   .cb-nav{ display:flex; align-items:center; justify-content:space-between; margin-top:26px; gap:14px; }
@@ -420,6 +427,7 @@
   .cart-item .ci-name{ font-family:"Anton",sans-serif; font-size:18px; color:#fff; text-transform:uppercase; line-height:1.1; }
   .cart-item .ci-size{ font-family:"Oswald",sans-serif; font-weight:600; font-size:12px; letter-spacing:1px; text-transform:uppercase; color:var(--gold); white-space:nowrap; }
   .cart-item .ci-desc{ font-size:15px; color:var(--cream-85); margin-top:5px; }
+  .cart-item .ci-addon{ font-family:"Oswald",sans-serif; font-weight:700; font-size:12px; letter-spacing:.5px; color:var(--gold); margin-top:6px; }
   .cart-item .ci-rm{ margin-top:8px; background:none; border:none; color:var(--fire); font-family:"Oswald",sans-serif; font-size:11px; letter-spacing:1px; text-transform:uppercase; cursor:pointer; padding:0; }
   .cart-item .ci-rm:hover{ text-decoration:underline; }
   .cart-foot{ padding:20px 24px; border-top:1px solid var(--gold-faint); }
@@ -767,29 +775,29 @@
           <!-- 3b. flavors -->
           <div class="cb-step" data-step="flavors">
             <h3 class="cb-q">Add your flavors</h3>
-            <p class="cb-hint">Tap all you like — mix and match.</p>
+            <p class="cb-hint">Tap to add a pump · use − / + for more · <b>$0.50</b> each.</p>
             <div class="cb-fcols">
               <div class="cb-fcol">
                 <span class="cb-flabel">Classic</span>
                 <div class="cb-chips" id="cbFlavors">
-                  <button class="cb-chip" data-val="Cinnamon">Cinnamon</button>
-                  <button class="cb-chip" data-val="Chocolate">Chocolate</button>
-                  <button class="cb-chip" data-val="Caramel">Caramel</button>
-                  <button class="cb-chip" data-val="Toasted Marshmallow">Toasted Marshmallow</button>
-                  <button class="cb-chip" data-val="Vanilla">Vanilla</button>
-                  <button class="cb-chip" data-val="French Vanilla">French Vanilla</button>
-                  <button class="cb-chip" data-val="Hazelnut">Hazelnut</button>
-                  <button class="cb-chip" data-val="Pumpkin Spice">Pumpkin Spice</button>
+                  <button class="cb-chip" data-val="Cinnamon"><span class="pm pm-dec">−</span><span class="cn">Cinnamon</span><span class="pm-q">0</span><span class="pm pm-inc">+</span></button>
+                  <button class="cb-chip" data-val="Chocolate"><span class="pm pm-dec">−</span><span class="cn">Chocolate</span><span class="pm-q">0</span><span class="pm pm-inc">+</span></button>
+                  <button class="cb-chip" data-val="Caramel"><span class="pm pm-dec">−</span><span class="cn">Caramel</span><span class="pm-q">0</span><span class="pm pm-inc">+</span></button>
+                  <button class="cb-chip" data-val="Toasted Marshmallow"><span class="pm pm-dec">−</span><span class="cn">Toasted Marshmallow</span><span class="pm-q">0</span><span class="pm pm-inc">+</span></button>
+                  <button class="cb-chip" data-val="Vanilla"><span class="pm pm-dec">−</span><span class="cn">Vanilla</span><span class="pm-q">0</span><span class="pm pm-inc">+</span></button>
+                  <button class="cb-chip" data-val="French Vanilla"><span class="pm pm-dec">−</span><span class="cn">French Vanilla</span><span class="pm-q">0</span><span class="pm pm-inc">+</span></button>
+                  <button class="cb-chip" data-val="Hazelnut"><span class="pm pm-dec">−</span><span class="cn">Hazelnut</span><span class="pm-q">0</span><span class="pm pm-inc">+</span></button>
+                  <button class="cb-chip" data-val="Pumpkin Spice"><span class="pm pm-dec">−</span><span class="cn">Pumpkin Spice</span><span class="pm-q">0</span><span class="pm pm-inc">+</span></button>
                 </div>
               </div>
               <div class="cb-fcol cb-fcol-sf">
                 <span class="cb-flabel cb-flabel-sf">Sugar-Free</span>
                 <div class="cb-chips" id="cbFlavorsSF">
-                  <button class="cb-chip cb-chip-sf" data-val="Sugar-Free Vanilla">Vanilla</button>
-                  <button class="cb-chip cb-chip-sf" data-val="Sugar-Free Caramel">Caramel</button>
-                  <button class="cb-chip cb-chip-sf" data-val="Sugar-Free Hazelnut">Hazelnut</button>
-                  <button class="cb-chip cb-chip-sf" data-val="Sugar-Free French Vanilla">French Vanilla</button>
-                  <button class="cb-chip cb-chip-sf" data-val="Sugar-Free Mocha">Mocha</button>
+                  <button class="cb-chip cb-chip-sf" data-val="Sugar-Free Vanilla"><span class="pm pm-dec">−</span><span class="cn">Vanilla</span><span class="pm-q">0</span><span class="pm pm-inc">+</span></button>
+                  <button class="cb-chip cb-chip-sf" data-val="Sugar-Free Caramel"><span class="pm pm-dec">−</span><span class="cn">Caramel</span><span class="pm-q">0</span><span class="pm pm-inc">+</span></button>
+                  <button class="cb-chip cb-chip-sf" data-val="Sugar-Free Hazelnut"><span class="pm pm-dec">−</span><span class="cn">Hazelnut</span><span class="pm-q">0</span><span class="pm pm-inc">+</span></button>
+                  <button class="cb-chip cb-chip-sf" data-val="Sugar-Free French Vanilla"><span class="pm pm-dec">−</span><span class="cn">French Vanilla</span><span class="pm-q">0</span><span class="pm pm-inc">+</span></button>
+                  <button class="cb-chip cb-chip-sf" data-val="Sugar-Free Mocha"><span class="pm pm-dec">−</span><span class="cn">Mocha</span><span class="pm-q">0</span><span class="pm pm-inc">+</span></button>
                 </div>
               </div>
             </div>
@@ -984,8 +992,12 @@
 
   let flow = ['brew','style'];
   let idx  = 0;
-  let order = {brew:null, style:null, signature:null, flavors:[], milk:null, size:null};
+  let order = {brew:null, style:null, signature:null, pumps:{}, milk:null, size:null};
   const cart = [];
+  const PUMP_PRICE = 0.5;
+  const pumpEntries = o => Object.entries(o.pumps||{}).filter(([,v])=>v>0);
+  const pumpCount = o => pumpEntries(o).reduce((s,[,v])=>s+v,0);
+  const flavorsText = o => { const e=pumpEntries(o); return e.length ? e.map(([k,v])=> v>1?`${k} ×${v}`:k).join(' + ') : 'No flavors'; };
 
   function buildFlow(){
     if(order.style==='signature') flow=['brew','style','signature','milk','size'];
@@ -1013,7 +1025,10 @@
       });
     });
     flavorsStepEl.querySelectorAll('.cb-chip').forEach(c=>{
-      c.classList.toggle('sel', order.flavors.includes(c.dataset.val));
+      const q = order.pumps[c.dataset.val] || 0;
+      c.dataset.pumps = q;
+      c.classList.toggle('sel', q>0);
+      const qel = c.querySelector('.pm-q'); if(qel) qel.textContent = q;
     });
   }
   function updateNav(){
@@ -1059,18 +1074,25 @@
     else if(step==='milk'){ order.milk=val; selectFlash(opt); setTimeout(next,260); }
     else if(step==='size'){ order.size=val; selectFlash(opt); updateNav(); }
   });
-  /* flavor chips (multi-select) */
+  /* flavor chips — pump steppers (each pump $0.50) */
   flavorsStepEl.addEventListener('click', e=>{
     const chip=e.target.closest('.cb-chip'); if(!chip) return;
-    chip.classList.toggle('sel');
-    order.flavors = [...flavorsStepEl.querySelectorAll('.cb-chip.sel')].map(c=>c.dataset.val);
+    let q = +(chip.dataset.pumps||0);
+    if(e.target.classList.contains('pm-inc')) q=Math.min(6,q+1);
+    else if(e.target.classList.contains('pm-dec')) q=Math.max(0,q-1);
+    else if(q===0) q=1;                 // body tap selects first pump
+    chip.dataset.pumps=q;
+    chip.classList.toggle('sel', q>0);
+    chip.querySelector('.pm-q').textContent=q;
+    order.pumps={};
+    flavorsStepEl.querySelectorAll('.cb-chip').forEach(c=>{ const n=+(c.dataset.pumps||0); if(n>0) order.pumps[c.dataset.val]=n; });
   });
   /* landing <-> wizard */
   function showLanding(){ cbCard.hidden=true; cbLanding.hidden=false; }
   function startWizard(brew){
     cbLanding.hidden=true; cbCard.hidden=false;
-    order={brew:brew||null, style:null, signature:null, flavors:[], milk:null, size:null};
-    buildFlow(); flavorsStepEl.querySelectorAll('.cb-chip').forEach(c=>c.classList.remove('sel'));
+    order={brew:brew||null, style:null, signature:null, pumps:{}, milk:null, size:null};
+    buildFlow(); clearFlavorChips();
     cbNav.style.display='';
     show(brew ? flow.indexOf('style') : 0, 'fwd');
   }
@@ -1089,15 +1111,17 @@
   function drinkName(o){ return o.style==='signature' && o.signature ? o.signature.name : (o.brew); }
   function drinkDetail(o){
     if(o.style==='signature') return `${o.brew} · ${o.signature?o.signature.desc:''} · ${o.milk}`;
-    const flav = o.flavors.length ? o.flavors.join(' + ') : 'No flavors';
-    return `${flav} · ${o.milk}`;
+    return `${flavorsText(o)} · ${o.milk}`;
   }
+  function clearFlavorChips(){ flavorsStepEl.querySelectorAll('.cb-chip').forEach(c=>{ c.classList.remove('sel'); c.dataset.pumps=0; const q=c.querySelector('.pm-q'); if(q) q.textContent=0; }); }
   function addToCart(){
-    const item={ name:drinkName(order), detail:drinkDetail(order), size:order.size };
+    const pc=pumpCount(order);
+    const addon = pc>0 ? `+ $${(pc*PUMP_PRICE).toFixed(2)} · ${pc} pump${pc>1?'s':''}` : '';
+    const item={ name:drinkName(order), detail:drinkDetail(order), size:order.size, addon };
     cart.push(item);
     bumpCart();
     document.getElementById('cbDoneSummary').textContent =
-      `${SIZE_OZ[item.size]} ${item.name} — ${item.detail}`;
+      `${SIZE_OZ[item.size]} ${item.name} — ${item.detail}` + (addon? ` (${addon})` : '');
     renderCart();
     show(flow.indexOf('size'),'fwd'); // keep idx valid
     // jump to done step
@@ -1106,8 +1130,8 @@
     const d=stepEl('done'); d.classList.add('is-active','in-right');
   }
   function resetBuilder(){
-    order={brew:null, style:null, signature:null, flavors:[], milk:null, size:null};
-    buildFlow(); flavorsStepEl.querySelectorAll('.cb-chip').forEach(c=>c.classList.remove('sel'));
+    order={brew:null, style:null, signature:null, pumps:{}, milk:null, size:null};
+    buildFlow(); clearFlavorChips();
     cbNav.style.display=''; show(0,'fwd');
   }
   document.getElementById('cbAnother').addEventListener('click', resetBuilder);
@@ -1125,7 +1149,7 @@
     box.innerHTML='';
     cart.forEach((o,i)=>{
       const el=document.createElement('div'); el.className='cart-item';
-      el.innerHTML=`<div class="ci-top"><span class="ci-name">${o.name}</span><span class="ci-size">${SIZE_OZ[o.size]} ${o.size}</span></div><div class="ci-desc">${o.detail}</div><button class="ci-rm" data-i="${i}">Remove</button>`;
+      el.innerHTML=`<div class="ci-top"><span class="ci-name">${o.name}</span><span class="ci-size">${SIZE_OZ[o.size]} ${o.size}</span></div><div class="ci-desc">${o.detail}</div>${o.addon?`<div class="ci-addon">${o.addon}</div>`:''}<button class="ci-rm" data-i="${i}">Remove</button>`;
       box.appendChild(el);
     });
     box.querySelectorAll('.ci-rm').forEach(b=>b.addEventListener('click',()=>{ cart.splice(+b.dataset.i,1); renderCart(); }));
