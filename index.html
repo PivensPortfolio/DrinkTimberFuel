@@ -1103,7 +1103,7 @@
   /* option clicks (single-select, auto-advance) */
   document.getElementById('cbSteps').addEventListener('click', e=>{
     const ea=e.target.closest('.ea-btn');
-    if(ea){ order.espresso = ea.classList.contains('ea-inc') ? Math.min(6,order.espresso+1) : Math.max(0,order.espresso-1); document.querySelector('#cbEspresso .ea-q').textContent=order.espresso; return; }
+    if(ea){ order.espresso = ea.classList.contains('ea-inc') ? order.espresso+1 : Math.max(0,order.espresso-1); document.querySelector('#cbEspresso .ea-q').textContent=order.espresso; return; }
     const opt=e.target.closest('.cb-opt'); if(!opt) return;
     const step=opt.closest('.cb-step').dataset.step;
     const val=opt.dataset.val;
@@ -1299,7 +1299,7 @@
   document.getElementById('hbClose').addEventListener('click', hbClose);
   document.getElementById('hbSteps').addEventListener('click', e=>{
     const ea=e.target.closest('.ea-btn');
-    if(ea){ hbOrder.espresso = ea.classList.contains('ea-inc') ? Math.min(6,hbOrder.espresso+1) : Math.max(0,hbOrder.espresso-1); document.querySelector('#hbEspresso .ea-q').textContent=hbOrder.espresso; return; }
+    if(ea){ hbOrder.espresso = ea.classList.contains('ea-inc') ? hbOrder.espresso+1 : Math.max(0,hbOrder.espresso-1); document.querySelector('#hbEspresso .ea-q').textContent=hbOrder.espresso; return; }
     const opt=e.target.closest('.cb-opt');
     if(opt){ const step=opt.closest('.cb-step').dataset.hstep;
       if(step==='base'){ hbOrder.base=opt.dataset.val; opt.parentElement.querySelectorAll('.cb-opt').forEach(o=>o.classList.remove('sel')); opt.classList.add('sel'); setTimeout(hbNextStep,260); }
