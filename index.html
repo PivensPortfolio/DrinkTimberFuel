@@ -373,8 +373,8 @@
 
   /* flavors: two clearly-distinct panels — Classic (gold) vs Sugar-Free (teal) —
      so no one taps sugar-free by accident. Fixed height = constant card, no scrollbar. */
-  .cb-fcols{ display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:16px; height:236px; }
-  .cb-fcol{ display:flex; flex-direction:column; gap:12px; padding:14px 14px 10px; border:1px solid var(--gold-faint); border-radius:12px; background:rgba(245,197,24,.04); overflow-y:auto; }
+  .cb-fcols{ display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:16px; align-items:start; }
+  .cb-fcol{ display:flex; flex-direction:column; gap:12px; padding:14px 14px 12px; border:1px solid var(--gold-faint); border-radius:12px; background:rgba(245,197,24,.04); }
   .cb-fcol-sf{ border-color:rgba(57,192,170,.30); background:rgba(57,192,170,.07); }
   .cb-flabel{ font-family:"Oswald",sans-serif; font-weight:700; text-transform:uppercase; letter-spacing:2px; font-size:12px; color:var(--gold); }
   .cb-flabel-sf{ color:var(--sf); }
@@ -385,14 +385,25 @@
   .cb-chip.sel{ background:var(--gold); color:var(--bg); }
   .cb-chip-sf{ color:var(--sf); border-color:var(--sf); }
   .cb-chip-sf.sel{ background:var(--sf); color:#06201b; }
-  /* pump stepper inside a flavor chip */
+  /* compact flavor chip with a pump-count badge */
   .cb-chip{ display:inline-flex; align-items:center; gap:7px; }
-  .cb-chip .pm, .cb-chip .pm-q{ display:none; }
-  .cb-chip.sel{ padding:5px 6px; gap:9px; }
-  .cb-chip.sel .pm{ display:inline-flex; align-items:center; justify-content:center; width:38px; height:38px; min-width:38px; border-radius:50%; background:var(--bg); color:#fff; font-family:system-ui,-apple-system,"Segoe UI",sans-serif; font-weight:400; font-size:26px; line-height:1; cursor:pointer; box-shadow:0 1px 3px rgba(0,0,0,.4); transition:transform .1s var(--ease), background .15s var(--ease); }
-  .cb-chip.sel .pm:hover{ background:#000; }
-  .cb-chip.sel .pm:active{ transform:scale(.88); }
-  .cb-chip.sel .pm-q{ display:inline-block; min-width:20px; text-align:center; font-family:"Anton",sans-serif; font-size:18px; }
+  .cb-chip .chip-ct{ display:none; }
+  .cb-chip.sel .chip-ct{ display:inline-flex; align-items:center; justify-content:center; min-width:19px; height:19px; padding:0 4px; border-radius:999px; background:var(--bg); color:#fff; font-family:"Anton",sans-serif; font-size:12px; line-height:1; }
+
+  /* "your pumps" list with big steppers */
+  .pump-list{ margin-top:20px; border-top:1px solid var(--gold-faint); padding-top:16px; display:flex; flex-direction:column; gap:10px; max-height:230px; overflow-y:auto; }
+  .pump-list[hidden]{ display:none; }
+  .pump-row{ display:flex; align-items:center; justify-content:space-between; gap:12px; background:var(--bg-card); border:1px solid var(--gold-faint); border-radius:12px; padding:7px 10px 7px 16px; animation:cbInR .25s var(--ease) both; }
+  .pump-row.sf{ border-color:rgba(57,192,170,.3); }
+  .pr-name{ font-family:"Oswald",sans-serif; font-weight:600; text-transform:uppercase; letter-spacing:1px; font-size:14px; color:var(--cream); }
+  .pump-row.sf .pr-name{ color:var(--sf); }
+  .pr-step{ display:flex; align-items:center; gap:12px; }
+  .pr-btn{ width:42px; height:42px; min-width:42px; border-radius:50%; border:none; background:var(--gold); color:var(--bg); font-family:system-ui,-apple-system,"Segoe UI",sans-serif; font-weight:400; font-size:28px; line-height:1; cursor:pointer; display:inline-flex; align-items:center; justify-content:center; transition:transform .1s var(--ease), filter .15s var(--ease); }
+  .pump-row.sf .pr-btn{ background:var(--sf); }
+  .pr-btn:hover{ filter:brightness(1.08); }
+  .pr-btn:active{ transform:scale(.9); }
+  .pr-q{ min-width:24px; text-align:center; font-family:"Anton",sans-serif; font-size:20px; color:#fff; }
+  .pump-total{ text-align:right; font-family:"Oswald",sans-serif; font-weight:700; font-size:13px; letter-spacing:.5px; color:var(--gold); padding-top:2px; }
 
   /* nav */
   .cb-nav{ display:flex; align-items:center; justify-content:space-between; margin-top:26px; gap:14px; }
@@ -466,10 +477,7 @@
     .cb-card{ padding:22px 16px 20px; border-radius:14px; }
     .cb-steps{ min-height:320px; }
     #cbSignatures{ height:auto; overflow:visible; }
-    .cb-fcols{ grid-template-columns:1fr; height:auto; gap:12px; }
-    .cb-fcol{ overflow:visible; }
-    .cb-chip.sel .pm{ width:46px; height:46px; min-width:46px; font-size:32px; }
-    .cb-chip.sel .pm-q{ font-size:20px; min-width:22px; }
+    .cb-fcols{ grid-template-columns:1fr; gap:12px; }
     .orb-img{ height:auto; width:88%; margin-top:-40px; }
     .hot-grid{ grid-template-columns:1fr; }
     .cb-q{ font-size:22px; }
@@ -778,32 +786,33 @@
           <!-- 3b. flavors -->
           <div class="cb-step" data-step="flavors">
             <h3 class="cb-q">Add your flavors</h3>
-            <p class="cb-hint">Tap to add a pump · use − / + for more · <b>$0.50</b> each pump.</p>
+            <p class="cb-hint">Tap a flavor to add a pump · <b>$0.50</b> each · adjust amounts below.</p>
             <div class="cb-fcols">
               <div class="cb-fcol">
                 <span class="cb-flabel">Classic</span>
                 <div class="cb-chips" id="cbFlavors">
-                  <button class="cb-chip" data-val="Cinnamon"><span class="pm pm-dec">−</span><span class="cn">Cinnamon</span><span class="pm-q">0</span><span class="pm pm-inc">+</span></button>
-                  <button class="cb-chip" data-val="Chocolate"><span class="pm pm-dec">−</span><span class="cn">Chocolate</span><span class="pm-q">0</span><span class="pm pm-inc">+</span></button>
-                  <button class="cb-chip" data-val="Caramel"><span class="pm pm-dec">−</span><span class="cn">Caramel</span><span class="pm-q">0</span><span class="pm pm-inc">+</span></button>
-                  <button class="cb-chip" data-val="Toasted Marshmallow"><span class="pm pm-dec">−</span><span class="cn">Toasted Marshmallow</span><span class="pm-q">0</span><span class="pm pm-inc">+</span></button>
-                  <button class="cb-chip" data-val="Vanilla"><span class="pm pm-dec">−</span><span class="cn">Vanilla</span><span class="pm-q">0</span><span class="pm pm-inc">+</span></button>
-                  <button class="cb-chip" data-val="French Vanilla"><span class="pm pm-dec">−</span><span class="cn">French Vanilla</span><span class="pm-q">0</span><span class="pm pm-inc">+</span></button>
-                  <button class="cb-chip" data-val="Hazelnut"><span class="pm pm-dec">−</span><span class="cn">Hazelnut</span><span class="pm-q">0</span><span class="pm pm-inc">+</span></button>
-                  <button class="cb-chip" data-val="Pumpkin Spice"><span class="pm pm-dec">−</span><span class="cn">Pumpkin Spice</span><span class="pm-q">0</span><span class="pm pm-inc">+</span></button>
+                  <button class="cb-chip" data-val="Cinnamon"><span class="cn">Cinnamon</span><span class="chip-ct"></span></button>
+                  <button class="cb-chip" data-val="Chocolate"><span class="cn">Chocolate</span><span class="chip-ct"></span></button>
+                  <button class="cb-chip" data-val="Caramel"><span class="cn">Caramel</span><span class="chip-ct"></span></button>
+                  <button class="cb-chip" data-val="Toasted Marshmallow"><span class="cn">Toasted Marshmallow</span><span class="chip-ct"></span></button>
+                  <button class="cb-chip" data-val="Vanilla"><span class="cn">Vanilla</span><span class="chip-ct"></span></button>
+                  <button class="cb-chip" data-val="French Vanilla"><span class="cn">French Vanilla</span><span class="chip-ct"></span></button>
+                  <button class="cb-chip" data-val="Hazelnut"><span class="cn">Hazelnut</span><span class="chip-ct"></span></button>
+                  <button class="cb-chip" data-val="Pumpkin Spice"><span class="cn">Pumpkin Spice</span><span class="chip-ct"></span></button>
                 </div>
               </div>
               <div class="cb-fcol cb-fcol-sf">
                 <span class="cb-flabel cb-flabel-sf">Sugar-Free</span>
                 <div class="cb-chips" id="cbFlavorsSF">
-                  <button class="cb-chip cb-chip-sf" data-val="Sugar-Free Vanilla"><span class="pm pm-dec">−</span><span class="cn">Vanilla</span><span class="pm-q">0</span><span class="pm pm-inc">+</span></button>
-                  <button class="cb-chip cb-chip-sf" data-val="Sugar-Free Caramel"><span class="pm pm-dec">−</span><span class="cn">Caramel</span><span class="pm-q">0</span><span class="pm pm-inc">+</span></button>
-                  <button class="cb-chip cb-chip-sf" data-val="Sugar-Free Hazelnut"><span class="pm pm-dec">−</span><span class="cn">Hazelnut</span><span class="pm-q">0</span><span class="pm pm-inc">+</span></button>
-                  <button class="cb-chip cb-chip-sf" data-val="Sugar-Free French Vanilla"><span class="pm pm-dec">−</span><span class="cn">French Vanilla</span><span class="pm-q">0</span><span class="pm pm-inc">+</span></button>
-                  <button class="cb-chip cb-chip-sf" data-val="Sugar-Free Mocha"><span class="pm pm-dec">−</span><span class="cn">Mocha</span><span class="pm-q">0</span><span class="pm pm-inc">+</span></button>
+                  <button class="cb-chip cb-chip-sf" data-val="Sugar-Free Vanilla"><span class="cn">Vanilla</span><span class="chip-ct"></span></button>
+                  <button class="cb-chip cb-chip-sf" data-val="Sugar-Free Caramel"><span class="cn">Caramel</span><span class="chip-ct"></span></button>
+                  <button class="cb-chip cb-chip-sf" data-val="Sugar-Free Hazelnut"><span class="cn">Hazelnut</span><span class="chip-ct"></span></button>
+                  <button class="cb-chip cb-chip-sf" data-val="Sugar-Free French Vanilla"><span class="cn">French Vanilla</span><span class="chip-ct"></span></button>
+                  <button class="cb-chip cb-chip-sf" data-val="Sugar-Free Mocha"><span class="cn">Mocha</span><span class="chip-ct"></span></button>
                 </div>
               </div>
             </div>
+            <div class="pump-list" id="pumpList" hidden></div>
           </div>
 
           <!-- 4. milk -->
@@ -1027,12 +1036,7 @@
         o.classList.toggle('sel', map[key]!=null && o.dataset.val===map[key]);
       });
     });
-    flavorsStepEl.querySelectorAll('.cb-chip').forEach(c=>{
-      const q = order.pumps[c.dataset.val] || 0;
-      c.dataset.pumps = q;
-      c.classList.toggle('sel', q>0);
-      const qel = c.querySelector('.pm-q'); if(qel) qel.textContent = q;
-    });
+    updateFlavorUI();
   }
   function updateNav(){
     const name=flow[idx];
@@ -1077,18 +1081,39 @@
     else if(step==='milk'){ order.milk=val; selectFlash(opt); setTimeout(next,260); }
     else if(step==='size'){ order.size=val; selectFlash(opt); updateNav(); }
   });
-  /* flavor chips — pump steppers (each pump $0.50) */
-  flavorsStepEl.addEventListener('click', e=>{
+  /* flavors — tap a chip to add a pump; fine-tune in the pump list below ($0.50 each) */
+  const pumpListEl = document.getElementById('pumpList');
+  function renderPumpList(){
+    const entries = pumpEntries(order);
+    if(!entries.length){ pumpListEl.hidden=true; pumpListEl.innerHTML=''; return; }
+    pumpListEl.hidden=false;
+    const pc=pumpCount(order);
+    pumpListEl.innerHTML = entries.map(([val,q])=>{
+      const sf = val.startsWith('Sugar-Free');
+      return `<div class="pump-row${sf?' sf':''}" data-val="${val}"><span class="pr-name">${val}</span><div class="pr-step"><button class="pr-btn pr-dec" aria-label="Remove a pump">−</button><span class="pr-q">${q}</span><button class="pr-btn pr-inc" aria-label="Add a pump">+</button></div></div>`;
+    }).join('') + `<div class="pump-total">${pc} pump${pc>1?'s':''} · +$${(pc*PUMP_PRICE).toFixed(2)}</div>`;
+  }
+  function updateFlavorUI(){
+    flavorsStepEl.querySelectorAll('.cb-chip').forEach(c=>{
+      const q=order.pumps[c.dataset.val]||0;
+      c.classList.toggle('sel', q>0);
+      const ct=c.querySelector('.chip-ct'); if(ct) ct.textContent = q>0 ? q : '';
+    });
+    renderPumpList();
+  }
+  flavorsStepEl.querySelector('.cb-fcols').addEventListener('click', e=>{
     const chip=e.target.closest('.cb-chip'); if(!chip) return;
-    let q = +(chip.dataset.pumps||0);
-    if(e.target.classList.contains('pm-inc')) q=Math.min(6,q+1);
-    else if(e.target.classList.contains('pm-dec')) q=Math.max(0,q-1);
-    else if(q===0) q=1;                 // body tap selects first pump
-    chip.dataset.pumps=q;
-    chip.classList.toggle('sel', q>0);
-    chip.querySelector('.pm-q').textContent=q;
-    order.pumps={};
-    flavorsStepEl.querySelectorAll('.cb-chip').forEach(c=>{ const n=+(c.dataset.pumps||0); if(n>0) order.pumps[c.dataset.val]=n; });
+    const v=chip.dataset.val;
+    order.pumps[v] = Math.min(6, (order.pumps[v]||0)+1);
+    updateFlavorUI();
+  });
+  pumpListEl.addEventListener('click', e=>{
+    const row=e.target.closest('.pump-row'); if(!row) return;
+    const v=row.dataset.val;
+    if(e.target.classList.contains('pr-inc')) order.pumps[v]=Math.min(6,(order.pumps[v]||0)+1);
+    else if(e.target.classList.contains('pr-dec')){ const n=(order.pumps[v]||0)-1; if(n<=0) delete order.pumps[v]; else order.pumps[v]=n; }
+    else return;
+    updateFlavorUI();
   });
   /* landing <-> wizard */
   function showLanding(){ cbCard.hidden=true; cbLanding.hidden=false; }
@@ -1116,7 +1141,7 @@
     if(o.style==='signature') return `${o.brew} · ${o.signature?o.signature.desc:''} · ${o.milk}`;
     return `${flavorsText(o)} · ${o.milk}`;
   }
-  function clearFlavorChips(){ flavorsStepEl.querySelectorAll('.cb-chip').forEach(c=>{ c.classList.remove('sel'); c.dataset.pumps=0; const q=c.querySelector('.pm-q'); if(q) q.textContent=0; }); }
+  function clearFlavorChips(){ updateFlavorUI(); }
   function addToCart(){
     const pc=pumpCount(order);
     const addon = pc>0 ? `+ $${(pc*PUMP_PRICE).toFixed(2)} · ${pc} pump${pc>1?'s':''}` : '';
