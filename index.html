@@ -269,14 +269,30 @@
   #ebFlavors{ justify-content:center; margin-top:20px; overflow:visible; }
 
   /* HOT DRINKS featured cards */
-  .hot-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:24px; max-width:1080px; margin:96px auto 0; align-items:start; }
-  .hot-card{ position:relative; text-align:center; background:var(--bg-card); border:1px solid var(--gold-faint); border-radius:14px; padding:30px 20px 24px; display:flex; flex-direction:column; align-items:center; transition:transform .25s var(--ease), border-color .25s var(--ease), box-shadow .25s var(--ease); }
+  .hot-section{ max-width:1080px; margin:0 auto; }
+  .hot-cat{ text-align:center; font-family:"Anton",sans-serif; font-size:clamp(26px,3.2vw,36px); color:#fff; text-transform:uppercase; letter-spacing:1.5px; margin-top:64px; }
+  .hot-section:first-of-type .hot-cat{ margin-top:26px; }
+  .hot-cat::after{ content:""; display:block; width:52px; height:3px; background:var(--gold); border-radius:2px; margin:14px auto 0; }
+  .hot-grid{ display:flex; flex-wrap:wrap; justify-content:center; gap:24px; max-width:1080px; margin:74px auto 0; align-items:stretch; }
+  .hot-card{ position:relative; width:min(300px,100%); box-sizing:border-box; text-align:center; background:var(--bg-card); border:1px solid var(--gold-faint); border-radius:14px; padding:30px 20px 24px; display:flex; flex-direction:column; align-items:center; transition:transform .25s var(--ease), border-color .25s var(--ease), box-shadow .25s var(--ease); }
+  .hot-card-build{ border-style:dashed; border-color:var(--gold-20); }
   .hot-card::before{ content:""; position:absolute; left:50%; top:8%; width:62%; aspect-ratio:1; transform:translateX(-50%); border-radius:50%; background:radial-gradient(circle, rgba(200,116,24,.35), transparent 62%); filter:blur(16px); opacity:.5; }
   .hot-card:hover{ transform:translateY(-6px); border-color:var(--gold-20); box-shadow:0 22px 44px rgba(0,0,0,.45); }
   .hot-img{ position:relative; z-index:1; height:215px; width:auto; max-width:100%; object-fit:contain; margin:-58px auto 4px; filter:drop-shadow(0 16px 24px rgba(0,0,0,.55)); }
   .hot-card h3{ position:relative; z-index:1; font-family:"Anton",sans-serif; font-size:21px; color:#fff; text-transform:uppercase; letter-spacing:1px; line-height:1.1; margin-top:4px; }
   .hot-card p{ position:relative; z-index:1; font-family:"Barlow Condensed",sans-serif; font-size:15px; color:var(--cream-85); margin-top:9px; line-height:1.4; flex:1; }
   .hot-card .ord{ margin-top:16px; }
+  /* specialty / black & bold order panel */
+  .ord-panel{ margin-top:12px; animation:cbInR .25s var(--ease) both; }
+  .ord-panel[hidden]{ display:none; }
+  .ord-size.sel{ border-color:var(--gold); background:rgba(245,197,24,.16); }
+  .ord-esp{ max-width:260px; margin:10px auto 0; padding:8px 10px 8px 14px; }
+  .ord-esp .ea-label{ font-size:11px; }
+  .ord-esp .ea-label small{ font-size:10px; }
+  .ord-esp .ea-btn{ width:34px; height:34px; min-width:34px; font-size:22px; }
+  .ord-confirm{ margin-top:12px; font-family:"Oswald",sans-serif; font-weight:700; text-transform:uppercase; letter-spacing:1.5px; font-size:12px; color:var(--bg); background:var(--gold); border:none; border-radius:999px; padding:11px 22px; cursor:pointer; transition:transform .15s var(--ease), box-shadow .15s var(--ease), opacity .15s; }
+  .ord-confirm:hover:not(:disabled){ transform:translateY(-2px); box-shadow:0 8px 18px rgba(245,197,24,.4); }
+  .ord-confirm:disabled{ opacity:.4; cursor:not-allowed; }
 
   .spotlight{ position:relative; margin-top:8px; border-radius:16px; overflow:hidden; border:1px solid var(--gold-20);
     background:radial-gradient(70% 130% at 15% 50%, rgba(245,197,24,.16), transparent 60%), linear-gradient(120deg, #1b1405, #0c1109);
@@ -584,106 +600,215 @@
         <h2>Hot <em>Drinks</em></h2>
       </div>
 
-      <!-- Featured 6 -->
-      <div class="hot-grid">
-        <div class="hot-card">
-          <img class="hot-img" src="assets/campfire-mocha.png" alt="The Campfire Mocha" />
-          <h3>The Campfire Mocha</h3>
-          <p>Deep chocolate and sweet marshmallow — a fire-roasted s'more in a mug.</p>
-          <div class="ord" data-drink="Campfire Mocha">
-            <button class="ord-btn">Add to Order</button>
-            <div class="ord-sizes" hidden>
-              <button class="ord-size" data-size="Small"><b>12 oz</b> Small <span>$?.??</span></button>
-              <button class="ord-size" data-size="Medium"><b>16 oz</b> Medium <span>$?.??</span></button>
-              <button class="ord-size" data-size="Large"><b>20 oz</b> Large <span>$?.??</span></button>
+      <!-- ============ MOCHAS ============ -->
+      <div class="hot-section">
+        <h3 class="hot-cat">Mochas</h3>
+        <div class="hot-grid">
+          <div class="hot-card hot-card-build">
+            <img class="hot-img" src="assets/hot-coffee.png" alt="Build a Mocha" />
+            <h3>Build a Mocha</h3>
+            <p>Espresso and rich chocolate, made your way. Pick your milk, flavors, and size.</p>
+            <div class="ord"><button class="ord-btn ord-build" data-build="Mocha">Customize →</button></div>
+          </div>
+          <div class="hot-card">
+            <img class="hot-img" src="assets/campfire-mocha.png" alt="Campfire Mocha" />
+            <h3>Campfire Mocha</h3>
+            <p>Deep chocolate and sweet marshmallow: a fire-roasted s'more in a mug.</p>
+            <div class="ord ord-spec" data-drink="Campfire Mocha" data-kind="milk">
+              <button class="ord-btn">Add to Order</button>
+              <div class="ord-panel" hidden>
+                <div class="ord-sizes">
+                  <button class="ord-size" data-size="Small"><b>12 oz</b> Small <span>$?.??</span></button>
+                  <button class="ord-size" data-size="Medium"><b>16 oz</b> Medium <span>$?.??</span></button>
+                  <button class="ord-size" data-size="Large"><b>20 oz</b> Large <span>$?.??</span></button>
+                </div>
+                <div class="espresso-addon ord-esp">
+                  <span class="ea-label">⚡ Extra shots <small>$1.00 each</small></span>
+                  <div class="ea-step"><button class="ea-btn ea-dec" aria-label="Remove shot">−</button><span class="ea-q">0</span><button class="ea-btn ea-inc" aria-label="Add shot">+</button></div>
+                </div>
+                <button class="ord-confirm" disabled>Add to order →</button>
+              </div>
             </div>
           </div>
-        </div>
-        <div class="hot-card">
-          <img class="hot-img" src="assets/cinnamon-roll-latte.png" alt="Cinnamon Roll Latte" />
-          <h3>Cinnamon Roll Latte</h3>
-          <p>A warm cinnamon roll fresh from the oven, with a sweet vanilla icing finish.</p>
-          <div class="ord" data-drink="Cinnamon Roll Latte">
-            <button class="ord-btn">Add to Order</button>
-            <div class="ord-sizes" hidden>
-              <button class="ord-size" data-size="Small"><b>12 oz</b> Small <span>$?.??</span></button>
-              <button class="ord-size" data-size="Medium"><b>16 oz</b> Medium <span>$?.??</span></button>
-              <button class="ord-size" data-size="Large"><b>20 oz</b> Large <span>$?.??</span></button>
+          <div class="hot-card">
+            <img class="hot-img" src="assets/french-hazelnut.png" alt="French Hazelnut Café" />
+            <h3>French Hazelnut Café</h3>
+            <p>A clean, sweet aromatic baseline that lets bold, nutty accents take center stage.</p>
+            <div class="ord ord-spec" data-drink="French Hazelnut Café" data-kind="milk">
+              <button class="ord-btn">Add to Order</button>
+              <div class="ord-panel" hidden>
+                <div class="ord-sizes">
+                  <button class="ord-size" data-size="Small"><b>12 oz</b> Small <span>$?.??</span></button>
+                  <button class="ord-size" data-size="Medium"><b>16 oz</b> Medium <span>$?.??</span></button>
+                  <button class="ord-size" data-size="Large"><b>20 oz</b> Large <span>$?.??</span></button>
+                </div>
+                <div class="espresso-addon ord-esp">
+                  <span class="ea-label">⚡ Extra shots <small>$1.00 each</small></span>
+                  <div class="ea-step"><button class="ea-btn ea-dec" aria-label="Remove shot">−</button><span class="ea-q">0</span><button class="ea-btn ea-inc" aria-label="Add shot">+</button></div>
+                </div>
+                <button class="ord-confirm" disabled>Add to order →</button>
+              </div>
             </div>
           </div>
-        </div>
-        <div class="hot-card">
-          <img class="hot-img" src="assets/hot-coffee.png" alt="Autumn Velvet Latte" />
-          <h3>Autumn Velvet Latte</h3>
-          <p>Toasted nuttiness balanced with bright, aromatic seasonal harvest spice.</p>
-          <div class="ord" data-drink="Autumn Velvet Latte">
-            <button class="ord-btn">Add to Order</button>
-            <div class="ord-sizes" hidden>
-              <button class="ord-size" data-size="Small"><b>12 oz</b> Small <span>$?.??</span></button>
-              <button class="ord-size" data-size="Medium"><b>16 oz</b> Medium <span>$?.??</span></button>
-              <button class="ord-size" data-size="Large"><b>20 oz</b> Large <span>$?.??</span></button>
-            </div>
-          </div>
-        </div>
-        <div class="hot-card">
-          <img class="hot-img" src="assets/hot-coffee.png" alt="Toasted Marshmallow Pumpkin Hot Cocoa" />
-          <h3>Toasted Marshmallow Pumpkin Cocoa</h3>
-          <p>Caffeine-free luxury cocoa with toasted marshmallow and warm campfire spice.</p>
-          <div class="ord" data-drink="Toasted Marshmallow Pumpkin Cocoa">
-            <button class="ord-btn">Add to Order</button>
-            <div class="ord-sizes" hidden>
-              <button class="ord-size" data-size="Small"><b>12 oz</b> Small <span>$?.??</span></button>
-              <button class="ord-size" data-size="Medium"><b>16 oz</b> Medium <span>$?.??</span></button>
-              <button class="ord-size" data-size="Large"><b>20 oz</b> Large <span>$?.??</span></button>
-            </div>
-          </div>
-        </div>
-        <div class="hot-card">
-          <img class="hot-img" src="assets/french-hazelnut.png" alt="Traditional French Hazelnut Café" />
-          <h3>French Hazelnut Café</h3>
-          <p>A clean, sweet aromatic baseline that lets bold, nutty accents take center stage.</p>
-          <div class="ord" data-drink="French Hazelnut Café">
-            <button class="ord-btn">Add to Order</button>
-            <div class="ord-sizes" hidden>
-              <button class="ord-size" data-size="Small"><b>12 oz</b> Small <span>$?.??</span></button>
-              <button class="ord-size" data-size="Medium"><b>16 oz</b> Medium <span>$?.??</span></button>
-              <button class="ord-size" data-size="Large"><b>20 oz</b> Large <span>$?.??</span></button>
-            </div>
-          </div>
-        </div>
-        <div class="hot-card">
-          <img class="hot-img" src="assets/caramel-macchiato.png" alt="Golden Caramel Macchiato" />
-          <h3>Golden Caramel Macchiato</h3>
-          <p>Custard-like vanilla milk and strong espresso, crowned with buttery caramel.</p>
-          <div class="ord" data-drink="Golden Caramel Macchiato">
-            <button class="ord-btn">Add to Order</button>
-            <div class="ord-sizes" hidden>
-              <button class="ord-size" data-size="Small"><b>12 oz</b> Small <span>$?.??</span></button>
-              <button class="ord-size" data-size="Medium"><b>16 oz</b> Medium <span>$?.??</span></button>
-              <button class="ord-size" data-size="Large"><b>20 oz</b> Large <span>$?.??</span></button>
+          <div class="hot-card">
+            <img class="hot-img" src="assets/hot-coffee.png" alt="Toasted Marshmallow Pumpkin Cocoa" />
+            <h3>Toasted Marshmallow Pumpkin Cocoa</h3>
+            <p>Caffeine-free luxury cocoa with toasted marshmallow and warm campfire spice.</p>
+            <div class="ord ord-spec" data-drink="Toasted Marshmallow Pumpkin Cocoa" data-kind="milk" data-noshots="1">
+              <button class="ord-btn">Add to Order</button>
+              <div class="ord-panel" hidden>
+                <div class="ord-sizes">
+                  <button class="ord-size" data-size="Small"><b>12 oz</b> Small <span>$?.??</span></button>
+                  <button class="ord-size" data-size="Medium"><b>16 oz</b> Medium <span>$?.??</span></button>
+                  <button class="ord-size" data-size="Large"><b>20 oz</b> Large <span>$?.??</span></button>
+                </div>
+                <button class="ord-confirm" disabled>Add to order →</button>
+              </div>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Mix your own hot drink -->
-      <div class="eb-launch">
-        <button class="cb-start" id="hbStart"><span class="bolt">⚡</span> Create Your Drink</button>
-        <p class="eb-sub">Mix your own hot drink</p>
+      <!-- ============ LATTES ============ -->
+      <div class="hot-section">
+        <h3 class="hot-cat">Lattes</h3>
+        <div class="hot-grid">
+          <div class="hot-card hot-card-build">
+            <img class="hot-img" src="assets/hot-coffee.png" alt="Build a Latte" />
+            <h3>Build a Latte</h3>
+            <p>Smooth espresso and steamed milk, made your way. Pick your milk, flavors, and size.</p>
+            <div class="ord"><button class="ord-btn ord-build" data-build="Latte">Customize →</button></div>
+          </div>
+          <div class="hot-card">
+            <img class="hot-img" src="assets/cinnamon-roll-latte.png" alt="Cinnamon Roll Latte" />
+            <h3>Cinnamon Roll Latte</h3>
+            <p>A warm cinnamon roll fresh from the oven, with a sweet vanilla icing finish.</p>
+            <div class="ord ord-spec" data-drink="Cinnamon Roll Latte" data-kind="milk">
+              <button class="ord-btn">Add to Order</button>
+              <div class="ord-panel" hidden>
+                <div class="ord-sizes">
+                  <button class="ord-size" data-size="Small"><b>12 oz</b> Small <span>$?.??</span></button>
+                  <button class="ord-size" data-size="Medium"><b>16 oz</b> Medium <span>$?.??</span></button>
+                  <button class="ord-size" data-size="Large"><b>20 oz</b> Large <span>$?.??</span></button>
+                </div>
+                <div class="espresso-addon ord-esp">
+                  <span class="ea-label">⚡ Extra shots <small>$1.00 each</small></span>
+                  <div class="ea-step"><button class="ea-btn ea-dec" aria-label="Remove shot">−</button><span class="ea-q">0</span><button class="ea-btn ea-inc" aria-label="Add shot">+</button></div>
+                </div>
+                <button class="ord-confirm" disabled>Add to order →</button>
+              </div>
+            </div>
+          </div>
+          <div class="hot-card">
+            <img class="hot-img" src="assets/hot-coffee.png" alt="Autumn Velvet Latte" />
+            <h3>Autumn Velvet Latte</h3>
+            <p>Toasted nuttiness balanced with bright, aromatic seasonal harvest spice.</p>
+            <div class="ord ord-spec" data-drink="Autumn Velvet Latte" data-kind="milk">
+              <button class="ord-btn">Add to Order</button>
+              <div class="ord-panel" hidden>
+                <div class="ord-sizes">
+                  <button class="ord-size" data-size="Small"><b>12 oz</b> Small <span>$?.??</span></button>
+                  <button class="ord-size" data-size="Medium"><b>16 oz</b> Medium <span>$?.??</span></button>
+                  <button class="ord-size" data-size="Large"><b>20 oz</b> Large <span>$?.??</span></button>
+                </div>
+                <div class="espresso-addon ord-esp">
+                  <span class="ea-label">⚡ Extra shots <small>$1.00 each</small></span>
+                  <div class="ea-step"><button class="ea-btn ea-dec" aria-label="Remove shot">−</button><span class="ea-q">0</span><button class="ea-btn ea-inc" aria-label="Add shot">+</button></div>
+                </div>
+                <button class="ord-confirm" disabled>Add to order →</button>
+              </div>
+            </div>
+          </div>
+          <div class="hot-card">
+            <img class="hot-img" src="assets/caramel-macchiato.png" alt="Golden Caramel Macchiato" />
+            <h3>Golden Caramel Macchiato</h3>
+            <p>Custard-like vanilla milk and strong espresso, crowned with buttery caramel.</p>
+            <div class="ord ord-spec" data-drink="Golden Caramel Macchiato" data-kind="milk">
+              <button class="ord-btn">Add to Order</button>
+              <div class="ord-panel" hidden>
+                <div class="ord-sizes">
+                  <button class="ord-size" data-size="Small"><b>12 oz</b> Small <span>$?.??</span></button>
+                  <button class="ord-size" data-size="Medium"><b>16 oz</b> Medium <span>$?.??</span></button>
+                  <button class="ord-size" data-size="Large"><b>20 oz</b> Large <span>$?.??</span></button>
+                </div>
+                <div class="espresso-addon ord-esp">
+                  <span class="ea-label">⚡ Extra shots <small>$1.00 each</small></span>
+                  <div class="ea-step"><button class="ea-btn ea-dec" aria-label="Remove shot">−</button><span class="ea-q">0</span><button class="ea-btn ea-inc" aria-label="Add shot">+</button></div>
+                </div>
+                <button class="ord-confirm" disabled>Add to order →</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============ BLACK & BOLD ============ -->
+      <div class="hot-section">
+        <h3 class="hot-cat">Black &amp; Bold</h3>
+        <div class="hot-grid">
+          <div class="hot-card">
+            <img class="hot-img" src="assets/hot-coffee.png" alt="Drip Coffee" />
+            <h3>Drip Coffee</h3>
+            <p>Fresh-brewed house drip. Clean, classic, bottomless Northwoods comfort.</p>
+            <div class="ord ord-spec" data-drink="Drip Coffee" data-kind="black">
+              <button class="ord-btn">Add to Order</button>
+              <div class="ord-panel" hidden>
+                <div class="ord-sizes">
+                  <button class="ord-size" data-size="Small"><b>12 oz</b> Small <span>$?.??</span></button>
+                  <button class="ord-size" data-size="Medium"><b>16 oz</b> Medium <span>$?.??</span></button>
+                  <button class="ord-size" data-size="Large"><b>20 oz</b> Large <span>$?.??</span></button>
+                </div>
+                <div class="espresso-addon ord-esp">
+                  <span class="ea-label">⚡ Extra shots <small>$1.00 each</small></span>
+                  <div class="ea-step"><button class="ea-btn ea-dec" aria-label="Remove shot">−</button><span class="ea-q">0</span><button class="ea-btn ea-inc" aria-label="Add shot">+</button></div>
+                </div>
+                <button class="ord-confirm" disabled>Add to order →</button>
+              </div>
+            </div>
+          </div>
+          <div class="hot-card">
+            <img class="hot-img" src="assets/hot-coffee.png" alt="Americano" />
+            <h3>Americano</h3>
+            <p>Bold espresso cut with hot water. Smooth, rich, and full-bodied.</p>
+            <div class="ord ord-spec" data-drink="Americano" data-kind="black">
+              <button class="ord-btn">Add to Order</button>
+              <div class="ord-panel" hidden>
+                <div class="ord-sizes">
+                  <button class="ord-size" data-size="Small"><b>12 oz</b> Small <span>$?.??</span></button>
+                  <button class="ord-size" data-size="Medium"><b>16 oz</b> Medium <span>$?.??</span></button>
+                  <button class="ord-size" data-size="Large"><b>20 oz</b> Large <span>$?.??</span></button>
+                </div>
+                <div class="espresso-addon ord-esp">
+                  <span class="ea-label">⚡ Extra shots <small>$1.00 each</small></span>
+                  <div class="ea-step"><button class="ea-btn ea-dec" aria-label="Remove shot">−</button><span class="ea-q">0</span><button class="ea-btn ea-inc" aria-label="Add shot">+</button></div>
+                </div>
+                <button class="ord-confirm" disabled>Add to order →</button>
+              </div>
+            </div>
+          </div>
+          <div class="hot-card">
+            <img class="hot-img" src="assets/hot-coffee.png" alt="Espresso" />
+            <h3>Espresso</h3>
+            <p>A concentrated shot of pure, intense Northwoods roast. Straight and strong.</p>
+            <div class="ord ord-spec" data-drink="Espresso" data-kind="black" data-noshots="1">
+              <button class="ord-btn">Add to Order</button>
+              <div class="ord-panel" hidden>
+                <div class="ord-sizes">
+                  <button class="ord-size" data-size="Single"><b>1×</b> Single <span>$?.??</span></button>
+                  <button class="ord-size" data-size="Double"><b>2×</b> Double <span>$?.??</span></button>
+                  <button class="ord-size" data-size="Triple"><b>3×</b> Triple <span>$?.??</span></button>
+                </div>
+                <button class="ord-confirm" disabled>Add to order →</button>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
       <div class="cb-card hb-card" id="hbCard" hidden>
         <button class="cb-close" id="hbClose" aria-label="Cancel">×</button>
         <div class="cb-progress" id="hbProgress"></div>
         <div class="cb-steps" id="hbSteps">
-          <div class="cb-step" data-hstep="base">
-            <h3 class="cb-q">Mocha, Latte, or Brew Coffee?</h3>
-            <div class="cb-options cb-3">
-              <button class="cb-opt" data-val="Mocha"><span class="cb-tick">✓</span><span class="cb-opt-t">Mocha</span><span class="cb-opt-d">Espresso + rich chocolate</span></button>
-              <button class="cb-opt" data-val="Latte"><span class="cb-tick">✓</span><span class="cb-opt-t">Latte</span><span class="cb-opt-d">Espresso + steamed milk</span></button>
-              <button class="cb-opt" data-val="Brew Coffee"><span class="cb-tick">✓</span><span class="cb-opt-t">Brew Coffee</span><span class="cb-opt-d">Classic hot drip</span></button>
-            </div>
-          </div>
           <div class="cb-step" data-hstep="milk">
             <h3 class="cb-q">Choose your milk</h3>
             <div class="cb-options cb-3">
@@ -1281,25 +1406,65 @@
       setTimeout(()=>{ b.classList.remove('added'); b.innerHTML=t; }, 1400);
     }
   }
-  document.querySelectorAll('[data-panel="energy"],[data-panel="hot"]').forEach(p=>p.addEventListener('click', ordHandler));
+  document.querySelector('[data-panel="energy"]').addEventListener('click', ordHandler);
   /* energy refreshers have their own sizes: 16 / 20 / 32 oz */
   const ENERGY_SIZES=[{oz:'16 oz',price:4.50},{oz:'20 oz',price:6.00},{oz:'32 oz',price:8.00}];
   document.querySelectorAll('[data-panel="energy"] .ord-sizes').forEach(s=>{
     s.innerHTML = ENERGY_SIZES.map(z=>`<button class="ord-size" data-oz="${z.oz}" data-price="${z.price}"><b>${z.oz}</b> <span>$${z.price.toFixed(2)}</span></button>`).join('');
   });
-  /* hot featured cards: $5 / $5.50 / $6 */
-  document.querySelectorAll('[data-panel="hot"] .ord-sizes .ord-size').forEach(b=>{
+  /* hot specialties (mocha/latte): $5 / $5.50 / $6 — black & bold stay $?.?? until priced */
+  document.querySelectorAll('[data-panel="hot"] .ord-spec[data-kind="milk"] .ord-sizes .ord-size').forEach(b=>{
     const p=HOT_PRICES[b.dataset.size]; if(p!=null){ b.dataset.price=p; const sp=b.querySelector('span'); if(sp) sp.textContent=`$${p.toFixed(2)}`; }
   });
+  /* hot specialty + black & bold: size + extra shots → confirm; "Customize" launches the builder */
+  function hotHandler(e){
+    const build=e.target.closest('.ord-build');
+    if(build){ hbOpen(build.dataset.build); return; }
+    const ord=e.target.closest('.ord-spec'); if(!ord) return;
+    const ea=e.target.closest('.ea-btn');
+    if(ea){ let n=+(ord.dataset.shots||0); n = ea.classList.contains('ea-inc')? n+1 : Math.max(0,n-1); ord.dataset.shots=n; const q=ord.querySelector('.ord-esp .ea-q'); if(q) q.textContent=n; return; }
+    const conf=e.target.closest('.ord-confirm');
+    if(conf){
+      if(!ord.dataset.size) return;
+      const shots=+(ord.dataset.shots||0);
+      const bp = ord.dataset.price ? +ord.dataset.price : null;
+      const total = bp!=null ? bp + shots*1 : null;
+      const price = total!=null ? `$${total.toFixed(2)}` : '$?.??';
+      const addon = shots>0 ? `${shots} extra shot${shots>1?'s':''}` + (bp!=null?` · +$${shots.toFixed(2)}`:'') : '';
+      cart.push({name:ord.dataset.drink, detail:'Hot Drink', sizeLabel:ord.dataset.sizelabel||'', price, addon});
+      bumpCart(); renderCart();
+      ord.querySelector('.ord-panel').hidden=true;
+      ord.querySelectorAll('.ord-size').forEach(s=>s.classList.remove('sel'));
+      ord.dataset.shots='0'; const q=ord.querySelector('.ord-esp .ea-q'); if(q) q.textContent='0';
+      ord.dataset.size=''; ord.dataset.price='';
+      ord.querySelector('.ord-confirm').disabled=true;
+      const b=ord.querySelector('.ord-btn'); const t=b.innerHTML; b.classList.add('added'); b.textContent='Added ✓';
+      setTimeout(()=>{ b.classList.remove('added'); b.innerHTML=t; }, 1400);
+      return;
+    }
+    const addBtn=e.target.closest('.ord-btn');
+    if(addBtn){ const p=ord.querySelector('.ord-panel'); p.hidden=!p.hidden; return; }
+    const sizeBtn=e.target.closest('.ord-size');
+    if(sizeBtn){
+      ord.querySelectorAll('.ord-size').forEach(s=>s.classList.remove('sel'));
+      sizeBtn.classList.add('sel');
+      ord.dataset.size=sizeBtn.dataset.size;
+      ord.dataset.sizelabel = sizeBtn.dataset.oz || (SIZE_OZ[sizeBtn.dataset.size] ? `${SIZE_OZ[sizeBtn.dataset.size]} ${sizeBtn.dataset.size}` : sizeBtn.dataset.size);
+      ord.dataset.price = sizeBtn.dataset.price || '';
+      ord.querySelector('.ord-confirm').disabled=false;
+      return;
+    }
+  }
+  document.querySelector('[data-panel="hot"]').addEventListener('click', hotHandler);
   /* hot mix builder size step prices */
   document.querySelectorAll('#hbSteps [data-hstep="size"] .cb-size').forEach(b=>{
     const p=HOT_PRICES[b.dataset.size]; const d=b.querySelector('.cb-opt-d'); if(p!=null && d) d.textContent=`$${p.toFixed(2)}`;
   });
 
   /* ===== HOT: Create Your Drink (mix) ===== */
-  const hbCard=document.getElementById('hbCard'), hbLaunch=document.querySelector('[data-panel="hot"] .eb-launch');
+  const hbCard=document.getElementById('hbCard');
   const hbStepsEls=[...document.querySelectorAll('#hbSteps .cb-step')];
-  const hbFlow=['base','milk','flavors','size'];
+  const hbFlow=['milk','flavors','size'];
   let hbIdx=0; const hbOrder={base:null, milk:null, flavors:[], size:null, espresso:0};
   const hbProg=document.getElementById('hbProgress'), hbBack=document.getElementById('hbBack'), hbNext=document.getElementById('hbNext'), hbNav=document.getElementById('hbNav');
   const hbFlavorsStep=document.querySelector('#hbSteps [data-hstep="flavors"]');
@@ -1318,8 +1483,8 @@
     hbProgRender(); hbSync(); hbUpdateNav();
     const eq=document.querySelector('#hbEspresso .ea-q'); if(eq) eq.textContent=hbOrder.espresso; }
   function hbNextStep(){ if(hbIdx<hbFlow.length-1) hbShow(hbIdx+1,'fwd'); }
-  function hbOpen(){ hbLaunch.hidden=true; hbCard.hidden=false; hbOrder.base=null; hbOrder.milk=null; hbOrder.flavors=[]; hbOrder.size=null; hbOrder.espresso=0; hbFlavorsStep.querySelectorAll('.cb-chip').forEach(c=>c.classList.remove('sel')); hbNav.style.display=''; hbShow(0,'fwd'); }
-  function hbClose(){ hbCard.hidden=true; hbLaunch.hidden=false; }
+  function hbOpen(base){ hbCard.hidden=false; hbOrder.base=base; hbOrder.milk=null; hbOrder.flavors=[]; hbOrder.size=null; hbOrder.espresso=0; hbFlavorsStep.querySelectorAll('.cb-chip').forEach(c=>c.classList.remove('sel')); hbNav.style.display=''; hbShow(0,'fwd'); hbCard.scrollIntoView({block:'center',behavior:'smooth'}); }
+  function hbClose(){ hbCard.hidden=true; }
   function hbAdd(){ const flav=hbOrder.flavors.length? hbOrder.flavors.join(' + '):'No flavors'; const detail=`${hbOrder.milk} · ${flav}`;
     const es=hbOrder.espresso||0; const base=HOT_PRICES[hbOrder.size];
     const total = base!=null ? base + es*1 : null;
@@ -1328,7 +1493,6 @@
     cart.push({name:hbOrder.base, detail, sizeLabel:`${SIZE_OZ[hbOrder.size]} ${hbOrder.size}`, price, addon}); bumpCart(); renderCart();
     document.getElementById('hbDoneSummary').textContent=`${SIZE_OZ[hbOrder.size]} ${hbOrder.base} — ${detail}` + (addon?` (${addon})`:'') + ` · ${price}`;
     hbStepsEls.forEach(s=>s.classList.remove('is-active','in-right','in-left')); hbNav.style.display='none'; hbStepEl('done').classList.add('is-active','in-right'); }
-  document.getElementById('hbStart').addEventListener('click', hbOpen);
   document.getElementById('hbClose').addEventListener('click', hbClose);
   document.getElementById('hbSteps').addEventListener('click', e=>{
     const ea=e.target.closest('.ea-btn');
@@ -1344,7 +1508,7 @@
   });
   hbBack.addEventListener('click', ()=>{ if(hbIdx>0) hbShow(hbIdx-1,'back'); else hbClose(); });
   hbNext.addEventListener('click', ()=>{ const n=hbFlow[hbIdx]; if(n==='flavors') hbNextStep(); else if(n==='size'&&hbOrder.size) hbAdd(); });
-  document.getElementById('hbAnother').addEventListener('click', hbOpen);
+  document.getElementById('hbAnother').addEventListener('click', ()=>hbOpen(hbOrder.base));
   document.getElementById('hbViewCart').addEventListener('click', openCart);
 
   /* init */
