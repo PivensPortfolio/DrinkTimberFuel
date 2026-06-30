@@ -312,10 +312,15 @@
   .hot-card.card-fs[data-fs-step="size"] > .hot-img{ display:block; height:150px; margin:0 auto; }
   .hot-card.card-fs[data-fs-step="size"] > h3{ display:block; margin-top:8px; }
   .hot-card.card-fs[data-fs-step="size"] > p{ display:block; flex:0 0 auto; margin-top:8px; max-width:420px; }
-  /* refreshers (and any card without a native hero) render a hero INSIDE the .fsb */
+  /* refreshers (and any card without a native hero) render a hero INSIDE the .fsb.
+     The hero shows on the FIRST step only — Base for refreshers (they have a .fsb-hero),
+     Size for hot/cold (which use their native hero, no .fsb-hero). */
   .fsb-hero{ display:none; }
-  .card-fs[data-fs-step="size"] .fsb-hero{ display:block; text-align:center; }
-  .card-fs[data-fs-step="size"] .fsb-title{ display:none; } /* title shows on step 1, drop the small label */
+  .card-fs[data-fs-step="base"] .fsb-hero{ display:block; text-align:center; } /* refreshers: hero on the Base step (step 1) only */
+  .card-fs[data-fs-step="base"] .fsb-title{ display:none; } /* base = step 1 for refreshers → hero shows, drop the small label */
+  /* hot/cold (no .fsb-hero) show their native hero on Size, so hide the small label there;
+     refreshers (have .fsb-hero) keep the label on Size since the hero lives on the Base step */
+  .card-fs:not(:has(.fsb-hero))[data-fs-step="size"] .fsb-title{ display:none; }
   .fsb-hero-img{ height:150px; width:auto; margin:0 auto; object-fit:contain; filter:drop-shadow(0 16px 24px rgba(0,0,0,.55)); }
   .fsb-hero-title{ font-family:"Anton",sans-serif; font-size:21px; color:#fff; text-transform:uppercase; letter-spacing:1px; margin-top:6px; }
   .fsb-hero-desc{ font-family:"Barlow Condensed",sans-serif; font-size:15px; color:var(--cream-85); margin-top:8px; max-width:420px; margin-inline:auto; line-height:1.4; }
@@ -1209,12 +1214,14 @@
       setTimeout(()=>{ b.classList.remove('added'); b.innerHTML=t; }, 1400);
     }
   }
-  /* refreshers use the same .fsb flow: Size -> Flavor Pumps (no milk, no espresso shots) */
+  /* refreshers use the same .fsb flow: Base -> Size -> Flavor Pumps (no milk, no espresso shots) */
   const REFRESHER_SIZES = [
     {size:'Small',  oz:'16 oz', price:'4.50'},
     {size:'Medium', oz:'20 oz', price:'6.00'},
     {size:'Large',  oz:'32 oz', price:'8.00'}
   ];
+  // refresher base liquids — single-select, all the same price (no upcharge)
+  const REFRESHER_BASES = ['Red Bull','Sugar-Free Red Bull','Lemonade'];
   function refreshHandler(e){
     if(e.target.closest('.fsb')) return;
     const ord=e.target.closest('.ord[data-drink]'); if(!ord) return;
@@ -1222,7 +1229,7 @@
     const card=ord.closest('.orb-card') || ord.closest('.spot-banner'); if(!card) return;
     const img=(card.querySelector('.orb-img')||card.querySelector('img'))?.src || '';
     const firstRect=card.getBoundingClientRect();
-    fsbBuild(card, {drink:ord.dataset.drink, ord:null, noMilk:true, noShots:true, img, sizes:REFRESHER_SIZES, flavors:FS_FLAVORS});
+    fsbBuild(card, {drink:ord.dataset.drink, ord:null, noMilk:true, noShots:true, bases:REFRESHER_BASES, img, sizes:REFRESHER_SIZES, flavors:FS_FLAVORS});
     fsOpen(card, firstRect);
   }
   document.querySelector('[data-panel="energy"]').addEventListener('click', refreshHandler);
@@ -1510,13 +1517,15 @@
   }
   function fsbBuild(card, cfg){
     // cfg: { drink, ord (or null), noShots, sizes:[{size,oz,price}], flavors:[...] }
-    const { drink, ord=null, noShots=false, noMilk=false, img='', desc='', sizes, flavors } = cfg;
+    const { drink, ord=null, noShots=false, noMilk=false, bases=null, img='', desc='', sizes, flavors } = cfg;
     // skip the milk step for refreshers (noMilk) and plain espresso shots
     const skipMilk = noMilk || /espresso$/i.test((drink||'').trim());
-    const steps = skipMilk ? ['size','extras'] : FS_STEPS;
+    let steps = skipMilk ? ['size','extras'] : FS_STEPS;
+    // refreshers add a Base step (Red Bull / Sugar-Free Red Bull / Lemonade) as step 1
+    if(bases && bases.length) steps = ['base', ...steps];
     const recipe = SPECIALTY_RECIPE[(drink||'').trim()] || []; // preset pumps for named specialties
     const baseline = {}; recipe.forEach(f=>{ baseline[f]=(baseline[f]||0)+1; });
-    fsb = {card, ord, drink, noShots, sizes, flavors, steps, step:0, size:null, milk:null, pumps:{...baseline}, baseline, shots:0};
+    fsb = {card, ord, drink, noShots, sizes, flavors, bases, steps, step:0, size:null, milk:null, base:null, pumps:{...baseline}, baseline, shots:0};
 
     const cat=hotCategory(card); // drink-aware shots: mochas/lattes 1/2/3, americano 2/3/4
     const sizeOpts = sizes.map(s=>{ const n = noShots?0:shotsForSize(drink, cat, s.size);
@@ -1528,6 +1537,9 @@
     const milks = isMochaLatte(hotCategory(card)) ? FS_MILKS.filter(m=>m.val!=='No Milk') : FS_MILKS;
     const milkOpts = milks.map(m=>`<button class="fsb-opt fsb-milk" data-val="${m.val}">
         <span class="fsb-nm">${m.val}</span>${m.note?`<span class="fsb-pr${m.up?' fsb-up':''}">${m.note}</span>`:''}</button>`).join('');
+    // refresher base options — single-select, styled like milk, no upcharge
+    const baseOpts = (bases||[]).map(b=>`<button class="fsb-opt fsb-base" data-val="${b}">
+        <span class="fsb-nm">${b}</span></button>`).join('');
     const pumpRows = flavors.map((f,i)=>fsStepperRow(f, 'pump:'+i, fsb.pumps[f]||0)).join('');
     const shotBlock = noShots ? '' :
       `<h4 class="fsb-q">Additional Espresso Shots</h4>
@@ -1538,6 +1550,10 @@
     wrap.className='fsb';
     wrap.innerHTML=
       `${img?`<div class="fsb-hero"><img class="fsb-hero-img" src="${img}" alt="" /><div class="fsb-hero-title">${fsb.drink}</div>${desc?`<div class="fsb-hero-desc">${desc}</div>`:''}</div>`:''}<div class="fsb-title">${fsb.drink}</div>
+       ${bases&&bases.length?`<div class="fsb-step" data-fstep="base">
+         <h4 class="fsb-q">Choose your base</h4>
+         <div class="fsb-grid">${baseOpts}</div>
+       </div>`:''}
        <div class="fsb-step" data-fstep="size">
          <div class="fsb-grid">${sizeOpts}</div>
        </div>
@@ -1570,9 +1586,11 @@
     fsb.wrap.querySelectorAll('.fsb-step').forEach(s=>s.classList.toggle('is-active', s.dataset.fstep===name));
     fsb.wrap.querySelectorAll('.fsb-size').forEach(b=>b.classList.toggle('sel', b.dataset.size===fsb.size));
     fsb.wrap.querySelectorAll('.fsb-milk').forEach(b=>b.classList.toggle('sel', b.dataset.val===fsb.milk));
+    fsb.wrap.querySelectorAll('.fsb-base').forEach(b=>b.classList.toggle('sel', b.dataset.val===fsb.base));
     const next=fsb.wrap.querySelector('.fsb-next');
     if(name==='extras'){ next.textContent='Add to Order'; next.disabled=false; }
     else if(name==='size'){ next.textContent='Next'; next.disabled=!fsb.size; }
+    else if(name==='base'){ next.textContent='Next'; next.disabled=!fsb.base; }
     else { next.textContent='Next'; next.disabled=!fsb.milk; }
     fsUpdateBack();
   }
@@ -1585,6 +1603,7 @@
       else { const f=fsb.flavors[+key.split(':')[1]]; const n=Math.max(0,Math.min(9,(fsb.pumps[f]||0)+delta)); if(n===0) delete fsb.pumps[f]; else fsb.pumps[f]=n; row.querySelector('.ea-q').textContent=n; }
       return;
     }
+    const base=e.target.closest('.fsb-base'); if(base){ fsb.base=base.dataset.val; fsbRender(); return; }
     const size=e.target.closest('.fsb-size'); if(size){ fsb.size=size.dataset.size; fsbRender(); return; }
     const milk=e.target.closest('.fsb-milk'); if(milk){ fsb.milk=milk.dataset.val; fsbRender(); return; }
     const next=e.target.closest('.fsb-next');
@@ -1612,11 +1631,12 @@
     if(oat>0) extras.push('Oat milk');
     const addon = extras.length ? `${extras.join(' · ')}${extrasCost>0?` · +${fmt(extrasCost)}`:''}` : '';
     const sizeLabel = sizeObj ? `${sizeObj.oz} ${sizeObj.size}` : (fsb.size||'');
-    cart.push({name:fsb.drink, detail:fsb.milk||'', sizeLabel, price, addon});
+    const liquid = fsb.milk || fsb.base || ''; // milk (hot/cold) or base (refreshers) fills the "— X" slot
+    cart.push({name:fsb.drink, detail:liquid, sizeLabel, price, addon});
     bumpCart(); renderCart();
     // show the shared .cb-done confirmation, then auto-dismiss (morph back) after 2s
-    const milkPart = fsb.milk ? ` — ${fsb.milk}` : ''; // no milk step (e.g. Espresso) → omit the dash/blank
-    const summary = `${sizeLabel} ${fsb.drink}${milkPart}` + (addon?` (${addon})`:'') + ` · ${price}`;
+    const liquidPart = liquid ? ` — ${liquid}` : ''; // no milk/base step (e.g. Espresso) → omit the dash/blank
+    const summary = `${sizeLabel} ${fsb.drink}${liquidPart}` + (addon?` (${addon})`:'') + ` · ${price}`;
     fsbShowDone(card, summary);
   }
   function fsbShowDone(card, summary){
