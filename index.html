@@ -1151,8 +1151,12 @@
   const shotText = size => SHOTS_BY_SIZE[size] ? `${SHOTS_BY_SIZE[size]} shot${SHOTS_BY_SIZE[size]>1?'s':''}` : '';
   // base drink price by drink + size (null = price TBD)
   const PRICES = {
-    'Cold Brew':   { Small:4.25, Medium:4.75, Large:5.25 },
-    'Iced Coffee': { Small:3.75, Medium:4.25, Large:4.75 }
+    'Cold Brew':      { Small:4.25, Medium:4.75, Large:5.25 },
+    'Iced Coffee':    { Small:3.75, Medium:4.25, Large:4.75 },
+    'Iced Mocha':     { Small:5.00, Medium:5.50, Large:6.00 }, // mirrors hot mocha
+    'Iced Latte':     { Small:5.00, Medium:5.50, Large:6.00 }, // mirrors hot latte
+    'Iced Americano': { Small:3.95, Medium:4.25, Large:4.75 }, // mirrors hot americano
+    'Iced Espresso':  { Small:3.95, Medium:4.25, Large:4.75 }  // mirrors hot espresso
   };
   const HOT_PRICES = { Small:5.00, Medium:5.50, Large:6.00 };
   const priceOf = (drink,size) => (PRICES[drink] && PRICES[drink][size]!=null) ? PRICES[drink][size] : null;
