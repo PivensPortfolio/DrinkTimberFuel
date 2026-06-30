@@ -289,6 +289,30 @@
      hide the top toggle so "Add to Order" isn't shown twice. It returns
      (collapsed state / post-confirm "Added ✓") once the panel is hidden. */
   .ord-spec:has(.ord-panel:not([hidden])) > .ord-btn{ display:none; }
+
+  /* ---- MOBILE: full-screen card morph (FLIP) ---- */
+  /* placeholder holds the card's slot in the grid while it is position:fixed */
+  .hot-card-ph{ flex:0 0 auto; }
+  .hot-card.card-fs{
+    position:fixed; inset:0; z-index:200;
+    width:auto; height:auto; max-width:none; margin:0;
+    border:none; border-radius:0; background:var(--bg);
+    padding:74px 20px 32px; overflow-y:auto; will-change:transform;
+  }
+  .hot-card.card-fs::before{ display:none; } /* drop the small card glow in full screen */
+  .card-fs-close{
+    position:fixed; top:14px; right:16px; z-index:210;
+    width:44px; height:44px; border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    background:rgba(255,255,255,.06); border:1px solid var(--gold-20);
+    color:var(--cream); font-size:26px; line-height:1; cursor:pointer;
+    opacity:0; transition:opacity .25s var(--ease);
+  }
+  .card-fs-close.show{ opacity:1; }
+  .card-fs-close:hover{ color:var(--gold); border-color:var(--gold); }
+  @media (prefers-reduced-motion: reduce){
+    .card-fs-close{ transition:none; }
+  }
   .ord-size.sel{ border-color:var(--gold); background:rgba(245,197,24,.16); }
   .ord-esp{ max-width:260px; margin:10px auto 0; padding:8px 10px 8px 14px; }
   .ord-esp .ea-label{ font-size:11px; }
@@ -1450,10 +1474,23 @@
       ord.querySelector('.ord-confirm').disabled=true;
       const b=ord.querySelector('.ord-btn'); const t=b.innerHTML; b.classList.add('added'); b.textContent='Added ✓';
       setTimeout(()=>{ b.classList.remove('added'); b.innerHTML=t; }, 1400);
+      // if added from the mobile full-screen view, morph the card back to its slot
+      const fsCard=ord.closest('.hot-card.card-fs'); if(fsCard) fsClose(fsCard);
       return;
     }
     const addBtn=e.target.closest('.ord-btn');
-    if(addBtn){ const p=ord.querySelector('.ord-panel'); p.hidden=!p.hidden; return; }
+    if(addBtn){
+      const p=ord.querySelector('.ord-panel');
+      // MOBILE: morph the whole card to full screen (FLIP). DESKTOP: inline toggle (unchanged).
+      if(mqFsMobile.matches && p.hidden){
+        const card=ord.closest('.hot-card');
+        const firstRect=card.getBoundingClientRect(); // measure collapsed size BEFORE revealing panel
+        p.hidden=false;
+        fsOpen(card, firstRect);
+        return;
+      }
+      p.hidden=!p.hidden; return;
+    }
     const sizeBtn=e.target.closest('.ord-size');
     if(sizeBtn){
       ord.querySelectorAll('.ord-size').forEach(s=>s.classList.remove('sel'));
@@ -1525,6 +1562,85 @@
   hbNext.addEventListener('click', ()=>{ const n=hbFlow[hbIdx]; if(n==='flavors') hbNextStep(); else if(n==='size'&&hbOrder.size) hbAdd(); });
   document.getElementById('hbAnother').addEventListener('click', ()=>hbOpen(hbOrder.base));
   document.getElementById('hbViewCart').addEventListener('click', openCart);
+
+  /* ===================================================================
+     MOBILE FULL-SCREEN CARD MORPH (FLIP) — Hot specialty cards
+     Step 1: open/close animation only. Options inside still use hotHandler.
+     =================================================================== */
+  const mqFsMobile = window.matchMedia('(max-width:600px)');
+  const mqReduced  = window.matchMedia('(prefers-reduced-motion: reduce)');
+  const FS_DUR = 420;
+  const FS_EASE = 'cubic-bezier(.2,.7,.2,1)';
+  let fsCloseBtn = null;
+
+  function fsOpen(card, firstRect){
+    // 1) FIRST is the collapsed rect (passed in). Drop a placeholder so the
+    //    grid doesn't reflow when the card switches to position:fixed.
+    const ph = document.createElement('div');
+    ph.className = 'hot-card-ph';
+    ph.style.width  = firstRect.width  + 'px';
+    ph.style.height = firstRect.height + 'px';
+    card.parentNode.insertBefore(ph, card);
+    card._fsPh = ph;
+
+    // 2) LAST — go full screen.
+    card.classList.add('card-fs');
+    document.body.style.overflow = 'hidden';
+
+    // close control lives on <body> so the card's transform never distorts it
+    fsCloseBtn = document.createElement('button');
+    fsCloseBtn.className = 'card-fs-close';
+    fsCloseBtn.setAttribute('aria-label','Close');
+    fsCloseBtn.innerHTML = '←'; // ← back arrow
+    fsCloseBtn.addEventListener('click', ()=>fsClose(card));
+    document.body.appendChild(fsCloseBtn);
+    // make the close control available immediately (don't gate it on the morph)
+    fsCloseBtn.classList.add('show');
+
+    if(mqReduced.matches) return; // reduced motion: snap, no morph
+
+    // 3) INVERT + 4) PLAY via WAAPI — animate from the collapsed rect up to
+    //    full screen (transform:none). fill:'none' leaves no inline transform.
+    const last = card.getBoundingClientRect();
+    const dx = firstRect.left - last.left, dy = firstRect.top - last.top;
+    const sx = firstRect.width / last.width, sy = firstRect.height / last.height;
+    card.animate(
+      [{ transformOrigin:'top left', transform:`translate(${dx}px,${dy}px) scale(${sx},${sy})` },
+       { transformOrigin:'top left', transform:'none' }],
+      { duration:FS_DUR, easing:FS_EASE, fill:'none' }
+    );
+  }
+
+  function fsClose(card){
+    const ord = card.querySelector('.ord-spec');
+    const ph  = card._fsPh;
+    const finish = ()=>{
+      card.classList.remove('card-fs');
+      card.style.transform=''; card.style.transition=''; card.style.transformOrigin='';
+      if(ord){ const p=ord.querySelector('.ord-panel'); if(p) p.hidden=true; } // collapse back
+      if(ph && ph.parentNode) ph.parentNode.removeChild(ph);
+      card._fsPh=null;
+      document.body.style.overflow='';
+      if(fsCloseBtn && fsCloseBtn.parentNode) fsCloseBtn.parentNode.removeChild(fsCloseBtn);
+      fsCloseBtn=null;
+    };
+    if(mqReduced.matches || !ph){ finish(); return; }
+    // reverse FLIP via WAAPI: from full screen → the placeholder's slot.
+    const target = ph.getBoundingClientRect(), cur = card.getBoundingClientRect();
+    const dx = target.left - cur.left, dy = target.top - cur.top;
+    const sx = target.width / cur.width, sy = target.height / cur.height;
+    if(fsCloseBtn) fsCloseBtn.classList.remove('show');
+    const anim = card.animate(
+      [{ transformOrigin:'top left', transform:'none' },
+       { transformOrigin:'top left', transform:`translate(${dx}px,${dy}px) scale(${sx},${sy})` }],
+      { duration:FS_DUR, easing:FS_EASE, fill:'forwards' }
+    );
+    // finalize once — via animation end OR a timeout fallback (never strand fullscreen)
+    let settled=false;
+    const settle=()=>{ if(settled) return; settled=true; try{anim.cancel();}catch(e){} finish(); };
+    anim.onfinish = settle; anim.oncancel = settle;
+    setTimeout(settle, FS_DUR + 80);
+  }
 
   /* init */
   buildFlow(); show(0,'fwd'); renderCart();
