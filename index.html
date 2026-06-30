@@ -1013,6 +1013,7 @@
     'Cold Brew':   { Small:4.25, Medium:4.75, Large:5.25 },
     'Iced Coffee': { Small:3.75, Medium:4.25, Large:4.75 }
   };
+  const HOT_PRICES = { Small:5.00, Medium:5.50, Large:6.00 };
   const priceOf = (brew,size) => (PRICES[brew] && PRICES[brew][size]!=null) ? PRICES[brew][size] : null;
   const fmt = n => `$${n.toFixed(2)}`;
   const pumpEntries = o => Object.entries(o.pumps||{}).filter(([,v])=>v>0);
@@ -1229,6 +1230,14 @@
   document.querySelectorAll('[data-panel="energy"] .ord-sizes').forEach(s=>{
     s.innerHTML = ENERGY_SIZES.map(z=>`<button class="ord-size" data-oz="${z.oz}" data-price="${z.price}"><b>${z.oz}</b> <span>$${z.price.toFixed(2)}</span></button>`).join('');
   });
+  /* hot featured cards: $5 / $5.50 / $6 */
+  document.querySelectorAll('[data-panel="hot"] .ord-sizes .ord-size').forEach(b=>{
+    const p=HOT_PRICES[b.dataset.size]; if(p!=null){ b.dataset.price=p; const sp=b.querySelector('span'); if(sp) sp.textContent=`$${p.toFixed(2)}`; }
+  });
+  /* hot mix builder size step prices */
+  document.querySelectorAll('#hbSteps [data-hstep="size"] .cb-size').forEach(b=>{
+    const p=HOT_PRICES[b.dataset.size]; const d=b.querySelector('.cb-opt-d'); if(p!=null && d) d.textContent=`$${p.toFixed(2)}`;
+  });
 
   /* ===== HOT: Create Your Drink (mix) ===== */
   const hbCard=document.getElementById('hbCard'), hbLaunch=document.querySelector('[data-panel="hot"] .eb-launch');
@@ -1254,8 +1263,9 @@
   function hbOpen(){ hbLaunch.hidden=true; hbCard.hidden=false; hbOrder.base=null; hbOrder.milk=null; hbOrder.flavors=[]; hbOrder.size=null; hbFlavorsStep.querySelectorAll('.cb-chip').forEach(c=>c.classList.remove('sel')); hbNav.style.display=''; hbShow(0,'fwd'); }
   function hbClose(){ hbCard.hidden=true; hbLaunch.hidden=false; }
   function hbAdd(){ const flav=hbOrder.flavors.length? hbOrder.flavors.join(' + '):'No flavors'; const detail=`${hbOrder.milk} · ${flav}`;
-    cart.push({name:hbOrder.base, detail, sizeLabel:`${SIZE_OZ[hbOrder.size]} ${hbOrder.size}`, price:'$?.??'}); bumpCart(); renderCart();
-    document.getElementById('hbDoneSummary').textContent=`${SIZE_OZ[hbOrder.size]} ${hbOrder.base} — ${detail}`;
+    const price = HOT_PRICES[hbOrder.size]!=null ? `$${HOT_PRICES[hbOrder.size].toFixed(2)}` : '$?.??';
+    cart.push({name:hbOrder.base, detail, sizeLabel:`${SIZE_OZ[hbOrder.size]} ${hbOrder.size}`, price}); bumpCart(); renderCart();
+    document.getElementById('hbDoneSummary').textContent=`${SIZE_OZ[hbOrder.size]} ${hbOrder.base} — ${detail} · ${price}`;
     hbStepsEls.forEach(s=>s.classList.remove('is-active','in-right','in-left')); hbNav.style.display='none'; hbStepEl('done').classList.add('is-active','in-right'); }
   document.getElementById('hbStart').addEventListener('click', hbOpen);
   document.getElementById('hbClose').addEventListener('click', hbClose);
