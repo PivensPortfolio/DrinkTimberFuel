@@ -596,6 +596,7 @@
   .co-pay:hover:not(:disabled){ transform:translateY(-1px); }
   .co-pay:disabled{ opacity:.5; cursor:not-allowed; box-shadow:none; }
   .co-note{ text-align:center; color:var(--gold); font-family:"Barlow Condensed",sans-serif; font-size:14px; margin-top:12px; min-height:1em; }
+  .co-note.err{ color:var(--fire); }
   .co-secure{ font-family:"Barlow Condensed",sans-serif; text-align:center; color:var(--muted); font-size:12px; margin-top:14px; line-height:1.5; }
   @media (max-width:600px){ .checkout-overlay{ padding:0; } .checkout{ min-height:100vh; border-radius:0; border:none; width:100%; } }
 
@@ -1186,8 +1187,8 @@
     <section class="co-section">
       <h3>Pickup Details</h3>
       <p class="co-pickup">Timber Fuel · Cass Lake, MN<br/>Ready for pickup at the counter.</p>
-      <label class="co-field"><span>Name for the order</span><input type="text" id="coName" autocomplete="name" placeholder="Your name" /></label>
-      <label class="co-field"><span>Phone (optional)</span><input type="tel" id="coPhone" autocomplete="tel" placeholder="We'll text when it's ready" /></label>
+      <label class="co-field"><span>Name for the order</span><input type="text" id="coName" autocomplete="name" required placeholder="Your name" /></label>
+      <label class="co-field"><span>Phone</span><input type="tel" id="coPhone" autocomplete="tel" required placeholder="So we can text when it's ready" /></label>
     </section>
 
     <section class="co-section">
@@ -1293,7 +1294,13 @@
   document.getElementById('checkoutClose').addEventListener('click', closeCheckout);
   checkoutOverlay.addEventListener('click', e=>{ if(e.target===checkoutOverlay) closeCheckout(); });
   document.getElementById('coPay').addEventListener('click', ()=>{
-    document.getElementById('coNote').textContent='Card payment is being set up. Coming online soon.';
+    const note=document.getElementById('coNote');
+    const name=document.getElementById('coName').value.trim();
+    const phone=document.getElementById('coPhone').value.trim();
+    if(!name){ note.classList.add('err'); note.textContent='Please enter a name for the order.'; document.getElementById('coName').focus(); return; }
+    if(!phone){ note.classList.add('err'); note.textContent='Please enter a phone number so we can text when it is ready.'; document.getElementById('coPhone').focus(); return; }
+    note.classList.remove('err');
+    note.textContent='Card payment is being set up. Coming online soon.';
   });
 
   /* ===== per-drink Add to Order (Energy + Hot featured) ===== */
