@@ -563,6 +563,41 @@
   .cart-foot .pay b{ color:var(--gold); }
   .cart-foot .cart-clear{ display:block; margin:14px auto 0; background:none; border:none; color:var(--muted); font-family:"Oswald",sans-serif; font-size:11px; letter-spacing:1px; text-transform:uppercase; cursor:pointer; }
   .cart-foot .cart-clear:hover{ color:var(--fire); }
+  .cart-foot .co-checkout-btn{ width:100%; font-family:"Anton",sans-serif; font-size:20px; text-transform:uppercase; letter-spacing:.5px; color:var(--bg); background:var(--gold); border:none; border-radius:999px; padding:14px; cursor:pointer; box-shadow:0 6px 18px rgba(245,197,24,.3); transition:transform .15s var(--ease); margin-bottom:14px; }
+  .cart-foot .co-checkout-btn:hover:not(:disabled){ transform:translateY(-1px); }
+  .cart-foot .co-checkout-btn:disabled{ opacity:.4; cursor:not-allowed; box-shadow:none; }
+
+  /* =========== CHECKOUT =========== */
+  .checkout-overlay{ position:fixed; inset:0; background:rgba(3,7,4,.82); backdrop-filter:blur(4px); z-index:200; display:none; align-items:flex-start; justify-content:center; overflow-y:auto; padding:40px 16px; }
+  .checkout-overlay.open{ display:flex; }
+  .checkout{ width:min(520px,100%); background:#0a120d; border:1px solid var(--gold-faint); border-radius:18px; padding:32px 28px 28px; position:relative; box-shadow:0 30px 80px rgba(0,0,0,.6); animation:cbInR .3s var(--ease) both; }
+  .checkout-close{ position:absolute; top:16px; right:18px; background:none; border:none; color:var(--cream-85); font-size:30px; line-height:1; cursor:pointer; }
+  .checkout-close:hover{ color:var(--gold); }
+  .checkout h2{ font-family:"Anton",sans-serif; font-size:30px; color:#fff; text-transform:uppercase; letter-spacing:1px; }
+  .co-section{ margin-top:26px; }
+  .co-section > h3{ font-family:"Oswald",sans-serif; font-weight:700; text-transform:uppercase; letter-spacing:1.5px; font-size:12px; color:var(--gold); margin-bottom:12px; }
+  .co-item{ display:flex; justify-content:space-between; gap:12px; padding:9px 0; border-bottom:1px solid rgba(232,224,196,.08); }
+  .co-item .ci-name{ display:block; font-family:"Oswald",sans-serif; font-weight:600; color:#fff; font-size:15px; text-transform:uppercase; letter-spacing:.5px; }
+  .co-item .ci-sub{ display:block; font-family:"Barlow Condensed",sans-serif; color:var(--cream-85); font-size:13px; margin-top:2px; }
+  .co-item .ci-amt{ font-family:"Anton",sans-serif; color:#fff; font-size:16px; white-space:nowrap; }
+  .co-totals{ margin-top:14px; }
+  .co-row{ display:flex; justify-content:space-between; font-family:"Barlow Condensed",sans-serif; font-size:16px; color:var(--cream-85); padding:4px 0; }
+  .co-row.co-total{ font-family:"Anton",sans-serif; font-size:22px; color:#fff; border-top:1px solid var(--gold-faint); margin-top:8px; padding-top:12px; }
+  .co-row.co-total span:last-child{ color:var(--gold); }
+  .co-pickup{ font-family:"Barlow Condensed",sans-serif; color:var(--cream-85); font-size:15px; line-height:1.45; margin-bottom:16px; }
+  .co-field{ display:block; margin-bottom:13px; }
+  .co-field span{ display:block; font-family:"Oswald",sans-serif; font-size:11px; letter-spacing:1px; text-transform:uppercase; color:var(--cream-85); margin-bottom:6px; }
+  .co-field input{ width:100%; box-sizing:border-box; background:rgba(255,255,255,.04); border:1px solid var(--gold-20); border-radius:10px; padding:12px 14px; color:var(--cream); font-family:"Barlow Condensed",sans-serif; font-size:16px; }
+  .co-field input::placeholder{ color:var(--muted); }
+  .co-field input:focus{ outline:none; border-color:var(--gold); background:rgba(245,197,24,.05); }
+  .co-card{ min-height:88px; background:rgba(255,255,255,.03); border:1px dashed var(--gold-20); border-radius:12px; padding:16px; }
+  .co-card-placeholder{ font-family:"Barlow Condensed",sans-serif; color:var(--muted); font-size:14px; text-align:center; line-height:1.5; }
+  .co-pay{ width:100%; margin-top:26px; font-family:"Anton",sans-serif; font-size:22px; text-transform:uppercase; letter-spacing:.5px; color:var(--bg); background:var(--gold); border:none; border-radius:999px; padding:16px; cursor:pointer; box-shadow:0 6px 18px rgba(245,197,24,.3); transition:transform .15s var(--ease); display:flex; align-items:center; justify-content:center; gap:8px; }
+  .co-pay:hover:not(:disabled){ transform:translateY(-1px); }
+  .co-pay:disabled{ opacity:.5; cursor:not-allowed; box-shadow:none; }
+  .co-note{ text-align:center; color:var(--gold); font-family:"Barlow Condensed",sans-serif; font-size:14px; margin-top:12px; min-height:1em; }
+  .co-secure{ font-family:"Barlow Condensed",sans-serif; text-align:center; color:var(--muted); font-size:12px; margin-top:14px; line-height:1.5; }
+  @media (max-width:600px){ .checkout-overlay{ padding:0; } .checkout{ min-height:100vh; border-radius:0; border:none; width:100%; } }
 
   /* =================================================================
      RESPONSIVE
@@ -1127,10 +1162,47 @@
   </header>
   <div class="cart-items" id="cartItems"></div>
   <div class="cart-foot">
-    <p class="pay">Pay with cash or Cash App <b>$TimberFueln94</b> at pickup.<br/>Show this order at the counter.</p>
+    <button class="co-checkout-btn" id="cartCheckout">Checkout →</button>
+    <p class="pay">Or pay with cash / Cash App <b>$TimberFueln94</b> at pickup.</p>
     <button class="cart-clear" id="cartClear">Clear order</button>
   </div>
 </aside>
+
+<!-- ===== CHECKOUT ===== -->
+<div class="checkout-overlay" id="checkoutOverlay" aria-label="Checkout">
+  <div class="checkout" id="checkout">
+    <button class="checkout-close" id="checkoutClose" aria-label="Back to order">×</button>
+    <h2>Checkout</h2>
+
+    <section class="co-section">
+      <h3>Your Order</h3>
+      <div id="coItems"></div>
+      <div class="co-totals">
+        <div class="co-row"><span>Subtotal</span><span id="coSubtotal">$0.00</span></div>
+        <div class="co-row co-total"><span>Total</span><span id="coTotal">$0.00</span></div>
+      </div>
+    </section>
+
+    <section class="co-section">
+      <h3>Pickup Details</h3>
+      <p class="co-pickup">Timber Fuel · Cass Lake, MN<br/>Ready for pickup at the counter.</p>
+      <label class="co-field"><span>Name for the order</span><input type="text" id="coName" autocomplete="name" placeholder="Your name" /></label>
+      <label class="co-field"><span>Phone (optional)</span><input type="tel" id="coPhone" autocomplete="tel" placeholder="We'll text when it's ready" /></label>
+    </section>
+
+    <section class="co-section">
+      <h3>Payment</h3>
+      <div class="co-card" id="coCardWrap">
+        <div id="card-container"></div>
+        <div class="co-card-placeholder" id="coCardPlaceholder">🔒 Secure card payment by Square<br/>Coming online soon.</div>
+      </div>
+    </section>
+
+    <button class="co-pay" id="coPay">Pay <span id="coPayAmount">$0.00</span></button>
+    <p class="co-note" id="coNote"></p>
+    <p class="co-secure">🔒 Payments are processed securely by Square.<br/>We never see or store your card number.</p>
+  </div>
+</div>
 
 <script>
   /* ---- tab switching ---- */
@@ -1179,6 +1251,7 @@
     const box=document.getElementById('cartItems');
     cartCount.textContent=cart.length;
     updateHeaderCart();
+    const _co=document.getElementById('cartCheckout'); if(_co) _co.disabled=!cart.length;
     if(!cart.length){ box.innerHTML='<p class="cart-empty">Your order is empty.<br/>Build a drink to get started.</p>'; return; }
     box.innerHTML='';
     cart.forEach((o,i)=>{
@@ -1196,6 +1269,32 @@
   document.getElementById('cartClose').addEventListener('click', closeCart);
   overlay.addEventListener('click', closeCart);
   document.getElementById('cartClear').addEventListener('click', ()=>{ cart.length=0; renderCart(); });
+
+  /* ---- checkout (page built; Square Web Payments SDK wired next) ---- */
+  const checkoutOverlay=document.getElementById('checkoutOverlay');
+  function cartTotal(){ return cart.reduce((s,o)=>{ const v=parseFloat(String(o.price).replace(/[^0-9.]/g,'')); return s+(isFinite(v)?v:0); },0); }
+  function renderCheckout(){
+    const box=document.getElementById('coItems'); box.innerHTML='';
+    cart.forEach(o=>{
+      const el=document.createElement('div'); el.className='co-item';
+      const sub=[o.sizeLabel,o.detail,o.addon].filter(Boolean).join(' · ');
+      el.innerHTML=`<span><span class="ci-name">${o.name}</span><span class="ci-sub">${sub}</span></span><span class="ci-amt">${o.price||''}</span>`;
+      box.appendChild(el);
+    });
+    const t=cartTotal();
+    document.getElementById('coSubtotal').textContent=fmt(t);
+    document.getElementById('coTotal').textContent=fmt(t);
+    document.getElementById('coPayAmount').textContent=fmt(t);
+    document.getElementById('coNote').textContent='';
+  }
+  function openCheckout(){ if(!cart.length) return; renderCheckout(); closeCart(); checkoutOverlay.classList.add('open'); }
+  function closeCheckout(){ checkoutOverlay.classList.remove('open'); }
+  document.getElementById('cartCheckout').addEventListener('click', openCheckout);
+  document.getElementById('checkoutClose').addEventListener('click', closeCheckout);
+  checkoutOverlay.addEventListener('click', e=>{ if(e.target===checkoutOverlay) closeCheckout(); });
+  document.getElementById('coPay').addEventListener('click', ()=>{
+    document.getElementById('coNote').textContent='Card payment is being set up. Coming online soon.';
+  });
 
   /* ===== per-drink Add to Order (Energy + Hot featured) ===== */
   function ordHandler(e){
