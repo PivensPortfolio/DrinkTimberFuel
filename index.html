@@ -306,10 +306,12 @@
   .hot-card.card-fs::before{ display:none; }                 /* drop the card glow in full screen */
   .hot-card.card-fs .ord{ display:none; }                    /* original order controls hidden in full screen (specialty .ord-spec + build .ord) */
   /* steps 2 & 3 (Milk, Flavors): hide hero image/title/description to save space —
-     the small drink-name label inside the builder stands in. */
-  .hot-card.card-fs .hot-img,
-  .hot-card.card-fs h3,
-  .hot-card.card-fs p{ display:none; }
+     the small drink-name label inside the builder stands in. Use the child combinator
+     so this ONLY hits the card's own hero (direct children), not nested text like the
+     .cb-done confirmation heading/summary or the .fsb-sub price labels. */
+  .hot-card.card-fs > .hot-img,
+  .hot-card.card-fs > h3,
+  .hot-card.card-fs > p{ display:none; }
   /* step 1 (Size): bring the hero image/title/description back above the options */
   .hot-card.card-fs[data-fs-step="size"] .hot-img{ display:block; height:150px; margin:0 auto; }
   .hot-card.card-fs[data-fs-step="size"] h3{ display:block; margin-top:8px; }
@@ -1759,7 +1761,7 @@
         <span class="fsb-nm">${m.val}</span>${m.note?`<span class="fsb-pr${m.up?' fsb-up':''}">${m.note}</span>`:''}</button>`).join('');
     const pumpRows = flavors.map((f,i)=>fsStepperRow(f, 'pump:'+i)).join('');
     const shotBlock = noShots ? '' :
-      `<h4 class="fsb-q" style="margin-top:22px;">Additional Espresso Shots</h4>
+      `<h4 class="fsb-q">Additional Espresso Shots</h4>
        <p class="fsb-sub">$1.00 per shot</p>
        <div class="fsb-steppers">${fsStepperRow('Espresso shots','shots')}</div>`;
 
@@ -1775,15 +1777,15 @@
          <div class="fsb-grid">${milkOpts}</div>
        </div>
        <div class="fsb-step" data-fstep="extras">
-         <h4 class="fsb-q">Extra Flavor Pumps</h4>
+         ${shotBlock}
+         <h4 class="fsb-q"${noShots ? '' : ' style="margin-top:22px;"'}>Extra Flavor Pumps</h4>
          <p class="fsb-sub">$0.25 per pump</p>
          <div class="fsb-steppers">${pumpRows}</div>
-         ${shotBlock}
        </div>
        <div class="fsb-step" data-fstep="done">
          <div class="cb-done">
            <div class="cb-check">✓</div>
-           <h3>Added to your order!</h3>
+           <h3>Drink added to cart</h3>
            <p class="cb-sum fsb-sum"></p>
          </div>
        </div>
@@ -1851,6 +1853,7 @@
     const done=wrap.querySelector('.fsb-step[data-fstep="done"]'); if(done) done.classList.add('is-active');
     const nav=wrap.querySelector('.fsb-nav'); if(nav) nav.style.display='none';   // hide bottom button
     const label=wrap.querySelector('.fsb-title'); if(label) label.style.display='none';
+    if(fsCloseBtn) fsCloseBtn.style.display='none'; // hide the back arrow on the confirmation
     card.dataset.fsStep='done'; // keep hero hidden (compact), like steps 2/3
     clearTimeout(fsDoneTimer);
     fsDoneTimer=setTimeout(()=>{ fsDoneTimer=null; fsClose(card); }, 2000); // auto-close
