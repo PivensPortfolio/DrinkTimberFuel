@@ -1212,7 +1212,7 @@
       </div>
       <p class="co-pickup" id="coPickupInfo">Timber Fuel · Cass Lake, MN<br/>Ready for pickup at the counter.</p>
       <label class="co-field"><span>Name for the order</span><input type="text" id="coName" autocomplete="name" required placeholder="Your name" /></label>
-      <label class="co-field"><span>Phone</span><input type="tel" id="coPhone" autocomplete="tel" required placeholder="So we can text when it's ready" /></label>
+      <label class="co-field"><span>Phone</span><input type="tel" id="coPhone" autocomplete="tel" required placeholder="Best number to reach you" /></label>
       <div id="coAddressFields" hidden>
         <label class="co-field"><span>Street address</span><input type="text" id="coAddr" autocomplete="street-address" placeholder="123 Main St" /></label>
         <div class="co-field-row">
@@ -1401,7 +1401,7 @@
     const name=document.getElementById('coName').value.trim();
     const phone=document.getElementById('coPhone').value.trim();
     if(!name){ note.classList.add('err'); note.textContent='Please enter a name for the order.'; document.getElementById('coName').focus(); return; }
-    if(!phone){ note.classList.add('err'); note.textContent='Please enter a phone number so we can text when it is ready.'; document.getElementById('coPhone').focus(); return; }
+    if(!phone){ note.classList.add('err'); note.textContent='Please enter a phone number.'; document.getElementById('coPhone').focus(); return; }
     let addr='', city='', zip='';
     if(coMode==='delivery'){
       addr=document.getElementById('coAddr').value.trim(); city=document.getElementById('coCity').value.trim(); zip=document.getElementById('coZip').value.trim();
@@ -1427,8 +1427,9 @@
         body: JSON.stringify({ sourceId:result.token, amountCents, idempotencyKey:idem, locationId:sqConfig.locationId, note:parts.join(' | ') }) }).then(r=>r.json());
       if(resp && resp.ok){
         document.getElementById('coMain').hidden=true;
-        const where = coMode==='delivery' ? 'out for delivery' : 'ready for pickup';
-        document.getElementById('coSuccessMsg').textContent=`Thanks, ${name}! Your order is paid. We'll text ${phone} when it's ${where}.`;
+        document.getElementById('coSuccessMsg').textContent = coMode==='delivery'
+          ? `Thanks, ${name}! Your order is paid and on its way.`
+          : `Thanks, ${name}! Your order is paid. We'll have it ready at the counter.`;
         document.getElementById('coSuccess').hidden=false;
         cart.length=0; renderCart();
       } else {
