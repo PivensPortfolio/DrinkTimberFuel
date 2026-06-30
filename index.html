@@ -294,8 +294,11 @@
   /* placeholder holds the card's slot in the grid while it is position:fixed */
   .hot-card-ph{ flex:0 0 auto; }
   .hot-card.card-fs{
-    position:fixed; inset:0; z-index:200;
-    width:auto; height:auto; max-width:none; margin:0;
+    position:fixed; top:0; left:0; right:0; z-index:200;
+    width:100%;
+    height:100vh;            /* fallback for browsers without dvh */
+    height:100dvh;           /* dynamic viewport — always reaches the bottom under Safari's collapsing toolbar */
+    max-width:none; margin:0;
     border:none; border-radius:0; background:var(--bg);
     padding:64px 18px 0; overflow-y:auto; will-change:transform;
     justify-content:flex-start;
