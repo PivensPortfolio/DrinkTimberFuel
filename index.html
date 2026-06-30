@@ -1233,23 +1233,21 @@
     const note=document.createElement('span'); note.className='shot-note'; note.textContent=`· ${n} shot${n>1?'s':''}`;
     b.insertBefore(note, b.querySelector('span'));
   });
+  /* every hot drink now opens the full-screen builder (like Cold) — label specialties to match */
+  document.querySelectorAll('[data-panel="hot"] .ord-spec .ord-btn').forEach(b=>{ b.textContent='Customize →'; });
   /* hot specialty + black & bold: size + extra shots → confirm; "Customize" launches the builder */
   function hotHandler(e){
     if(e.target.closest('.fsb')) return; // mobile full-screen builder has its own handler
     const build=e.target.closest('.ord-build');
     if(build){
-      // MOBILE: build-your-own uses the SAME full-screen .fsb flow, fed the full
-      // refresher flavor list. DESKTOP: keep the existing hb modal builder.
-      if(mqFsMobile.matches){
-        const card=build.closest('.hot-card');
-        const firstRect=card.getBoundingClientRect();
-        const drink=(card.querySelector('h3')?.textContent||`Build a ${build.dataset.build}`).trim();
-        const sizes=['Small','Medium','Large'].map(s=>({size:s, price:String(HOT_PRICES[s]), oz:SIZE_OZ[s]}));
-        fsbBuild(card, {drink, ord:null, noShots:false, sizes, flavors:BUILDER_FLAVORS});
-        fsOpen(card, firstRect);
-        return;
-      }
-      hbOpen(build.dataset.build); return;
+      // Full-screen .fsb builder on every viewport (Hot works exactly like Cold).
+      const card=build.closest('.hot-card');
+      const firstRect=card.getBoundingClientRect();
+      const drink=build.dataset.build; // "Mocha" / "Latte" (cleaner cart name than "Build a …")
+      const sizes=['Small','Medium','Large'].map(s=>({size:s, price:String(HOT_PRICES[s]), oz:SIZE_OZ[s]}));
+      fsbBuild(card, {drink, ord:null, noShots:false, sizes, flavors:BUILDER_FLAVORS});
+      fsOpen(card, firstRect);
+      return;
     }
     const ord=e.target.closest('.ord-spec'); if(!ord) return;
     const ea=e.target.closest('.ea-btn');
@@ -1277,21 +1275,15 @@
     }
     const addBtn=e.target.closest('.ord-btn');
     if(addBtn){
-      const p=ord.querySelector('.ord-panel');
-      // MOBILE: morph the whole card to full screen (FLIP) + 3-step builder.
-      // DESKTOP: inline panel toggle (unchanged).
-      if(mqFsMobile.matches && p.hidden){
-        const card=ord.closest('.hot-card');
-        const firstRect=card.getBoundingClientRect(); // measure collapsed size BEFORE building
-        const sizes=[...ord.querySelectorAll('.ord-sizes .ord-size')].map(b=>({
-          size:b.dataset.size, price:b.dataset.price||'', oz:(b.querySelector('b')?.textContent||'').trim()
-        }));
-        // specialty drinks use the 3 placeholder flavors
-        fsbBuild(card, {drink:ord.dataset.drink, ord, noShots:ord.dataset.noshots==='1', sizes, flavors:FS_FLAVORS});
-        fsOpen(card, firstRect);
-        return;
-      }
-      p.hidden=!p.hidden; return;
+      // Morph the card to the full-screen .fsb builder on every viewport (Hot works exactly like Cold).
+      const card=ord.closest('.hot-card');
+      const firstRect=card.getBoundingClientRect(); // measure collapsed size BEFORE building
+      const sizes=[...ord.querySelectorAll('.ord-sizes .ord-size')].map(b=>({
+        size:b.dataset.size, price:b.dataset.price||'', oz:(b.querySelector('b')?.textContent||'').trim()
+      }));
+      fsbBuild(card, {drink:ord.dataset.drink, ord, noShots:ord.dataset.noshots==='1', sizes, flavors:BUILDER_FLAVORS});
+      fsOpen(card, firstRect);
+      return;
     }
     const sizeBtn=e.target.closest('.ord-size');
     if(sizeBtn){
