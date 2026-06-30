@@ -603,6 +603,19 @@
   .co-success h2{ margin-top:16px; }
   .co-success-msg{ font-family:"Barlow Condensed",sans-serif; color:var(--cream-85); font-size:16px; margin:10px 0 24px; line-height:1.5; }
   #card-container{ min-height:0; }
+  .co-toggle{ display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:16px; }
+  .co-toggle-btn{ font-family:"Oswald",sans-serif; font-weight:700; text-transform:uppercase; letter-spacing:1px; font-size:14px; color:var(--cream); background:rgba(255,255,255,.04); border:1.5px solid var(--gold-20); border-radius:12px; padding:14px; cursor:pointer; transition:border-color .15s var(--ease), background .15s var(--ease), color .15s; }
+  .co-toggle-btn span{ color:var(--gold); font-size:12px; }
+  .co-toggle-btn:hover{ border-color:var(--gold); }
+  .co-toggle-btn.sel{ border-color:var(--gold); background:rgba(245,197,24,.12); color:#fff; box-shadow:0 0 0 1px var(--gold); }
+  .co-field-row{ display:grid; grid-template-columns:1fr 110px; gap:12px; }
+  .co-tips{ display:grid; grid-template-columns:repeat(4,1fr); gap:10px; }
+  .co-tip-btn{ display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px; min-height:62px; font-family:"Barlow Condensed",sans-serif; color:var(--cream); background:rgba(255,255,255,.04); border:1.5px solid var(--gold-20); border-radius:12px; padding:10px 6px; cursor:pointer; transition:border-color .15s var(--ease), background .15s var(--ease); }
+  .co-tip-btn b{ font-family:"Anton",sans-serif; font-weight:400; font-size:18px; color:#fff; }
+  .co-tip-btn .co-tip-val{ font-size:13px; color:var(--gold); }
+  .co-tip-btn:hover{ border-color:var(--gold); }
+  .co-tip-btn.sel{ border-color:var(--gold); background:rgba(245,197,24,.12); box-shadow:0 0 0 1px var(--gold); }
+  .co-tip-none{ font-family:"Oswald",sans-serif; font-weight:700; text-transform:uppercase; font-size:12px; letter-spacing:.5px; }
   @media (max-width:600px){ .checkout-overlay{ padding:0; } .checkout{ min-height:100vh; border-radius:0; border:none; width:100%; } }
 
   /* =================================================================
@@ -1185,15 +1198,38 @@
       <div id="coItems"></div>
       <div class="co-totals">
         <div class="co-row"><span>Subtotal</span><span id="coSubtotal">$0.00</span></div>
+        <div class="co-row" id="coDeliveryRow" hidden><span>Delivery</span><span id="coDelivery">$3.00</span></div>
+        <div class="co-row" id="coTipRow" hidden><span>Tip</span><span id="coTipAmt">$0.00</span></div>
         <div class="co-row co-total"><span>Total</span><span id="coTotal">$0.00</span></div>
       </div>
     </section>
 
     <section class="co-section">
-      <h3>Pickup Details</h3>
-      <p class="co-pickup">Timber Fuel · Cass Lake, MN<br/>Ready for pickup at the counter.</p>
+      <h3>Pickup or Delivery</h3>
+      <div class="co-toggle">
+        <button type="button" class="co-toggle-btn sel" data-mode="pickup">Pickup</button>
+        <button type="button" class="co-toggle-btn" data-mode="delivery">Delivery <span>+$3</span></button>
+      </div>
+      <p class="co-pickup" id="coPickupInfo">Timber Fuel · Cass Lake, MN<br/>Ready for pickup at the counter.</p>
       <label class="co-field"><span>Name for the order</span><input type="text" id="coName" autocomplete="name" required placeholder="Your name" /></label>
       <label class="co-field"><span>Phone</span><input type="tel" id="coPhone" autocomplete="tel" required placeholder="So we can text when it's ready" /></label>
+      <div id="coAddressFields" hidden>
+        <label class="co-field"><span>Street address</span><input type="text" id="coAddr" autocomplete="street-address" placeholder="123 Main St" /></label>
+        <div class="co-field-row">
+          <label class="co-field"><span>City</span><input type="text" id="coCity" autocomplete="address-level2" placeholder="Cass Lake" /></label>
+          <label class="co-field co-field-zip"><span>ZIP</span><input type="text" id="coZip" inputmode="numeric" autocomplete="postal-code" placeholder="56633" /></label>
+        </div>
+      </div>
+    </section>
+
+    <section class="co-section">
+      <h3>Add a Tip</h3>
+      <div class="co-tips">
+        <button type="button" class="co-tip-btn" data-tip="10"><b>10%</b><span class="co-tip-val">$0.00</span></button>
+        <button type="button" class="co-tip-btn" data-tip="15"><b>15%</b><span class="co-tip-val">$0.00</span></button>
+        <button type="button" class="co-tip-btn" data-tip="20"><b>20%</b><span class="co-tip-val">$0.00</span></button>
+        <button type="button" class="co-tip-btn co-tip-none sel" data-tip="0">No tip</button>
+      </div>
     </section>
 
     <section class="co-section">
@@ -1287,6 +1323,20 @@
   /* ---- checkout (page built; Square Web Payments SDK wired next) ---- */
   const checkoutOverlay=document.getElementById('checkoutOverlay');
   function cartTotal(){ return cart.reduce((s,o)=>{ const v=parseFloat(String(o.price).replace(/[^0-9.]/g,'')); return s+(isFinite(v)?v:0); },0); }
+  let coMode='pickup', coTipPct=0; const DELIVERY_FEE=3;
+  function recomputeCheckout(){
+    const sub=cartTotal();
+    const delivery = coMode==='delivery' ? DELIVERY_FEE : 0;
+    const tip = Math.round(sub*coTipPct)/100;   // tip on items subtotal
+    const total = sub + delivery + tip;
+    document.getElementById('coSubtotal').textContent=fmt(sub);
+    const dRow=document.getElementById('coDeliveryRow'); dRow.hidden=(delivery===0); document.getElementById('coDelivery').textContent=fmt(delivery);
+    const tRow=document.getElementById('coTipRow'); tRow.hidden=(tip===0); document.getElementById('coTipAmt').textContent=fmt(tip);
+    document.querySelectorAll('.co-tip-btn[data-tip]').forEach(b=>{ const pct=+b.dataset.tip; const v=b.querySelector('.co-tip-val'); if(v) v.textContent=fmt(Math.round(sub*pct)/100); });
+    document.getElementById('coTotal').textContent=fmt(total);
+    document.getElementById('coPayAmount').textContent=fmt(total);
+    return {sub, delivery, tip, total};
+  }
   function renderCheckout(){
     const box=document.getElementById('coItems'); box.innerHTML='';
     cart.forEach(o=>{
@@ -1295,19 +1345,37 @@
       el.innerHTML=`<span><span class="ci-name">${o.name}</span><span class="ci-sub">${sub}</span></span><span class="ci-amt">${o.price||''}</span>`;
       box.appendChild(el);
     });
-    const t=cartTotal();
-    document.getElementById('coSubtotal').textContent=fmt(t);
-    document.getElementById('coTotal').textContent=fmt(t);
-    document.getElementById('coPayAmount').textContent=fmt(t);
+    recomputeCheckout();
     document.getElementById('coNote').textContent='';
   }
-  function resetCheckoutView(){ document.getElementById('coMain').hidden=false; document.getElementById('coSuccess').hidden=true; const p=document.getElementById('coPay'); p.disabled=false; const n=document.getElementById('coNote'); n.textContent=''; n.classList.remove('err'); }
+  function resetCheckoutView(){
+    document.getElementById('coMain').hidden=false; document.getElementById('coSuccess').hidden=true;
+    const p=document.getElementById('coPay'); p.disabled=false; const n=document.getElementById('coNote'); n.textContent=''; n.classList.remove('err');
+    coMode='pickup'; coTipPct=0;
+    document.querySelectorAll('.co-toggle-btn').forEach(b=>b.classList.toggle('sel', b.dataset.mode==='pickup'));
+    document.querySelectorAll('.co-tip-btn').forEach(b=>b.classList.toggle('sel', b.dataset.tip==='0'));
+    document.getElementById('coAddressFields').hidden=true;
+    document.getElementById('coPickupInfo').style.display='';
+  }
   function openCheckout(){ if(!cart.length) return; resetCheckoutView(); renderCheckout(); closeCart(); checkoutOverlay.classList.add('open'); initSquare(); }
   function closeCheckout(){ checkoutOverlay.classList.remove('open'); }
   document.getElementById('cartCheckout').addEventListener('click', openCheckout);
   document.getElementById('checkoutClose').addEventListener('click', closeCheckout);
   document.getElementById('coSuccessDone').addEventListener('click', closeCheckout);
   checkoutOverlay.addEventListener('click', e=>{ if(e.target===checkoutOverlay) closeCheckout(); });
+  document.querySelectorAll('.co-toggle-btn').forEach(b=>b.addEventListener('click', ()=>{
+    coMode=b.dataset.mode;
+    document.querySelectorAll('.co-toggle-btn').forEach(x=>x.classList.toggle('sel', x===b));
+    const deliv=coMode==='delivery';
+    document.getElementById('coAddressFields').hidden=!deliv;
+    document.getElementById('coPickupInfo').style.display=deliv?'none':'';
+    recomputeCheckout();
+  }));
+  document.querySelectorAll('.co-tip-btn').forEach(b=>b.addEventListener('click', ()=>{
+    coTipPct=+b.dataset.tip;
+    document.querySelectorAll('.co-tip-btn').forEach(x=>x.classList.toggle('sel', x===b));
+    recomputeCheckout();
+  }));
 
   /* Square Web Payments SDK — embedded card form (only renders once payments are configured) */
   let sqPayments=null, sqCard=null, sqConfig=null, sqInitTried=false;
@@ -1334,20 +1402,33 @@
     const phone=document.getElementById('coPhone').value.trim();
     if(!name){ note.classList.add('err'); note.textContent='Please enter a name for the order.'; document.getElementById('coName').focus(); return; }
     if(!phone){ note.classList.add('err'); note.textContent='Please enter a phone number so we can text when it is ready.'; document.getElementById('coPhone').focus(); return; }
+    let addr='', city='', zip='';
+    if(coMode==='delivery'){
+      addr=document.getElementById('coAddr').value.trim(); city=document.getElementById('coCity').value.trim(); zip=document.getElementById('coZip').value.trim();
+      if(!addr){ note.classList.add('err'); note.textContent='Please enter your delivery street address.'; document.getElementById('coAddr').focus(); return; }
+      if(!city){ note.classList.add('err'); note.textContent='Please enter your delivery city.'; document.getElementById('coCity').focus(); return; }
+      if(!zip){ note.classList.add('err'); note.textContent='Please enter your delivery ZIP code.'; document.getElementById('coZip').focus(); return; }
+    }
     note.classList.remove('err'); note.textContent='';
     if(!sqCard){ note.textContent='Card payment is being set up. Coming online soon.'; return; }
     payBtn.disabled=true; note.textContent='Processing your payment...';
     try{
       const result = await sqCard.tokenize();
       if(result.status!=='OK'){ note.classList.add('err'); note.textContent='Please check your card details and try again.'; payBtn.disabled=false; return; }
-      const amountCents = Math.round(cartTotal()*100);
+      const nums = recomputeCheckout();
+      const amountCents = Math.round(nums.total*100);
       const idem = 'tf-'+Date.now()+'-'+Math.random().toString(16).slice(2,10);
       const summary = cart.map(o=>`${o.name} (${o.sizeLabel||''})`).join('; ');
+      const fulfill = coMode==='delivery' ? `DELIVERY to ${addr}, ${city} ${zip}` : 'PICKUP';
+      const parts=[`${name} / ${phone}`, fulfill, summary];
+      if(nums.delivery>0) parts.push(`delivery ${fmt(nums.delivery)}`);
+      if(nums.tip>0) parts.push(`tip ${fmt(nums.tip)}`);
       const resp = await fetch('/api/charge', { method:'POST', headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({ sourceId:result.token, amountCents, idempotencyKey:idem, locationId:sqConfig.locationId, note:`${name} / ${phone}: ${summary}` }) }).then(r=>r.json());
+        body: JSON.stringify({ sourceId:result.token, amountCents, idempotencyKey:idem, locationId:sqConfig.locationId, note:parts.join(' | ') }) }).then(r=>r.json());
       if(resp && resp.ok){
         document.getElementById('coMain').hidden=true;
-        document.getElementById('coSuccessMsg').textContent=`Thanks, ${name}! Your order is paid. We'll text ${phone} when it's ready for pickup.`;
+        const where = coMode==='delivery' ? 'out for delivery' : 'ready for pickup';
+        document.getElementById('coSuccessMsg').textContent=`Thanks, ${name}! Your order is paid. We'll text ${phone} when it's ${where}.`;
         document.getElementById('coSuccess').hidden=false;
         cart.length=0; renderCart();
       } else {
