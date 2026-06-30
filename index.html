@@ -1011,7 +1011,7 @@
   // base drink price by brew + size (null = price TBD)
   const PRICES = {
     'Cold Brew':   { Small:4.25, Medium:4.75, Large:5.00 },
-    'Iced Coffee': { Small:null, Medium:null, Large:null }
+    'Iced Coffee': { Small:3.75, Medium:4.25, Large:4.75 }
   };
   const priceOf = (brew,size) => (PRICES[brew] && PRICES[brew][size]!=null) ? PRICES[brew][size] : null;
   const fmt = n => `$${n.toFixed(2)}`;
