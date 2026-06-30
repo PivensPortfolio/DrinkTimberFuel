@@ -285,6 +285,10 @@
   /* specialty / black & bold order panel */
   .ord-panel{ margin-top:12px; animation:cbInR .25s var(--ease) both; }
   .ord-panel[hidden]{ display:none; }
+  /* while expanded, the bottom "Add to order →" is the action button —
+     hide the top toggle so "Add to Order" isn't shown twice. It returns
+     (collapsed state / post-confirm "Added ✓") once the panel is hidden. */
+  .ord-spec:has(.ord-panel:not([hidden])) > .ord-btn{ display:none; }
   .ord-size.sel{ border-color:var(--gold); background:rgba(245,197,24,.16); }
   .ord-esp{ max-width:260px; margin:10px auto 0; padding:8px 10px 8px 14px; }
   .ord-esp .ea-label{ font-size:11px; }
@@ -383,6 +387,8 @@
   .cb-opt-t{ font-family:"Anton",sans-serif; font-size:20px; text-transform:uppercase; color:#fff; line-height:1.05; }
   .cb-opt-d{ font-family:"Barlow Condensed",sans-serif; font-size:15px; color:var(--cream-85); line-height:1.35; }
   .cb-opt-oz{ font-family:"Anton",sans-serif; font-size:30px; color:var(--gold); }
+  /* add-on upcharge tag on an option (e.g. oat milk +$0.50) */
+  .cb-up{ color:var(--gold); font-weight:600; }
   .cb-opt.cb-size{ align-items:center; text-align:center; }
   .cb-opt .cb-tick{ position:absolute; top:12px; right:12px; width:22px; height:22px; border-radius:50%; background:var(--gold); color:var(--bg); display:none; align-items:center; justify-content:center; font-size:13px; font-weight:700; }
   .cb-opt.sel .cb-tick{ display:flex; }
@@ -812,7 +818,7 @@
           <div class="cb-step" data-hstep="milk">
             <h3 class="cb-q">Choose your milk</h3>
             <div class="cb-options cb-3">
-              <button class="cb-opt" data-val="Oatly Oat Milk"><span class="cb-tick">✓</span><span class="cb-opt-t">Oatly Oat Milk</span></button>
+              <button class="cb-opt" data-val="Oatly Oat Milk"><span class="cb-tick">✓</span><span class="cb-opt-t">Oatly Oat Milk</span><span class="cb-opt-d cb-up">+$0.50</span></button>
               <button class="cb-opt" data-val="Regular Milk"><span class="cb-tick">✓</span><span class="cb-opt-t">Regular Milk</span></button>
               <button class="cb-opt" data-val="No Milk"><span class="cb-tick">✓</span><span class="cb-opt-t">No Milk</span><span class="cb-opt-d">Black</span></button>
             </div>
@@ -982,7 +988,7 @@
           <div class="cb-step" data-step="milk">
             <h3 class="cb-q">Choose your milk</h3>
             <div class="cb-options cb-3">
-              <button class="cb-opt" data-val="Oatly Oat Milk"><span class="cb-tick">✓</span><span class="cb-opt-t">Oatly Oat Milk</span></button>
+              <button class="cb-opt" data-val="Oatly Oat Milk"><span class="cb-tick">✓</span><span class="cb-opt-t">Oatly Oat Milk</span><span class="cb-opt-d cb-up">+$0.50</span></button>
               <button class="cb-opt" data-val="Regular Milk"><span class="cb-tick">✓</span><span class="cb-opt-t">Regular Milk</span></button>
               <button class="cb-opt" data-val="Black"><span class="cb-tick">✓</span><span class="cb-opt-t">Black</span><span class="cb-opt-d">No milk</span></button>
             </div>
@@ -1184,6 +1190,8 @@
   let order = {brew:null, style:null, signature:null, pumps:{}, espresso:0, milk:null, size:null};
   const cart = [];
   const PUMP_PRICE = 0.25;
+  const OAT_UPCHARGE = 0.50;          // oat milk costs $0.50 extra
+  const OAT_MILK = 'Oatly Oat Milk';  // milk value that triggers the upcharge
   // base drink price by brew + size (null = price TBD)
   const PRICES = {
     'Cold Brew':   { Small:4.25, Medium:4.75, Large:5.25 },
@@ -1334,12 +1342,14 @@
   function addToCart(){
     const pc=pumpCount(order);
     const es=order.espresso||0;
-    const extrasCost = pc*PUMP_PRICE + es*1;
+    const oat = order.milk===OAT_MILK ? OAT_UPCHARGE : 0;
+    const extrasCost = pc*PUMP_PRICE + es*1 + oat;
     const base = priceOf(order.brew, order.size);
     const total = base!=null ? base + extrasCost : null;
     const extras=[];
     if(pc>0) extras.push(`${pc} pump${pc>1?'s':''}`);
     if(es>0) extras.push(`${es} espresso shot${es>1?'s':''}`);
+    if(oat>0) extras.push('Oat milk');
     const addon = extras.length ? `${extras.join(' · ')} · +${fmt(extrasCost)}` : '';
     const item={ name:drinkName(order), detail:drinkDetail(order), sizeLabel:`${SIZE_OZ[order.size]} ${order.size}`, addon,
       price: total!=null ? fmt(total) : '$?.??' };
@@ -1487,9 +1497,14 @@
   function hbClose(){ hbCard.hidden=true; }
   function hbAdd(){ const flav=hbOrder.flavors.length? hbOrder.flavors.join(' + '):'No flavors'; const detail=`${hbOrder.milk} · ${flav}`;
     const es=hbOrder.espresso||0; const base=HOT_PRICES[hbOrder.size];
-    const total = base!=null ? base + es*1 : null;
+    const oat = hbOrder.milk===OAT_MILK ? OAT_UPCHARGE : 0;
+    const extrasCost = es*1 + oat;
+    const total = base!=null ? base + extrasCost : null;
     const price = total!=null ? `$${total.toFixed(2)}` : '$?.??';
-    const addon = es>0 ? `${es} espresso shot${es>1?'s':''} · +$${(es).toFixed(2)}` : '';
+    const extras=[];
+    if(es>0) extras.push(`${es} espresso shot${es>1?'s':''}`);
+    if(oat>0) extras.push('Oat milk');
+    const addon = extras.length ? `${extras.join(' · ')} · +${fmt(extrasCost)}` : '';
     cart.push({name:hbOrder.base, detail, sizeLabel:`${SIZE_OZ[hbOrder.size]} ${hbOrder.size}`, price, addon}); bumpCart(); renderCart();
     document.getElementById('hbDoneSummary').textContent=`${SIZE_OZ[hbOrder.size]} ${hbOrder.base} — ${detail}` + (addon?` (${addon})`:'') + ` · ${price}`;
     hbStepsEls.forEach(s=>s.classList.remove('is-active','in-right','in-left')); hbNav.style.display='none'; hbStepEl('done').classList.add('is-active','in-right'); }
