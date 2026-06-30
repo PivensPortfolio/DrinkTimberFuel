@@ -1505,7 +1505,7 @@
         const firstRect=card.getBoundingClientRect();
         const drink=(card.querySelector('h3')?.textContent||`Build a ${build.dataset.build}`).trim();
         const sizes=['Small','Medium','Large'].map(s=>({size:s, price:String(HOT_PRICES[s]), oz:SIZE_OZ[s]}));
-        fsbBuild(card, {drink, ord:null, noShots:false, sizes, flavors:REFRESHER_FLAVORS});
+        fsbBuild(card, {drink, ord:null, noShots:false, sizes, flavors:BUILDER_FLAVORS});
         fsOpen(card, firstRect);
         return;
       }
@@ -1719,8 +1719,9 @@
     {val:'No Milk',        up:0,            note:'Black'}
   ];
   const FS_FLAVORS = ['Flavor 1','Flavor 2','Flavor 3']; // specialty drinks — PLACEHOLDERS, swap for real names
-  // Build-your-own (Customize) uses the full flavor list pulled from the Refreshers section
-  const REFRESHER_FLAVORS = [...document.querySelectorAll('[data-panel="energy"] .ord[data-drink]')].map(o=>o.dataset.drink);
+  // Build-your-own (Customize) uses the real flavor-pump list from the cold guided
+  // builder's flavor step — classic flavors + sugar-free flavors.
+  const BUILDER_FLAVORS = [...document.querySelectorAll('#cbFlavors .cb-chip, #cbFlavorsSF .cb-chip')].map(c=>c.dataset.val);
   let fsb = null; // active builder state
 
   function fsStepperRow(label, key){
