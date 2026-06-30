@@ -439,7 +439,8 @@
   .cart-item .ci-name{ font-family:"Anton",sans-serif; font-size:18px; color:#fff; text-transform:uppercase; line-height:1.1; }
   .cart-item .ci-size{ font-family:"Oswald",sans-serif; font-weight:600; font-size:12px; letter-spacing:1px; text-transform:uppercase; color:var(--gold); white-space:nowrap; }
   .cart-item .ci-desc{ font-size:15px; color:var(--cream-85); margin-top:5px; }
-  .cart-item .ci-addon{ font-family:"Oswald",sans-serif; font-weight:700; font-size:12px; letter-spacing:.5px; color:var(--gold); margin-top:6px; }
+  .cart-item .ci-addon{ font-family:"Oswald",sans-serif; font-weight:700; font-size:12px; letter-spacing:.5px; color:var(--cream-85); margin-top:6px; }
+  .cart-item .ci-price{ font-family:"Anton",sans-serif; font-size:17px; color:var(--gold); white-space:nowrap; }
   .cart-item .ci-rm{ margin-top:8px; background:none; border:none; color:var(--fire); font-family:"Oswald",sans-serif; font-size:11px; letter-spacing:1px; text-transform:uppercase; cursor:pointer; padding:0; }
   .cart-item .ci-rm:hover{ text-decoration:underline; }
   .cart-foot{ padding:20px 24px; border-top:1px solid var(--gold-faint); }
@@ -829,9 +830,9 @@
           <div class="cb-step" data-step="size">
             <h3 class="cb-q">Pick your size</h3>
             <div class="cb-options cb-3">
-              <button class="cb-opt cb-size" data-val="Small"><span class="cb-tick">✓</span><span class="cb-opt-oz">12 oz</span><span class="cb-opt-t">Small</span></button>
-              <button class="cb-opt cb-size" data-val="Medium"><span class="cb-tick">✓</span><span class="cb-opt-oz">16 oz</span><span class="cb-opt-t">Medium</span></button>
-              <button class="cb-opt cb-size" data-val="Large"><span class="cb-tick">✓</span><span class="cb-opt-oz">20 oz</span><span class="cb-opt-t">Large</span></button>
+              <button class="cb-opt cb-size" data-val="Small"><span class="cb-tick">✓</span><span class="cb-opt-oz">12 oz</span><span class="cb-opt-t">Small</span><span class="cb-opt-d cb-price"></span></button>
+              <button class="cb-opt cb-size" data-val="Medium"><span class="cb-tick">✓</span><span class="cb-opt-oz">16 oz</span><span class="cb-opt-t">Medium</span><span class="cb-opt-d cb-price"></span></button>
+              <button class="cb-opt cb-size" data-val="Large"><span class="cb-tick">✓</span><span class="cb-opt-oz">20 oz</span><span class="cb-opt-t">Large</span><span class="cb-opt-d cb-price"></span></button>
             </div>
           </div>
 
@@ -1006,7 +1007,14 @@
   let idx  = 0;
   let order = {brew:null, style:null, signature:null, pumps:{}, milk:null, size:null};
   const cart = [];
-  const PUMP_PRICE = 0.5;
+  const PUMP_PRICE = 0.25;
+  // base drink price by brew + size (null = price TBD)
+  const PRICES = {
+    'Cold Brew':   { Small:4.25, Medium:4.75, Large:5.00 },
+    'Iced Coffee': { Small:null, Medium:null, Large:null }
+  };
+  const priceOf = (brew,size) => (PRICES[brew] && PRICES[brew][size]!=null) ? PRICES[brew][size] : null;
+  const fmt = n => `$${n.toFixed(2)}`;
   const pumpEntries = o => Object.entries(o.pumps||{}).filter(([,v])=>v>0);
   const pumpCount = o => pumpEntries(o).reduce((s,[,v])=>s+v,0);
   const flavorsText = o => { const e=pumpEntries(o); return e.length ? e.map(([k,v])=> v>1?`${k} ×${v}`:k).join(' + ') : 'No flavors'; };
@@ -1050,6 +1058,7 @@
     const name=flow[i];
     cbNav.style.display = (name==='done') ? 'none' : '';
     if(name==='signature') renderSignatures();
+    if(name==='size') renderSizePrices();
     cbSteps.forEach(s=>{ s.classList.remove('is-active','in-right','in-left'); });
     const el=stepEl(name);
     el.classList.add('is-active', dir==='back'?'in-left':'in-right');
@@ -1070,6 +1079,7 @@
     });
   }
   function selectFlash(el){ el.parentElement.querySelectorAll('.cb-opt').forEach(o=>o.classList.remove('sel')); el.classList.add('sel'); }
+  function renderSizePrices(){ stepEl('size').querySelectorAll('.cb-size').forEach(b=>{ const p=priceOf(order.brew, b.dataset.val); const el=b.querySelector('.cb-price'); if(el) el.textContent = p!=null ? fmt(p) : '$?.??'; }); }
 
   /* option clicks (single-select, auto-advance) */
   document.getElementById('cbSteps').addEventListener('click', e=>{
@@ -1144,12 +1154,16 @@
   function clearFlavorChips(){ updateFlavorUI(); }
   function addToCart(){
     const pc=pumpCount(order);
-    const addon = pc>0 ? `+ $${(pc*PUMP_PRICE).toFixed(2)} · ${pc} pump${pc>1?'s':''}` : '';
-    const item={ name:drinkName(order), detail:drinkDetail(order), size:order.size, addon };
+    const pumpsCost = pc*PUMP_PRICE;
+    const base = priceOf(order.brew, order.size);
+    const total = base!=null ? base + pumpsCost : null;
+    const addon = pc>0 ? `${pc} pump${pc>1?'s':''} · +${fmt(pumpsCost)}` : '';
+    const item={ name:drinkName(order), detail:drinkDetail(order), size:order.size, addon,
+      price: total!=null ? fmt(total) : '$?.??' };
     cart.push(item);
     bumpCart();
     document.getElementById('cbDoneSummary').textContent =
-      `${SIZE_OZ[item.size]} ${item.name} — ${item.detail}` + (addon? ` (${addon})` : '');
+      `${SIZE_OZ[item.size]} ${item.name} — ${item.detail}` + (addon? ` (${addon})` : '') + ` · ${item.price}`;
     renderCart();
     show(flow.indexOf('size'),'fwd'); // keep idx valid
     // jump to done step
@@ -1177,7 +1191,7 @@
     box.innerHTML='';
     cart.forEach((o,i)=>{
       const el=document.createElement('div'); el.className='cart-item';
-      el.innerHTML=`<div class="ci-top"><span class="ci-name">${o.name}</span><span class="ci-size">${SIZE_OZ[o.size]} ${o.size}</span></div><div class="ci-desc">${o.detail}</div>${o.addon?`<div class="ci-addon">${o.addon}</div>`:''}<button class="ci-rm" data-i="${i}">Remove</button>`;
+      el.innerHTML=`<div class="ci-top"><span class="ci-name">${o.name}</span><span class="ci-price">${o.price||''}</span></div><div class="ci-desc">${SIZE_OZ[o.size]} ${o.size} · ${o.detail}</div>${o.addon?`<div class="ci-addon">${o.addon}</div>`:''}<button class="ci-rm" data-i="${i}">Remove</button>`;
       box.appendChild(el);
     });
     box.querySelectorAll('.ci-rm').forEach(b=>b.addEventListener('click',()=>{ cart.splice(+b.dataset.i,1); renderCart(); }));
@@ -1200,7 +1214,7 @@
     if(sizeBtn){
       const ord=sizeBtn.closest('.ord'); const name=ord.dataset.drink; const size=sizeBtn.dataset.size;
       const isHot = !!ord.closest('[data-panel="hot"]');
-      cart.push({name, detail: isHot?'Hot Drink':'Energy Refresher', size}); bumpCart(); renderCart();
+      cart.push({name, detail: isHot?'Hot Drink':'Energy Refresher', size, price:'$?.??'}); bumpCart(); renderCart();
       ord.querySelector('.ord-sizes').hidden=true;
       const b=ord.querySelector('.ord-btn'); const t=b.innerHTML; b.classList.add('added'); b.textContent='Added ✓';
       setTimeout(()=>{ b.classList.remove('added'); b.innerHTML=t; }, 1400);
@@ -1232,7 +1246,7 @@
   function hbOpen(){ hbLaunch.hidden=true; hbCard.hidden=false; hbOrder.base=null; hbOrder.milk=null; hbOrder.flavors=[]; hbOrder.size=null; hbFlavorsStep.querySelectorAll('.cb-chip').forEach(c=>c.classList.remove('sel')); hbNav.style.display=''; hbShow(0,'fwd'); }
   function hbClose(){ hbCard.hidden=true; hbLaunch.hidden=false; }
   function hbAdd(){ const flav=hbOrder.flavors.length? hbOrder.flavors.join(' + '):'No flavors'; const detail=`${hbOrder.milk} · ${flav}`;
-    cart.push({name:hbOrder.base, detail, size:hbOrder.size}); bumpCart(); renderCart();
+    cart.push({name:hbOrder.base, detail, size:hbOrder.size, price:'$?.??'}); bumpCart(); renderCart();
     document.getElementById('hbDoneSummary').textContent=`${SIZE_OZ[hbOrder.size]} ${hbOrder.base} — ${detail}`;
     hbStepsEls.forEach(s=>s.classList.remove('is-active','in-right','in-left')); hbNav.style.display='none'; hbStepEl('done').classList.add('is-active','in-right'); }
   document.getElementById('hbStart').addEventListener('click', hbOpen);
