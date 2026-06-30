@@ -888,8 +888,8 @@
           <div class="cb-step" data-hstep="milk">
             <h3 class="cb-q">Choose your milk</h3>
             <div class="cb-options cb-2">
-              <button class="cb-opt" data-val="Oatly Oat Milk"><span class="cb-tick">✓</span><span class="cb-opt-t">Oatly Oat Milk</span><span class="cb-opt-d cb-up">+$0.50</span></button>
               <button class="cb-opt" data-val="Regular Milk"><span class="cb-tick">✓</span><span class="cb-opt-t">Regular Milk</span></button>
+              <button class="cb-opt" data-val="Oat Milk"><span class="cb-tick">✓</span><span class="cb-opt-t">Oat Milk</span><span class="cb-opt-d cb-up">+$0.50</span></button>
             </div>
           </div>
           <div class="cb-step" data-hstep="flavors">
@@ -1057,8 +1057,8 @@
           <div class="cb-step" data-step="milk">
             <h3 class="cb-q">Choose your milk</h3>
             <div class="cb-options cb-3">
-              <button class="cb-opt" data-val="Oatly Oat Milk"><span class="cb-tick">✓</span><span class="cb-opt-t">Oatly Oat Milk</span><span class="cb-opt-d cb-up">+$0.50</span></button>
               <button class="cb-opt" data-val="Regular Milk"><span class="cb-tick">✓</span><span class="cb-opt-t">Regular Milk</span></button>
+              <button class="cb-opt" data-val="Oat Milk"><span class="cb-tick">✓</span><span class="cb-opt-t">Oat Milk</span><span class="cb-opt-d cb-up">+$0.50</span></button>
               <button class="cb-opt" data-val="Black"><span class="cb-tick">✓</span><span class="cb-opt-t">Black</span><span class="cb-opt-d">No milk</span></button>
             </div>
           </div>
@@ -1260,7 +1260,7 @@
   const cart = [];
   const PUMP_PRICE = 0.25;
   const OAT_UPCHARGE = 0.50;          // oat milk costs $0.50 extra
-  const OAT_MILK = 'Oatly Oat Milk';  // milk value that triggers the upcharge
+  const OAT_MILK = 'Oat Milk';  // milk value that triggers the +$0.50 upcharge
   const isMochaLatte = s => /mocha|latte/i.test(s||''); // matches a "Mochas"/"Lattes" category (or Iced Mocha/Latte brew)
   // a hot drink's category = the .hot-cat heading of its enclosing .hot-section (Mochas / Lattes / Black & Bold)
   const hotCategory = card => card.closest('.hot-section')?.querySelector('.hot-cat')?.textContent.trim() || '';
@@ -1730,9 +1730,9 @@
      =================================================================== */
   const FS_STEPS = ['size','milk','extras'];
   const FS_MILKS = [
-    {val:'Oatly Oat Milk', up:OAT_UPCHARGE, note:'+$0.50'}, // keeps the existing oat upcharge
-    {val:'Regular Milk',   up:0,            note:''},
-    {val:'No Milk',        up:0,            note:'Black'}
+    {val:'Regular Milk', up:0,            note:''},
+    {val:'Oat Milk',     up:OAT_UPCHARGE, note:'+$0.50'}, // oat upcharge ($0.50)
+    {val:'No Milk',      up:0,            note:'Black'}
   ];
   const FS_FLAVORS = ['Flavor 1','Flavor 2','Flavor 3']; // specialty drinks — PLACEHOLDERS, swap for real names
   // Build-your-own (Customize) uses the real flavor-pump list from the cold guided
