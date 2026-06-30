@@ -1158,12 +1158,12 @@
     const base = priceOf(order.brew, order.size);
     const total = base!=null ? base + pumpsCost : null;
     const addon = pc>0 ? `${pc} pump${pc>1?'s':''} · +${fmt(pumpsCost)}` : '';
-    const item={ name:drinkName(order), detail:drinkDetail(order), size:order.size, addon,
+    const item={ name:drinkName(order), detail:drinkDetail(order), sizeLabel:`${SIZE_OZ[order.size]} ${order.size}`, addon,
       price: total!=null ? fmt(total) : '$?.??' };
     cart.push(item);
     bumpCart();
     document.getElementById('cbDoneSummary').textContent =
-      `${SIZE_OZ[item.size]} ${item.name} — ${item.detail}` + (addon? ` (${addon})` : '') + ` · ${item.price}`;
+      `${item.sizeLabel} ${item.name} — ${item.detail}` + (addon? ` (${addon})` : '') + ` · ${item.price}`;
     renderCart();
     show(flow.indexOf('size'),'fwd'); // keep idx valid
     // jump to done step
@@ -1191,7 +1191,7 @@
     box.innerHTML='';
     cart.forEach((o,i)=>{
       const el=document.createElement('div'); el.className='cart-item';
-      el.innerHTML=`<div class="ci-top"><span class="ci-name">${o.name}</span><span class="ci-price">${o.price||''}</span></div><div class="ci-desc">${SIZE_OZ[o.size]} ${o.size} · ${o.detail}</div>${o.addon?`<div class="ci-addon">${o.addon}</div>`:''}<button class="ci-rm" data-i="${i}">Remove</button>`;
+      el.innerHTML=`<div class="ci-top"><span class="ci-name">${o.name}</span><span class="ci-price">${o.price||''}</span></div><div class="ci-desc">${o.sizeLabel||''} · ${o.detail}</div>${o.addon?`<div class="ci-addon">${o.addon}</div>`:''}<button class="ci-rm" data-i="${i}">Remove</button>`;
       box.appendChild(el);
     });
     box.querySelectorAll('.ci-rm').forEach(b=>b.addEventListener('click',()=>{ cart.splice(+b.dataset.i,1); renderCart(); }));
@@ -1212,15 +1212,23 @@
     if(addBtn){ const s=addBtn.parentElement.querySelector('.ord-sizes'); s.hidden=!s.hidden; return; }
     const sizeBtn=e.target.closest('.ord-size');
     if(sizeBtn){
-      const ord=sizeBtn.closest('.ord'); const name=ord.dataset.drink; const size=sizeBtn.dataset.size;
+      const ord=sizeBtn.closest('.ord'); const name=ord.dataset.drink;
       const isHot = !!ord.closest('[data-panel="hot"]');
-      cart.push({name, detail: isHot?'Hot Drink':'Energy Refresher', size, price:'$?.??'}); bumpCart(); renderCart();
+      const oz=sizeBtn.dataset.oz;
+      const sizeLabel = oz ? oz : `${SIZE_OZ[sizeBtn.dataset.size]} ${sizeBtn.dataset.size}`;
+      const price = sizeBtn.dataset.price ? `$${(+sizeBtn.dataset.price).toFixed(2)}` : '$?.??';
+      cart.push({name, detail: isHot?'Hot Drink':'Energy Refresher', sizeLabel, price}); bumpCart(); renderCart();
       ord.querySelector('.ord-sizes').hidden=true;
       const b=ord.querySelector('.ord-btn'); const t=b.innerHTML; b.classList.add('added'); b.textContent='Added ✓';
       setTimeout(()=>{ b.classList.remove('added'); b.innerHTML=t; }, 1400);
     }
   }
   document.querySelectorAll('[data-panel="energy"],[data-panel="hot"]').forEach(p=>p.addEventListener('click', ordHandler));
+  /* energy refreshers have their own sizes: 16 / 20 / 32 oz */
+  const ENERGY_SIZES=[{oz:'16 oz',price:4.50},{oz:'20 oz',price:6.00},{oz:'32 oz',price:8.00}];
+  document.querySelectorAll('[data-panel="energy"] .ord-sizes').forEach(s=>{
+    s.innerHTML = ENERGY_SIZES.map(z=>`<button class="ord-size" data-oz="${z.oz}" data-price="${z.price}"><b>${z.oz}</b> <span>$${z.price.toFixed(2)}</span></button>`).join('');
+  });
 
   /* ===== HOT: Create Your Drink (mix) ===== */
   const hbCard=document.getElementById('hbCard'), hbLaunch=document.querySelector('[data-panel="hot"] .eb-launch');
@@ -1246,7 +1254,7 @@
   function hbOpen(){ hbLaunch.hidden=true; hbCard.hidden=false; hbOrder.base=null; hbOrder.milk=null; hbOrder.flavors=[]; hbOrder.size=null; hbFlavorsStep.querySelectorAll('.cb-chip').forEach(c=>c.classList.remove('sel')); hbNav.style.display=''; hbShow(0,'fwd'); }
   function hbClose(){ hbCard.hidden=true; hbLaunch.hidden=false; }
   function hbAdd(){ const flav=hbOrder.flavors.length? hbOrder.flavors.join(' + '):'No flavors'; const detail=`${hbOrder.milk} · ${flav}`;
-    cart.push({name:hbOrder.base, detail, size:hbOrder.size, price:'$?.??'}); bumpCart(); renderCart();
+    cart.push({name:hbOrder.base, detail, sizeLabel:`${SIZE_OZ[hbOrder.size]} ${hbOrder.size}`, price:'$?.??'}); bumpCart(); renderCart();
     document.getElementById('hbDoneSummary').textContent=`${SIZE_OZ[hbOrder.size]} ${hbOrder.base} — ${detail}`;
     hbStepsEls.forEach(s=>s.classList.remove('is-active','in-right','in-left')); hbNav.style.display='none'; hbStepEl('done').classList.add('is-active','in-right'); }
   document.getElementById('hbStart').addEventListener('click', hbOpen);
