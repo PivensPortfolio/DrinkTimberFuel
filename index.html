@@ -345,10 +345,13 @@
   .fsb-next{ width:100%; font-family:"Anton",sans-serif; font-size:20px; text-transform:uppercase; letter-spacing:.5px; color:var(--bg); background:var(--gold); border:none; border-radius:999px; padding:16px; cursor:pointer; box-shadow:0 6px 18px rgba(245,197,24,.3); transition:transform .15s var(--ease), opacity .2s; }
   .fsb-next:hover:not(:disabled){ transform:translateY(-1px); }
   .fsb-next:disabled{ opacity:.4; cursor:not-allowed; }
+  /* confirmation step: center the shared .cb-done block in the full-screen view */
+  .fsb-step[data-fstep="done"].is-active{ flex:1; display:flex; flex-direction:column; justify-content:center; }
 
   @media (prefers-reduced-motion: reduce){
     .card-fs-close{ transition:none; }
     .fsb-step.is-active{ animation:none; }
+    .fsb .cb-done, .fsb .cb-check{ animation:none; } /* show confirmation without the pop/slide */
   }
   .ord-size.sel{ border-color:var(--gold); background:rgba(245,197,24,.16); }
   .ord-esp{ max-width:260px; margin:10px auto 0; padding:8px 10px 8px 14px; }
@@ -1611,6 +1614,7 @@
   const FS_DUR = 420;
   const FS_EASE = 'cubic-bezier(.2,.7,.2,1)';
   let fsCloseBtn = null;
+  let fsDoneTimer = null; // mobile builder confirmation auto-dismiss timer
 
   function fsOpen(card, firstRect){
     // 1) FIRST is the collapsed rect (passed in). Drop a placeholder so the
@@ -1651,6 +1655,9 @@
   }
 
   function fsClose(card){
+    clearTimeout(fsDoneTimer); fsDoneTimer=null; // cancel any pending auto-dismiss
+    if(card._fsClosing) return;                  // never double-fire or strand
+    card._fsClosing=true;
     const ord = card.querySelector('.ord-spec');
     const ph  = card._fsPh;
     const finish = ()=>{
@@ -1665,6 +1672,7 @@
       document.body.style.overflow='';
       if(fsCloseBtn && fsCloseBtn.parentNode) fsCloseBtn.parentNode.removeChild(fsCloseBtn);
       fsCloseBtn=null;
+      card._fsClosing=false;
     };
     if(mqReduced.matches || !ph){ finish(); return; }
     // reverse FLIP via WAAPI: from full screen → the placeholder's slot.
@@ -1745,6 +1753,13 @@
          <div class="fsb-steppers">${pumpRows}</div>
          ${shotBlock}
        </div>
+       <div class="fsb-step" data-fstep="done">
+         <div class="cb-done">
+           <div class="cb-check">✓</div>
+           <h3>Added to your order!</h3>
+           <p class="cb-sum fsb-sum"></p>
+         </div>
+       </div>
        <div class="fsb-nav"><button class="fsb-next" disabled>Next</button></div>`;
     card.appendChild(wrap);
     fsb.wrap=wrap;
@@ -1798,10 +1813,20 @@
     const sizeLabel = sizeObj ? `${sizeObj.oz} ${sizeObj.size}` : (fsb.size||'');
     cart.push({name:fsb.drink, detail:fsb.milk||'Hot Drink', sizeLabel, price, addon});
     bumpCart(); renderCart();
-    fsClose(card); // morph the card back down to its slot
-    // flash the collapsed button once it reappears (matches desktop feedback)
-    const b=ord.querySelector('.ord-btn');
-    if(b){ const t=b.innerHTML; b.classList.add('added'); b.textContent='Added ✓'; setTimeout(()=>{ b.classList.remove('added'); b.innerHTML=t; },1400); }
+    // show the shared .cb-done confirmation, then auto-dismiss (morph back) after 2s
+    const summary = `${sizeLabel} ${fsb.drink} — ${fsb.milk||''}` + (addon?` (${addon})`:'') + ` · ${price}`;
+    fsbShowDone(card, summary);
+  }
+  function fsbShowDone(card, summary){
+    const wrap=card.querySelector('.fsb'); if(!wrap){ fsClose(card); return; }
+    const sum=wrap.querySelector('.fsb-sum'); if(sum) sum.textContent=summary;
+    wrap.querySelectorAll('.fsb-step').forEach(s=>s.classList.remove('is-active'));
+    const done=wrap.querySelector('.fsb-step[data-fstep="done"]'); if(done) done.classList.add('is-active');
+    const nav=wrap.querySelector('.fsb-nav'); if(nav) nav.style.display='none';   // hide bottom button
+    const label=wrap.querySelector('.fsb-title'); if(label) label.style.display='none';
+    card.dataset.fsStep='done'; // keep hero hidden (compact), like steps 2/3
+    clearTimeout(fsDoneTimer);
+    fsDoneTimer=setTimeout(()=>{ fsDoneTimer=null; fsClose(card); }, 2000); // auto-close
   }
 
   /* init */
