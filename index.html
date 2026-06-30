@@ -143,7 +143,7 @@
      ================================================================= */
   .panel{ display:none; }
   .panel.active{ display:block; animation:fade .4s var(--ease) both; }
-  @keyframes fade{ from{opacity:0; transform:translateY(10px);} to{opacity:1; transform:none;} }
+  @keyframes fade{ from{opacity:0;} to{opacity:1;} }
 
   /* ---- COLD DRINKS (designed) ---- */
   .cold-grid{ position:relative; display:grid; grid-template-columns:1fr 480px; gap:40px; align-items:start; padding:100px 0; }
@@ -485,8 +485,11 @@
   @media (max-width:600px){
     .cb-wrap{ padding:48px 16px 56px; }
     .cb-head{ margin-bottom:24px; }
-    .cb-card{ padding:22px 16px 20px; border-radius:14px; }
-    .cb-steps{ min-height:320px; }
+    /* builder takes over the full screen on mobile */
+    .cb-card{ position:fixed; inset:0; z-index:130; max-width:none; width:100%; margin:0; border:none; border-radius:0; box-shadow:none; padding:54px 16px 0; overflow-y:auto; -webkit-overflow-scrolling:touch; display:flex; flex-direction:column; }
+    .cb-steps{ min-height:0; flex:1; justify-content:flex-start; padding-top:8px; }
+    .cb-nav{ position:sticky; bottom:0; margin:16px -16px 0; padding:14px 18px calc(16px + env(safe-area-inset-bottom)); background:#0c1109; border-top:1px solid var(--gold-faint); }
+    .cb-close{ top:14px; right:16px; font-size:32px; }
     #cbSignatures{ height:auto; overflow:visible; }
     .cb-fcols{ grid-template-columns:1fr; gap:12px; }
     .orb-img{ height:auto; width:88%; margin-top:-40px; }
