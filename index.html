@@ -1753,7 +1753,10 @@
   function fsbBuild(card, cfg){
     // cfg: { drink, ord (or null), noShots, sizes:[{size,oz,price}], flavors:[...] }
     const { drink, ord=null, noShots=false, sizes, flavors } = cfg;
-    fsb = {card, ord, drink, noShots, sizes, flavors, step:0, size:null, milk:null, pumps:{}, shots:0};
+    // Espresso (a plain shot) takes no milk → skip the milk step entirely.
+    const skipMilk = /^espresso$/i.test((drink||'').trim());
+    const steps = skipMilk ? ['size','extras'] : FS_STEPS;
+    fsb = {card, ord, drink, noShots, sizes, flavors, steps, step:0, size:null, milk:null, pumps:{}, shots:0};
 
     const sizeOpts = sizes.map(s=>`<button class="fsb-opt fsb-size" data-size="${s.size}">
         <span class="fsb-oz">${s.oz}</span><span class="fsb-nm">${s.size}</span>
@@ -1800,7 +1803,7 @@
     fsbRender();
   }
   function fsbRender(){
-    const name=FS_STEPS[fsb.step];
+    const name=fsb.steps[fsb.step];
     fsb.card.dataset.fsStep=name; // drives step-specific layout (hero shown on size step only)
     fsb.wrap.querySelectorAll('.fsb-step').forEach(s=>s.classList.toggle('is-active', s.dataset.fstep===name));
     fsb.wrap.querySelectorAll('.fsb-size').forEach(b=>b.classList.toggle('sel', b.dataset.size===fsb.size));
@@ -1823,7 +1826,7 @@
     const milk=e.target.closest('.fsb-milk'); if(milk){ fsb.milk=milk.dataset.val; fsbRender(); return; }
     const next=e.target.closest('.fsb-next');
     if(next){
-      if(FS_STEPS[fsb.step]==='extras') fsbConfirm();
+      if(fsb.steps[fsb.step]==='extras') fsbConfirm();
       else { fsb.step++; fsbRender(); }
     }
   }
@@ -1847,7 +1850,8 @@
     cart.push({name:fsb.drink, detail:fsb.milk||'Hot Drink', sizeLabel, price, addon});
     bumpCart(); renderCart();
     // show the shared .cb-done confirmation, then auto-dismiss (morph back) after 2s
-    const summary = `${sizeLabel} ${fsb.drink} — ${fsb.milk||''}` + (addon?` (${addon})`:'') + ` · ${price}`;
+    const milkPart = fsb.milk ? ` — ${fsb.milk}` : ''; // no milk step (e.g. Espresso) → omit the dash/blank
+    const summary = `${sizeLabel} ${fsb.drink}${milkPart}` + (addon?` (${addon})`:'') + ` · ${price}`;
     fsbShowDone(card, summary);
   }
   function fsbShowDone(card, summary){
