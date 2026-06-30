@@ -1297,11 +1297,16 @@
   const headerCartBtn=document.getElementById('headerCartBtn');
   function updateHeaderCart(){ const has=cart.length>0; orderNowBtn.hidden=has; headerCartBtn.hidden=!has; }
   function bumpCart(){ cartCount.textContent=cart.length; cartCount.classList.remove('bump'); void cartCount.offsetWidth; cartCount.classList.add('bump'); }
+  /* cart persistence — survives a page refresh, auto-expires after CART_TTL_MS */
+  const CART_KEY='tf_cart_v1'; const CART_TTL_MS=2*60*60*1000; // 2 hours
+  function saveCart(){ try{ if(cart.length) localStorage.setItem(CART_KEY, JSON.stringify({ts:Date.now(), items:cart})); else localStorage.removeItem(CART_KEY); }catch(e){} }
+  function loadCart(){ try{ const raw=localStorage.getItem(CART_KEY); if(!raw) return; const d=JSON.parse(raw); if(!d||!Array.isArray(d.items)||!d.ts||(Date.now()-d.ts)>CART_TTL_MS){ localStorage.removeItem(CART_KEY); return; } cart.push(...d.items); }catch(e){ try{localStorage.removeItem(CART_KEY);}catch(_){} } }
   function renderCart(){
     const box=document.getElementById('cartItems');
     cartCount.textContent=cart.length;
     updateHeaderCart();
     const _co=document.getElementById('cartCheckout'); if(_co) _co.disabled=!cart.length;
+    saveCart();
     if(!cart.length){ box.innerHTML='<p class="cart-empty">Your order is empty.<br/>Build a drink to get started.</p>'; return; }
     box.innerHTML='';
     cart.forEach((o,i)=>{
@@ -1911,6 +1916,7 @@
   document.querySelector('[data-panel="cold"]').addEventListener('click', coldHandler);
 
   /* init */
+  loadCart();
   renderCart();
 </script>
 </body>
