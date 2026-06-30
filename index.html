@@ -954,150 +954,62 @@
 
   <!-- ===== COLD DRINKS — GUIDED BUILDER + CART ===== -->
   <section class="panel active" data-panel="cold">
-    <div class="wrap cb-wrap">
-      <div class="cb-head">
-        <span class="eyebrow">Crafted to order · Cold brewed 18+ hours</span>
-        <h2 class="cb-title">Build your cold drink</h2>
+    <div class="wrap" style="padding:74px 28px 70px;">
+      <div class="energy-head">
+        <span class="eyebrow"><span class="bolt">⚡</span> Crafted to order · Iced</span>
+        <h2>Iced <em>Drinks</em></h2>
       </div>
 
-      <div class="cb-landing" id="cbLanding">
-        <div class="cb-showcase">
-          <button class="cb-drink" data-brew="Iced Coffee">
-            <span class="cb-drink-imgwrap"><img src="assets/iced-coffee.png" alt="Iced Coffee" /></span>
-            <span class="cb-drink-name">Iced Coffee</span>
-            <span class="cb-drink-tag">Bright, crisp, flash-chilled over ice</span>
-            <span class="cb-drink-go">Start with this →</span>
-          </button>
-          <button class="cb-drink" data-brew="Cold Brew">
-            <span class="cb-drink-imgwrap"><img src="assets/cold-brew.png" alt="Cold Brew" /></span>
-            <span class="cb-drink-name">Cold Brew</span>
-            <span class="cb-drink-tag">Rich, smooth, steeped 18+ hours</span>
-            <span class="cb-drink-go">Start with this →</span>
-          </button>
-          <button class="cb-drink" data-brew="Iced Mocha">
-            <span class="cb-drink-imgwrap"><img src="assets/cold-brew.png" alt="Iced Mocha" /></span>
-            <span class="cb-drink-name">Iced Mocha</span>
-            <span class="cb-drink-tag">Espresso, chocolate & milk over ice</span>
-            <span class="cb-drink-go">Start with this →</span>
-          </button>
-          <button class="cb-drink" data-brew="Iced Latte">
-            <span class="cb-drink-imgwrap"><img src="assets/cold-brew.png" alt="Iced Latte" /></span>
-            <span class="cb-drink-name">Iced Latte</span>
-            <span class="cb-drink-tag">Smooth espresso & milk over ice</span>
-            <span class="cb-drink-go">Start with this →</span>
-          </button>
+      <!-- ============ ICED MOCHAS & LATTES ============ -->
+      <div class="hot-section">
+        <h3 class="hot-cat">Iced Mochas &amp; Lattes</h3>
+        <div class="hot-grid">
+          <div class="hot-card">
+            <img class="hot-img" src="assets/cold-brew.png" alt="Iced Mocha" />
+            <h3>Iced Mocha</h3>
+            <p>Espresso, chocolate &amp; milk over ice. Rich, sweet, indulgent.</p>
+            <div class="ord cold-ord" data-drink="Iced Mocha"><button class="ord-btn">Customize →</button></div>
+          </div>
+          <div class="hot-card">
+            <img class="hot-img" src="assets/cold-brew.png" alt="Iced Latte" />
+            <h3>Iced Latte</h3>
+            <p>Smooth espresso &amp; milk over ice. Mellow and easy-drinking.</p>
+            <div class="ord cold-ord" data-drink="Iced Latte"><button class="ord-btn">Customize →</button></div>
+          </div>
         </div>
-        <button class="cb-start" id="cbStart"><span class="bolt">⚡</span> Create Your Drink</button>
       </div>
 
-      <div class="cb-card" id="cbCard" hidden>
-        <button class="cb-close" id="cbClose" aria-label="Cancel and go back">×</button>
-        <div class="cb-progress" id="cbProgress"></div>
-
-        <div class="cb-steps" id="cbSteps">
-          <!-- 1. brew -->
-          <div class="cb-step" data-step="brew">
-            <h3 class="cb-q">Pick your base</h3>
-            <div class="cb-options cb-2">
-              <button class="cb-opt" data-val="Iced Coffee"><span class="cb-tick">✓</span><span class="cb-opt-t">Iced Coffee</span><span class="cb-opt-d">Brewed hot, flash-chilled over ice. Lighter, brighter, crisper.</span></button>
-              <button class="cb-opt" data-val="Cold Brew"><span class="cb-tick">✓</span><span class="cb-opt-t">Cold Brew</span><span class="cb-opt-d">Steeped cold 12–24 hours. Richer, sweeter, far less acidic.</span></button>
-              <button class="cb-opt" data-val="Iced Mocha"><span class="cb-tick">✓</span><span class="cb-opt-t">Iced Mocha</span><span class="cb-opt-d">Espresso & chocolate over ice. Rich, sweet, indulgent.</span></button>
-              <button class="cb-opt" data-val="Iced Latte"><span class="cb-tick">✓</span><span class="cb-opt-t">Iced Latte</span><span class="cb-opt-d">Espresso & milk over ice. Smooth, mellow, easy-drinking.</span></button>
-            </div>
+      <!-- ============ ICED BLACK & BOLD ============ -->
+      <div class="hot-section">
+        <h3 class="hot-cat">Iced Black &amp; Bold</h3>
+        <div class="hot-grid">
+          <div class="hot-card">
+            <img class="hot-img" src="assets/iced-coffee.png" alt="Iced Coffee" />
+            <h3>Iced Coffee</h3>
+            <p>Brewed hot, flash-chilled over ice. Bright, crisp, clean.</p>
+            <div class="ord cold-ord" data-drink="Iced Coffee"><button class="ord-btn">Customize →</button></div>
           </div>
-
-          <!-- 2. style fork -->
-          <div class="cb-step" data-step="style">
-            <h3 class="cb-q">Signature or build your own?</h3>
-            <div class="cb-options cb-2">
-              <button class="cb-opt" data-val="signature"><span class="cb-tick">✓</span><span class="cb-opt-t">Pick a Signature</span><span class="cb-opt-d">Our hand-crafted Northwoods combos.</span></button>
-              <button class="cb-opt" data-val="custom"><span class="cb-tick">✓</span><span class="cb-opt-t">Build Your Own</span><span class="cb-opt-d">Start fresh and choose every flavor.</span></button>
-            </div>
+          <div class="hot-card">
+            <img class="hot-img" src="assets/iced-coffee.png" alt="Cold Brew" />
+            <h3>Cold Brew</h3>
+            <p>Steeped cold 18+ hours. Rich, smooth, far less acidic.</p>
+            <div class="ord cold-ord" data-drink="Cold Brew"><button class="ord-btn">Customize →</button></div>
           </div>
-
-          <!-- 3a. signature (filled by JS) -->
-          <div class="cb-step" data-step="signature">
-            <h3 class="cb-q">Pick your signature</h3>
-            <div class="cb-options cb-grid" id="cbSignatures"></div>
+          <div class="hot-card">
+            <img class="hot-img" src="assets/iced-coffee.png" alt="Iced Americano" />
+            <h3>Iced Americano</h3>
+            <p>Bold espresso over ice and cold water. Smooth and full-bodied.</p>
+            <div class="ord cold-ord" data-drink="Iced Americano"><button class="ord-btn">Customize →</button></div>
           </div>
-
-          <!-- 3b. flavors -->
-          <div class="cb-step" data-step="flavors">
-            <h3 class="cb-q">Add your flavors</h3>
-            <p class="cb-hint">Tap a flavor to add a pump · <b>$0.50</b> each · adjust amounts below.</p>
-            <div class="cb-fcols">
-              <div class="cb-fcol">
-                <span class="cb-flabel">Classic</span>
-                <div class="cb-chips" id="cbFlavors">
-                  <button class="cb-chip" data-val="Cinnamon"><span class="cn">Cinnamon</span><span class="chip-ct"></span></button>
-                  <button class="cb-chip" data-val="Chocolate"><span class="cn">Chocolate</span><span class="chip-ct"></span></button>
-                  <button class="cb-chip" data-val="Caramel"><span class="cn">Caramel</span><span class="chip-ct"></span></button>
-                  <button class="cb-chip" data-val="Toasted Marshmallow"><span class="cn">Toasted Marshmallow</span><span class="chip-ct"></span></button>
-                  <button class="cb-chip" data-val="Vanilla"><span class="cn">Vanilla</span><span class="chip-ct"></span></button>
-                  <button class="cb-chip" data-val="French Vanilla"><span class="cn">French Vanilla</span><span class="chip-ct"></span></button>
-                  <button class="cb-chip" data-val="Hazelnut"><span class="cn">Hazelnut</span><span class="chip-ct"></span></button>
-                  <button class="cb-chip" data-val="Pumpkin Spice"><span class="cn">Pumpkin Spice</span><span class="chip-ct"></span></button>
-                </div>
-              </div>
-              <div class="cb-fcol cb-fcol-sf">
-                <span class="cb-flabel cb-flabel-sf">Sugar-Free</span>
-                <div class="cb-chips" id="cbFlavorsSF">
-                  <button class="cb-chip cb-chip-sf" data-val="Sugar-Free Vanilla"><span class="cn">Vanilla</span><span class="chip-ct"></span></button>
-                  <button class="cb-chip cb-chip-sf" data-val="Sugar-Free Caramel"><span class="cn">Caramel</span><span class="chip-ct"></span></button>
-                  <button class="cb-chip cb-chip-sf" data-val="Sugar-Free Hazelnut"><span class="cn">Hazelnut</span><span class="chip-ct"></span></button>
-                  <button class="cb-chip cb-chip-sf" data-val="Sugar-Free French Vanilla"><span class="cn">French Vanilla</span><span class="chip-ct"></span></button>
-                  <button class="cb-chip cb-chip-sf" data-val="Sugar-Free Mocha"><span class="cn">Mocha</span><span class="chip-ct"></span></button>
-                </div>
-              </div>
-            </div>
-            <div class="pump-list" id="pumpList" hidden></div>
+          <div class="hot-card">
+            <img class="hot-img" src="assets/iced-coffee.png" alt="Iced Espresso" />
+            <h3>Iced Espresso</h3>
+            <p>A chilled shot of intense Northwoods roast over ice.</p>
+            <div class="ord cold-ord" data-drink="Iced Espresso" data-noshots="1"><button class="ord-btn">Customize →</button></div>
           </div>
-
-          <!-- 4. milk -->
-          <div class="cb-step" data-step="milk">
-            <h3 class="cb-q">Choose your milk</h3>
-            <div class="cb-options cb-3">
-              <button class="cb-opt" data-val="Regular Milk"><span class="cb-tick">✓</span><span class="cb-opt-t">Regular Milk</span></button>
-              <button class="cb-opt" data-val="Oat Milk"><span class="cb-tick">✓</span><span class="cb-opt-t">Oat Milk</span><span class="cb-opt-d cb-up">+$0.50</span></button>
-              <button class="cb-opt" data-val="Black"><span class="cb-tick">✓</span><span class="cb-opt-t">Black</span><span class="cb-opt-d">No milk</span></button>
-            </div>
-          </div>
-
-          <!-- 5. size -->
-          <div class="cb-step" data-step="size">
-            <h3 class="cb-q">Pick your size</h3>
-            <div class="cb-options cb-3">
-              <button class="cb-opt cb-size" data-val="Small"><span class="cb-tick">✓</span><span class="cb-opt-oz">12 oz</span><span class="cb-opt-t">Small</span><span class="cb-opt-d cb-price"></span></button>
-              <button class="cb-opt cb-size" data-val="Medium"><span class="cb-tick">✓</span><span class="cb-opt-oz">16 oz</span><span class="cb-opt-t">Medium</span><span class="cb-opt-d cb-price"></span></button>
-              <button class="cb-opt cb-size" data-val="Large"><span class="cb-tick">✓</span><span class="cb-opt-oz">20 oz</span><span class="cb-opt-t">Large</span><span class="cb-opt-d cb-price"></span></button>
-            </div>
-            <div class="espresso-addon" id="cbEspresso">
-              <span class="ea-label">⚡ Add espresso shots <small>$1.00 each</small></span>
-              <div class="ea-step"><button class="ea-btn ea-dec" aria-label="Remove shot">−</button><span class="ea-q">0</span><button class="ea-btn ea-inc" aria-label="Add shot">+</button></div>
-            </div>
-          </div>
-
-          <!-- done -->
-          <div class="cb-step" data-step="done">
-            <div class="cb-done">
-              <div class="cb-check">✓</div>
-              <h3>Added to your order!</h3>
-              <p class="cb-sum" id="cbDoneSummary"></p>
-              <div class="cb-done-actions">
-                <button class="cb-next" id="cbAnother">Add another drink</button>
-                <button class="cb-back" id="cbViewCart">View order →</button>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="cb-nav" id="cbNav">
-          <button class="cb-back" id="cbBack" hidden>← Back</button>
-          <button class="cb-next" id="cbNext" hidden>Next →</button>
         </div>
       </div>
     </div>
-
   </section>
 
   <!-- ===== ENERGY REFRESHERS (built in-style; not yet in Figma) ===== -->
@@ -1217,242 +1129,21 @@
   /* ===================================================================
      COLD DRINK BUILDER + CART
      =================================================================== */
-  const SIGNATURES = {
-    'Cold Brew':[
-      {name:'Campfire Cold Brew', desc:'Chocolate + Toasted Marshmallow + Cream', icon:'assets/icon-campfire.png'},
-      {name:'Sunrise Trail',      desc:'Vanilla + Caramel + Cream',                icon:'assets/icon-sunrise.png'},
-      {name:'Timber Trail',       desc:'Chocolate + Caramel + Cream',              icon:'assets/icon-pine.png'},
-      {name:'Northwoods Reserve', desc:'Hazelnut + Vanilla + Cream',               icon:'assets/icon-mountains.png'}
-    ],
-    'Iced Coffee':[
-      {name:'Northwoods Vanilla', desc:'Vanilla + Vanilla Cream',   icon:'assets/icon-sunrise.png'},
-      {name:'Caramel Trail',      desc:'Caramel · smooth & bold',   icon:'assets/icon-pine.png'},
-      {name:'Cabin Comfort',      desc:'Cinnamon + Caramel',        icon:'assets/icon-campfire.png'},
-      {name:'Glacier Mocha',      desc:'Chocolate + Cream',         icon:'assets/icon-mountains.png'}
-    ],
-    'Iced Mocha':[
-      {name:'Campfire Mocha',     desc:'Chocolate + Toasted Marshmallow + Cream', icon:'assets/icon-campfire.png'},
-      {name:'Caramel Mocha',      desc:'Chocolate + Caramel + Cream',             icon:'assets/icon-pine.png'},
-      {name:'Northwoods Mocha',   desc:'Chocolate + Hazelnut + Cream',            icon:'assets/icon-mountains.png'}
-    ],
-    'Iced Latte':[
-      {name:'Vanilla Bean Latte', desc:'Vanilla + Cream',           icon:'assets/icon-sunrise.png'},
-      {name:'Caramel Latte',      desc:'Caramel + Cream',           icon:'assets/icon-pine.png'},
-      {name:'Cinnamon Latte',     desc:'Cinnamon + Vanilla',        icon:'assets/icon-campfire.png'}
-    ]
-  };
   const SIZE_OZ = {Small:'12 oz', Medium:'16 oz', Large:'20 oz'};
-
-  const cbSteps  = [...document.querySelectorAll('#cbSteps .cb-step')];
-  const cbProg   = document.getElementById('cbProgress');
-  const cbBack   = document.getElementById('cbBack');
-  const cbNext   = document.getElementById('cbNext');
-  const cbNav    = document.getElementById('cbNav');
-  const cbSigWrap= document.getElementById('cbSignatures');
-  const cbFlavors= document.getElementById('cbFlavors');
-  const flavorsStepEl = document.querySelector('[data-step="flavors"]');
-  const cbLanding= document.getElementById('cbLanding');
-  const cbCard   = document.getElementById('cbCard');
-
-  let flow = ['brew','style'];
-  let idx  = 0;
-  let order = {brew:null, style:null, signature:null, pumps:{}, espresso:0, milk:null, size:null};
   const cart = [];
   const PUMP_PRICE = 0.25;
   const OAT_UPCHARGE = 0.50;          // oat milk costs $0.50 extra
-  const OAT_MILK = 'Oat Milk';  // milk value that triggers the +$0.50 upcharge
-  const isMochaLatte = s => /mocha|latte/i.test(s||''); // matches a "Mochas"/"Lattes" category (or Iced Mocha/Latte brew)
-  // a hot drink's category = the .hot-cat heading of its enclosing .hot-section (Mochas / Lattes / Black & Bold)
+  const OAT_MILK = 'Oat Milk';        // milk value that triggers the +$0.50 upcharge
+  const isMochaLatte = s => /mocha|latte/i.test(s||''); // matches a Mochas/Lattes category
   const hotCategory = card => card.closest('.hot-section')?.querySelector('.hot-cat')?.textContent.trim() || '';
-  // base drink price by brew + size (null = price TBD)
+  // base drink price by drink + size (null = price TBD)
   const PRICES = {
     'Cold Brew':   { Small:4.25, Medium:4.75, Large:5.25 },
     'Iced Coffee': { Small:3.75, Medium:4.25, Large:4.75 }
   };
   const HOT_PRICES = { Small:5.00, Medium:5.50, Large:6.00 };
-  const priceOf = (brew,size) => (PRICES[brew] && PRICES[brew][size]!=null) ? PRICES[brew][size] : null;
+  const priceOf = (drink,size) => (PRICES[drink] && PRICES[drink][size]!=null) ? PRICES[drink][size] : null;
   const fmt = n => `$${n.toFixed(2)}`;
-  const pumpEntries = o => Object.entries(o.pumps||{}).filter(([,v])=>v>0);
-  const pumpCount = o => pumpEntries(o).reduce((s,[,v])=>s+v,0);
-  const flavorsText = o => { const e=pumpEntries(o); return e.length ? e.map(([k,v])=> v>1?`${k} ×${v}`:k).join(' + ') : 'No flavors'; };
-
-  function buildFlow(){
-    if(order.style==='signature') flow=['brew','style','signature','milk','size'];
-    else if(order.style==='custom') flow=['brew','style','flavors','milk','size'];
-    else flow=['brew','style'];
-  }
-  function stepEl(name){ return cbSteps.find(s=>s.dataset.step===name); }
-
-  function renderProgress(){
-    cbProg.innerHTML='';
-    flow.forEach((_,i)=>{
-      const b=document.createElement('i');
-      if(i<idx) b.className='done';
-      if(i===idx) b.className='cur';
-      cbProg.appendChild(b);
-    });
-  }
-  function syncSelections(){
-    // reflect current order state as selected highlights
-    const map={brew:order.brew, style:order.style, milk:order.milk, size:order.size, signature:order.signature&&order.signature.name};
-    cbSteps.forEach(step=>{
-      const key=step.dataset.step;
-      step.querySelectorAll('.cb-opt').forEach(o=>{
-        o.classList.toggle('sel', map[key]!=null && o.dataset.val===map[key]);
-      });
-    });
-    updateFlavorUI();
-  }
-  function updateNav(){
-    const name=flow[idx];
-    cbBack.hidden = (idx===0);
-    if(name==='flavors'){ cbNext.hidden=false; cbNext.textContent='Next →'; cbNext.disabled=false; }
-    else if(name==='size'){ cbNext.hidden=false; cbNext.textContent='Add to Order'; cbNext.disabled=!order.size; }
-    else { cbNext.hidden=true; }
-  }
-  function show(i, dir){
-    idx=i;
-    const name=flow[i];
-    cbNav.style.display = (name==='done') ? 'none' : '';
-    if(name==='signature') renderSignatures();
-    if(name==='size') renderSizePrices();
-    if(name==='milk') renderMilkOptions();
-    cbSteps.forEach(s=>{ s.classList.remove('is-active','in-right','in-left'); });
-    const el=stepEl(name);
-    el.classList.add('is-active', dir==='back'?'in-left':'in-right');
-    if(name!=='done'){ renderProgress(); syncSelections(); updateNav(); }
-  }
-  function next(){ if(idx<flow.length-1) show(idx+1,'fwd'); }
-  function goto(name){ const i=flow.indexOf(name); if(i>=0) show(i,'fwd'); }
-  // hide "Black" (no milk) for Iced Mocha / Iced Latte — they're milk-based
-  function renderMilkOptions(){
-    const step=stepEl('milk'); if(!step) return;
-    const blackOpt=step.querySelector('.cb-opt[data-val="Black"]');
-    const grid=step.querySelector('.cb-options');
-    const hide=isMochaLatte(order.brew);
-    if(blackOpt) blackOpt.hidden=hide;
-    if(grid){ grid.classList.toggle('cb-3', !hide); grid.classList.toggle('cb-2', hide); }
-    if(hide && order.milk==='Black') order.milk=null; // clear an invalid prior pick
-  }
-
-  function renderSignatures(){
-    const list=SIGNATURES[order.brew]||[];
-    cbSigWrap.innerHTML='';
-    list.forEach(sig=>{
-      const b=document.createElement('button');
-      b.className='cb-opt'; b.dataset.val=sig.name;
-      b.innerHTML=`<span class="cb-tick">✓</span><img class="cb-opt-ic" src="${sig.icon}" alt=""><span class="cb-opt-txt"><span class="cb-opt-t">${sig.name}</span><span class="cb-opt-d">${sig.desc}</span></span>`;
-      b.addEventListener('click',()=>{ order.signature=sig; selectFlash(b); setTimeout(next,260); });
-      cbSigWrap.appendChild(b);
-    });
-  }
-  function selectFlash(el){ el.parentElement.querySelectorAll('.cb-opt').forEach(o=>o.classList.remove('sel')); el.classList.add('sel'); }
-  function renderSizePrices(){ stepEl('size').querySelectorAll('.cb-size').forEach(b=>{ const p=priceOf(order.brew, b.dataset.val); const el=b.querySelector('.cb-price'); if(el) el.textContent = p!=null ? fmt(p) : '$?.??'; }); const eq=document.querySelector('#cbEspresso .ea-q'); if(eq) eq.textContent=order.espresso; }
-
-  /* option clicks (single-select, auto-advance) */
-  document.getElementById('cbSteps').addEventListener('click', e=>{
-    const ea=e.target.closest('.ea-btn');
-    if(ea){ order.espresso = ea.classList.contains('ea-inc') ? order.espresso+1 : Math.max(0,order.espresso-1); document.querySelector('#cbEspresso .ea-q').textContent=order.espresso; return; }
-    const opt=e.target.closest('.cb-opt'); if(!opt) return;
-    const step=opt.closest('.cb-step').dataset.step;
-    const val=opt.dataset.val;
-    if(step==='brew'){ order.brew=val; selectFlash(opt); setTimeout(next,260); }
-    else if(step==='style'){ order.style=val; selectFlash(opt); buildFlow(); setTimeout(next,260); }
-    else if(step==='milk'){ order.milk=val; selectFlash(opt); setTimeout(next,260); }
-    else if(step==='size'){ order.size=val; selectFlash(opt); updateNav(); }
-  });
-  /* flavors — tap a chip to add a pump; fine-tune in the pump list below ($0.50 each) */
-  const pumpListEl = document.getElementById('pumpList');
-  function renderPumpList(){
-    const entries = pumpEntries(order);
-    if(!entries.length){ pumpListEl.hidden=true; pumpListEl.innerHTML=''; return; }
-    pumpListEl.hidden=false;
-    const pc=pumpCount(order);
-    pumpListEl.innerHTML = entries.map(([val,q])=>{
-      const sf = val.startsWith('Sugar-Free');
-      return `<div class="pump-row${sf?' sf':''}" data-val="${val}"><span class="pr-name">${val}</span><div class="pr-step"><button class="pr-btn pr-dec" aria-label="Remove a pump">−</button><span class="pr-q">${q}</span><button class="pr-btn pr-inc" aria-label="Add a pump">+</button></div></div>`;
-    }).join('') + `<div class="pump-total">${pc} pump${pc>1?'s':''} · +$${(pc*PUMP_PRICE).toFixed(2)}</div>`;
-  }
-  function updateFlavorUI(){
-    flavorsStepEl.querySelectorAll('.cb-chip').forEach(c=>{
-      const q=order.pumps[c.dataset.val]||0;
-      c.classList.toggle('sel', q>0);
-      const ct=c.querySelector('.chip-ct'); if(ct) ct.textContent = q>0 ? q : '';
-    });
-    renderPumpList();
-  }
-  flavorsStepEl.querySelector('.cb-fcols').addEventListener('click', e=>{
-    const chip=e.target.closest('.cb-chip'); if(!chip) return;
-    const v=chip.dataset.val;
-    order.pumps[v] = Math.min(6, (order.pumps[v]||0)+1);
-    updateFlavorUI();
-  });
-  pumpListEl.addEventListener('click', e=>{
-    const row=e.target.closest('.pump-row'); if(!row) return;
-    const v=row.dataset.val;
-    if(e.target.classList.contains('pr-inc')) order.pumps[v]=Math.min(6,(order.pumps[v]||0)+1);
-    else if(e.target.classList.contains('pr-dec')){ const n=(order.pumps[v]||0)-1; if(n<=0) delete order.pumps[v]; else order.pumps[v]=n; }
-    else return;
-    updateFlavorUI();
-  });
-  /* landing <-> wizard */
-  function showLanding(){ cbCard.hidden=true; cbLanding.hidden=false; }
-  function startWizard(brew){
-    cbLanding.hidden=true; cbCard.hidden=false;
-    order={brew:brew||null, style:null, signature:null, pumps:{}, espresso:0, milk:null, size:null};
-    buildFlow(); clearFlavorChips();
-    cbNav.style.display='';
-    show(brew ? flow.indexOf('style') : 0, 'fwd');
-  }
-  document.getElementById('cbStart').addEventListener('click', ()=>startWizard(null));
-  document.querySelectorAll('.cb-drink').forEach(d=>d.addEventListener('click', ()=>startWizard(d.dataset.brew)));
-  document.getElementById('cbClose').addEventListener('click', showLanding);
-
-  cbBack.addEventListener('click', ()=>{ if(idx>0) show(idx-1,'back'); else showLanding(); });
-  cbNext.addEventListener('click', ()=>{
-    const name=flow[idx];
-    if(name==='flavors'){ next(); }
-    else if(name==='size'){ if(order.size) addToCart(); }
-  });
-
-  /* ---- cart ---- */
-  function drinkName(o){ return o.style==='signature' && o.signature ? o.signature.name : (o.brew); }
-  function drinkDetail(o){
-    if(o.style==='signature') return `${o.brew} · ${o.signature?o.signature.desc:''} · ${o.milk}`;
-    return `${flavorsText(o)} · ${o.milk}`;
-  }
-  function clearFlavorChips(){ updateFlavorUI(); }
-  function addToCart(){
-    const pc=pumpCount(order);
-    const es=order.espresso||0;
-    const oat = order.milk===OAT_MILK ? OAT_UPCHARGE : 0;
-    const extrasCost = pc*PUMP_PRICE + es*1 + oat;
-    const base = priceOf(order.brew, order.size);
-    const total = base!=null ? base + extrasCost : null;
-    const extras=[];
-    if(pc>0) extras.push(`${pc} pump${pc>1?'s':''}`);
-    if(es>0) extras.push(`${es} espresso shot${es>1?'s':''}`);
-    if(oat>0) extras.push('Oat milk');
-    const addon = extras.length ? `${extras.join(' · ')} · +${fmt(extrasCost)}` : '';
-    const item={ name:drinkName(order), detail:drinkDetail(order), sizeLabel:`${SIZE_OZ[order.size]} ${order.size}`, addon,
-      price: total!=null ? fmt(total) : '$?.??' };
-    cart.push(item);
-    bumpCart();
-    document.getElementById('cbDoneSummary').textContent =
-      `${item.sizeLabel} ${item.name} — ${item.detail}` + (addon? ` (${addon})` : '') + ` · ${item.price}`;
-    renderCart();
-    show(flow.indexOf('size'),'fwd'); // keep idx valid
-    // jump to done step
-    cbSteps.forEach(s=>s.classList.remove('is-active','in-right','in-left'));
-    cbNav.style.display='none';
-    const d=stepEl('done'); d.classList.add('is-active','in-right');
-  }
-  function resetBuilder(){
-    order={brew:null, style:null, signature:null, pumps:{}, espresso:0, milk:null, size:null};
-    buildFlow(); clearFlavorChips();
-    cbNav.style.display=''; show(0,'fwd');
-  }
-  document.getElementById('cbAnother').addEventListener('click', resetBuilder);
 
   const cartCount=document.getElementById('cartCount');
   const orderNowBtn=document.getElementById('orderNowBtn');
@@ -1467,7 +1158,7 @@
     box.innerHTML='';
     cart.forEach((o,i)=>{
       const el=document.createElement('div'); el.className='cart-item';
-      el.innerHTML=`<div class="ci-top"><span class="ci-name">${o.name}</span><span class="ci-price">${o.price||''}</span></div><div class="ci-desc">${o.sizeLabel||''} · ${o.detail}</div>${o.addon?`<div class="ci-addon">${o.addon}</div>`:''}<button class="ci-rm" data-i="${i}">Remove</button>`;
+      el.innerHTML=`<div class="ci-top"><span class="ci-name">${o.name}</span><span class="ci-price">${o.price||''}</span></div><div class="ci-desc">${o.sizeLabel||''}${o.detail?` · ${o.detail}`:''}</div>${o.addon?`<div class="ci-addon">${o.addon}</div>`:''}<button class="ci-rm" data-i="${i}">Remove</button>`;
       box.appendChild(el);
     });
     box.querySelectorAll('.ci-rm').forEach(b=>b.addEventListener('click',()=>{ cart.splice(+b.dataset.i,1); renderCart(); }));
@@ -1477,7 +1168,6 @@
   function openCart(){ renderCart(); overlay.classList.add('open'); drawer.classList.add('open'); }
   function closeCart(){ overlay.classList.remove('open'); drawer.classList.remove('open'); }
   headerCartBtn.addEventListener('click', openCart);
-  document.getElementById('cbViewCart').addEventListener('click', openCart);
   document.getElementById('cartClose').addEventListener('click', closeCart);
   overlay.addEventListener('click', closeCart);
   document.getElementById('cartClear').addEventListener('click', ()=>{ cart.length=0; renderCart(); });
@@ -1735,9 +1425,11 @@
     {val:'No Milk',      up:0,            note:'Black'}
   ];
   const FS_FLAVORS = ['Flavor 1','Flavor 2','Flavor 3']; // specialty drinks — PLACEHOLDERS, swap for real names
-  // Build-your-own (Customize) uses the real flavor-pump list from the cold guided
-  // builder's flavor step — classic flavors + sugar-free flavors.
-  const BUILDER_FLAVORS = [...document.querySelectorAll('#cbFlavors .cb-chip, #cbFlavorsSF .cb-chip')].map(c=>c.dataset.val);
+  // Build-your-own flavor-pump list — classic + sugar-free (used by hot build cards & all cold drinks)
+  const BUILDER_FLAVORS = [
+    'Cinnamon','Chocolate','Caramel','Toasted Marshmallow','Vanilla','French Vanilla','Hazelnut','Pumpkin Spice',
+    'Sugar-Free Vanilla','Sugar-Free Caramel','Sugar-Free Hazelnut','Sugar-Free French Vanilla','Sugar-Free Mocha'
+  ];
   let fsb = null; // active builder state
 
   function fsStepperRow(label, key){
@@ -1754,7 +1446,7 @@
     // cfg: { drink, ord (or null), noShots, sizes:[{size,oz,price}], flavors:[...] }
     const { drink, ord=null, noShots=false, sizes, flavors } = cfg;
     // Espresso (a plain shot) takes no milk → skip the milk step entirely.
-    const skipMilk = /^espresso$/i.test((drink||'').trim());
+    const skipMilk = /espresso$/i.test((drink||'').trim());
     const steps = skipMilk ? ['size','extras'] : FS_STEPS;
     fsb = {card, ord, drink, noShots, sizes, flavors, steps, step:0, size:null, milk:null, pumps:{}, shots:0};
 
@@ -1847,7 +1539,7 @@
     if(oat>0) extras.push('Oat milk');
     const addon = extras.length ? `${extras.join(' · ')} · +${fmt(extrasCost)}` : '';
     const sizeLabel = sizeObj ? `${sizeObj.oz} ${sizeObj.size}` : (fsb.size||'');
-    cart.push({name:fsb.drink, detail:fsb.milk||'Hot Drink', sizeLabel, price, addon});
+    cart.push({name:fsb.drink, detail:fsb.milk||'', sizeLabel, price, addon});
     bumpCart(); renderCart();
     // show the shared .cb-done confirmation, then auto-dismiss (morph back) after 2s
     const milkPart = fsb.milk ? ` — ${fsb.milk}` : ''; // no milk step (e.g. Espresso) → omit the dash/blank
@@ -1867,8 +1559,25 @@
     fsDoneTimer=setTimeout(()=>{ fsDoneTimer=null; fsClose(card); }, 2000); // auto-close
   }
 
+  /* ===== COLD drinks -> same full-screen .fsb builder as hot (build-your-own iced) =====
+     Cold drinks are all build-your-own, so they use the full-screen flow on every
+     viewport (it doubles as the desktop modal). Hot's desktop inline path is untouched. */
+  function coldHandler(e){
+    if(e.target.closest('.fsb')) return;
+    const ord=e.target.closest('.cold-ord'); if(!ord) return;
+    if(!e.target.closest('.ord-btn')) return;
+    const card=ord.closest('.hot-card');
+    const drink=ord.dataset.drink;
+    const noShots=ord.dataset.noshots==='1';
+    const firstRect=card.getBoundingClientRect();
+    const sizes=['Small','Medium','Large'].map(s=>{ const p=priceOf(drink,s); return {size:s, oz:SIZE_OZ[s], price:p!=null?String(p):''}; });
+    fsbBuild(card, {drink, ord:null, noShots, sizes, flavors:BUILDER_FLAVORS});
+    fsOpen(card, firstRect);
+  }
+  document.querySelector('[data-panel="cold"]').addEventListener('click', coldHandler);
+
   /* init */
-  buildFlow(); show(0,'fwd'); renderCart();
+  renderCart();
 </script>
 </body>
 </html>
