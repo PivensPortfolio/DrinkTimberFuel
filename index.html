@@ -774,6 +774,18 @@
             <span class="cb-drink-tag">Rich, smooth, steeped 18+ hours</span>
             <span class="cb-drink-go">Start with this →</span>
           </button>
+          <button class="cb-drink" data-brew="Iced Mocha">
+            <span class="cb-drink-imgwrap"><img src="assets/cold-brew.png" alt="Iced Mocha" /></span>
+            <span class="cb-drink-name">Iced Mocha</span>
+            <span class="cb-drink-tag">Espresso, chocolate & milk over ice</span>
+            <span class="cb-drink-go">Start with this →</span>
+          </button>
+          <button class="cb-drink" data-brew="Iced Latte">
+            <span class="cb-drink-imgwrap"><img src="assets/cold-brew.png" alt="Iced Latte" /></span>
+            <span class="cb-drink-name">Iced Latte</span>
+            <span class="cb-drink-tag">Smooth espresso & milk over ice</span>
+            <span class="cb-drink-go">Start with this →</span>
+          </button>
         </div>
         <button class="cb-start" id="cbStart"><span class="bolt">⚡</span> Create Your Drink</button>
       </div>
@@ -785,10 +797,12 @@
         <div class="cb-steps" id="cbSteps">
           <!-- 1. brew -->
           <div class="cb-step" data-step="brew">
-            <h3 class="cb-q">Iced Coffee or Cold Brew?</h3>
+            <h3 class="cb-q">Pick your base</h3>
             <div class="cb-options cb-2">
               <button class="cb-opt" data-val="Iced Coffee"><span class="cb-tick">✓</span><span class="cb-opt-t">Iced Coffee</span><span class="cb-opt-d">Brewed hot, flash-chilled over ice. Lighter, brighter, crisper.</span></button>
               <button class="cb-opt" data-val="Cold Brew"><span class="cb-tick">✓</span><span class="cb-opt-t">Cold Brew</span><span class="cb-opt-d">Steeped cold 12–24 hours. Richer, sweeter, far less acidic.</span></button>
+              <button class="cb-opt" data-val="Iced Mocha"><span class="cb-tick">✓</span><span class="cb-opt-t">Iced Mocha</span><span class="cb-opt-d">Espresso & chocolate over ice. Rich, sweet, indulgent.</span></button>
+              <button class="cb-opt" data-val="Iced Latte"><span class="cb-tick">✓</span><span class="cb-opt-t">Iced Latte</span><span class="cb-opt-d">Espresso & milk over ice. Smooth, mellow, easy-drinking.</span></button>
             </div>
           </div>
 
@@ -1015,6 +1029,16 @@
       {name:'Caramel Trail',      desc:'Caramel · smooth & bold',   icon:'assets/icon-pine.png'},
       {name:'Cabin Comfort',      desc:'Cinnamon + Caramel',        icon:'assets/icon-campfire.png'},
       {name:'Glacier Mocha',      desc:'Chocolate + Cream',         icon:'assets/icon-mountains.png'}
+    ],
+    'Iced Mocha':[
+      {name:'Campfire Mocha',     desc:'Chocolate + Toasted Marshmallow + Cream', icon:'assets/icon-campfire.png'},
+      {name:'Caramel Mocha',      desc:'Chocolate + Caramel + Cream',             icon:'assets/icon-pine.png'},
+      {name:'Northwoods Mocha',   desc:'Chocolate + Hazelnut + Cream',            icon:'assets/icon-mountains.png'}
+    ],
+    'Iced Latte':[
+      {name:'Vanilla Bean Latte', desc:'Vanilla + Cream',           icon:'assets/icon-sunrise.png'},
+      {name:'Caramel Latte',      desc:'Caramel + Cream',           icon:'assets/icon-pine.png'},
+      {name:'Cinnamon Latte',     desc:'Cinnamon + Vanilla',        icon:'assets/icon-campfire.png'}
     ]
   };
   const SIZE_OZ = {Small:'12 oz', Medium:'16 oz', Large:'20 oz'};
