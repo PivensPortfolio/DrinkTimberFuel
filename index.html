@@ -374,7 +374,7 @@
   /* flavors: two clearly-distinct panels — Classic (gold) vs Sugar-Free (teal) —
      so no one taps sugar-free by accident. Fixed height = constant card, no scrollbar. */
   .cb-fcols{ display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:16px; height:236px; }
-  .cb-fcol{ display:flex; flex-direction:column; gap:12px; padding:14px 14px 10px; border:1px solid var(--gold-faint); border-radius:12px; background:rgba(245,197,24,.04); overflow:hidden; }
+  .cb-fcol{ display:flex; flex-direction:column; gap:12px; padding:14px 14px 10px; border:1px solid var(--gold-faint); border-radius:12px; background:rgba(245,197,24,.04); overflow-y:auto; }
   .cb-fcol-sf{ border-color:rgba(57,192,170,.30); background:rgba(57,192,170,.07); }
   .cb-flabel{ font-family:"Oswald",sans-serif; font-weight:700; text-transform:uppercase; letter-spacing:2px; font-size:12px; color:var(--gold); }
   .cb-flabel-sf{ color:var(--sf); }
@@ -388,10 +388,11 @@
   /* pump stepper inside a flavor chip */
   .cb-chip{ display:inline-flex; align-items:center; gap:7px; }
   .cb-chip .pm, .cb-chip .pm-q{ display:none; }
-  .cb-chip.sel{ padding-left:6px; padding-right:6px; }
-  .cb-chip.sel .pm{ display:inline-flex; align-items:center; justify-content:center; width:20px; height:20px; border-radius:50%; background:rgba(0,0,0,.18); font-family:"Anton",sans-serif; font-size:15px; line-height:1; transition:background .15s var(--ease); }
-  .cb-chip.sel .pm:hover{ background:rgba(0,0,0,.34); }
-  .cb-chip.sel .pm-q{ display:inline-block; min-width:12px; text-align:center; font-family:"Anton",sans-serif; font-size:14px; }
+  .cb-chip.sel{ padding:5px 6px; gap:9px; }
+  .cb-chip.sel .pm{ display:inline-flex; align-items:center; justify-content:center; width:32px; height:32px; min-width:32px; border-radius:50%; background:var(--bg); color:#fff; font-family:"Anton",sans-serif; font-size:22px; line-height:1; padding-bottom:2px; cursor:pointer; box-shadow:0 1px 3px rgba(0,0,0,.4); transition:transform .1s var(--ease), background .15s var(--ease); }
+  .cb-chip.sel .pm:hover{ background:#000; }
+  .cb-chip.sel .pm:active{ transform:scale(.88); }
+  .cb-chip.sel .pm-q{ display:inline-block; min-width:18px; text-align:center; font-family:"Anton",sans-serif; font-size:18px; }
 
   /* nav */
   .cb-nav{ display:flex; align-items:center; justify-content:space-between; margin-top:26px; gap:14px; }
@@ -467,6 +468,8 @@
     #cbSignatures{ height:auto; overflow:visible; }
     .cb-fcols{ grid-template-columns:1fr; height:auto; gap:12px; }
     .cb-fcol{ overflow:visible; }
+    .cb-chip.sel .pm{ width:40px; height:40px; min-width:40px; font-size:27px; }
+    .cb-chip.sel .pm-q{ font-size:20px; min-width:22px; }
     .orb-img{ height:auto; width:88%; margin-top:-40px; }
     .hot-grid{ grid-template-columns:1fr; }
     .cb-q{ font-size:22px; }
