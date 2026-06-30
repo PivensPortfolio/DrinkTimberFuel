@@ -598,6 +598,11 @@
   .co-note{ text-align:center; color:var(--gold); font-family:"Barlow Condensed",sans-serif; font-size:14px; margin-top:12px; min-height:1em; }
   .co-note.err{ color:var(--fire); }
   .co-secure{ font-family:"Barlow Condensed",sans-serif; text-align:center; color:var(--muted); font-size:12px; margin-top:14px; line-height:1.5; }
+  .co-success{ text-align:center; padding:30px 0 10px; }
+  .co-success[hidden]{ display:none; }
+  .co-success h2{ margin-top:16px; }
+  .co-success-msg{ font-family:"Barlow Condensed",sans-serif; color:var(--cream-85); font-size:16px; margin:10px 0 24px; line-height:1.5; }
+  #card-container{ min-height:0; }
   @media (max-width:600px){ .checkout-overlay{ padding:0; } .checkout{ min-height:100vh; border-radius:0; border:none; width:100%; } }
 
   /* =================================================================
@@ -1174,6 +1179,7 @@
     <button class="checkout-close" id="checkoutClose" aria-label="Back to order">×</button>
     <h2>Checkout</h2>
 
+    <div id="coMain">
     <section class="co-section">
       <h3>Your Order</h3>
       <div id="coItems"></div>
@@ -1201,6 +1207,14 @@
     <button class="co-pay" id="coPay">Pay <span id="coPayAmount">$0.00</span></button>
     <p class="co-note" id="coNote"></p>
     <p class="co-secure">🔒 Payments are processed securely by Square.<br/>We never see or store your card number.</p>
+    </div>
+
+    <div class="co-success" id="coSuccess" hidden>
+      <div class="cb-check">✓</div>
+      <h2>Order confirmed!</h2>
+      <p class="co-success-msg" id="coSuccessMsg"></p>
+      <button class="co-pay" id="coSuccessDone">Done</button>
+    </div>
   </div>
 </div>
 
@@ -1287,19 +1301,59 @@
     document.getElementById('coPayAmount').textContent=fmt(t);
     document.getElementById('coNote').textContent='';
   }
-  function openCheckout(){ if(!cart.length) return; renderCheckout(); closeCart(); checkoutOverlay.classList.add('open'); }
+  function resetCheckoutView(){ document.getElementById('coMain').hidden=false; document.getElementById('coSuccess').hidden=true; const p=document.getElementById('coPay'); p.disabled=false; const n=document.getElementById('coNote'); n.textContent=''; n.classList.remove('err'); }
+  function openCheckout(){ if(!cart.length) return; resetCheckoutView(); renderCheckout(); closeCart(); checkoutOverlay.classList.add('open'); initSquare(); }
   function closeCheckout(){ checkoutOverlay.classList.remove('open'); }
   document.getElementById('cartCheckout').addEventListener('click', openCheckout);
   document.getElementById('checkoutClose').addEventListener('click', closeCheckout);
+  document.getElementById('coSuccessDone').addEventListener('click', closeCheckout);
   checkoutOverlay.addEventListener('click', e=>{ if(e.target===checkoutOverlay) closeCheckout(); });
-  document.getElementById('coPay').addEventListener('click', ()=>{
+
+  /* Square Web Payments SDK — embedded card form (only renders once payments are configured) */
+  let sqPayments=null, sqCard=null, sqConfig=null, sqInitTried=false;
+  function loadScript(src){ return new Promise((res,rej)=>{ if([...document.scripts].some(s=>s.src===src)) return res(); const s=document.createElement('script'); s.src=src; s.onload=()=>res(); s.onerror=()=>rej(new Error('sdk load failed')); document.head.appendChild(s); }); }
+  async function initSquare(){
+    if(sqCard || sqInitTried) return;            // attach the card form once
+    sqInitTried=true;
+    try{
+      const cfg = await fetch('/api/square-config').then(r=>r.json());
+      if(!cfg || !cfg.configured){ sqInitTried=false; return; }   // not set up yet → keep placeholder, retry next open
+      sqConfig=cfg;
+      const sdk = cfg.environment==='production' ? 'https://web.squarecdn.com/v1/square.js' : 'https://sandbox.web.squarecdn.com/v1/square.js';
+      await loadScript(sdk);
+      sqPayments = window.Square.payments(cfg.applicationId, cfg.locationId);
+      sqCard = await sqPayments.card();
+      await sqCard.attach('#card-container');
+      const ph=document.getElementById('coCardPlaceholder'); if(ph) ph.style.display='none';
+    }catch(e){ sqInitTried=false; }              // keep placeholder, allow retry
+  }
+  document.getElementById('coPay').addEventListener('click', async ()=>{
     const note=document.getElementById('coNote');
+    const payBtn=document.getElementById('coPay');
     const name=document.getElementById('coName').value.trim();
     const phone=document.getElementById('coPhone').value.trim();
     if(!name){ note.classList.add('err'); note.textContent='Please enter a name for the order.'; document.getElementById('coName').focus(); return; }
     if(!phone){ note.classList.add('err'); note.textContent='Please enter a phone number so we can text when it is ready.'; document.getElementById('coPhone').focus(); return; }
-    note.classList.remove('err');
-    note.textContent='Card payment is being set up. Coming online soon.';
+    note.classList.remove('err'); note.textContent='';
+    if(!sqCard){ note.textContent='Card payment is being set up. Coming online soon.'; return; }
+    payBtn.disabled=true; note.textContent='Processing your payment...';
+    try{
+      const result = await sqCard.tokenize();
+      if(result.status!=='OK'){ note.classList.add('err'); note.textContent='Please check your card details and try again.'; payBtn.disabled=false; return; }
+      const amountCents = Math.round(cartTotal()*100);
+      const idem = 'tf-'+Date.now()+'-'+Math.random().toString(16).slice(2,10);
+      const summary = cart.map(o=>`${o.name} (${o.sizeLabel||''})`).join('; ');
+      const resp = await fetch('/api/charge', { method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ sourceId:result.token, amountCents, idempotencyKey:idem, locationId:sqConfig.locationId, note:`${name} / ${phone}: ${summary}` }) }).then(r=>r.json());
+      if(resp && resp.ok){
+        document.getElementById('coMain').hidden=true;
+        document.getElementById('coSuccessMsg').textContent=`Thanks, ${name}! Your order is paid. We'll text ${phone} when it's ready for pickup.`;
+        document.getElementById('coSuccess').hidden=false;
+        cart.length=0; renderCart();
+      } else {
+        note.classList.add('err'); note.textContent=(resp&&resp.error)||'Payment failed. Please try again.'; payBtn.disabled=false;
+      }
+    }catch(e){ note.classList.add('err'); note.textContent='Something went wrong. Please try again.'; payBtn.disabled=false; }
   });
 
   /* ===== per-drink Add to Order (Energy + Hot featured) ===== */
