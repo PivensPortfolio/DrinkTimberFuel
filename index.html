@@ -448,6 +448,7 @@
   .cb-options.cb-3{ grid-template-columns:repeat(3,1fr); }
   .cb-options.cb-grid{ grid-template-columns:repeat(2,1fr); }
   .cb-opt{ position:relative; text-align:left; background:var(--bg-card); border:1.5px solid rgba(232,224,196,.14); border-radius:14px; padding:20px 18px; cursor:pointer; color:var(--cream); transition:transform .18s var(--ease), border-color .18s var(--ease), background .18s var(--ease), box-shadow .18s var(--ease); display:flex; flex-direction:column; gap:6px; }
+  .cb-opt[hidden]{ display:none; } /* honor the hidden attribute despite display:flex above */
   .cb-opt:hover{ transform:translateY(-3px); border-color:var(--gold-20); box-shadow:0 14px 26px rgba(0,0,0,.35); }
   .cb-opt.sel{ border-color:var(--gold); background:rgba(245,197,24,.08); box-shadow:0 0 0 1px var(--gold), 0 14px 30px rgba(0,0,0,.4); }
   .cb-opt .cb-opt-ic{ width:46px; height:46px; object-fit:contain; margin-bottom:4px; }
@@ -884,10 +885,9 @@
         <div class="cb-steps" id="hbSteps">
           <div class="cb-step" data-hstep="milk">
             <h3 class="cb-q">Choose your milk</h3>
-            <div class="cb-options cb-3">
+            <div class="cb-options cb-2">
               <button class="cb-opt" data-val="Oatly Oat Milk"><span class="cb-tick">✓</span><span class="cb-opt-t">Oatly Oat Milk</span><span class="cb-opt-d cb-up">+$0.50</span></button>
               <button class="cb-opt" data-val="Regular Milk"><span class="cb-tick">✓</span><span class="cb-opt-t">Regular Milk</span></button>
-              <button class="cb-opt" data-val="No Milk"><span class="cb-tick">✓</span><span class="cb-opt-t">No Milk</span><span class="cb-opt-d">Black</span></button>
             </div>
           </div>
           <div class="cb-step" data-hstep="flavors">
@@ -1259,6 +1259,7 @@
   const PUMP_PRICE = 0.25;
   const OAT_UPCHARGE = 0.50;          // oat milk costs $0.50 extra
   const OAT_MILK = 'Oatly Oat Milk';  // milk value that triggers the upcharge
+  const isMochaLatte = s => /mocha|latte/i.test(s||''); // mochas & lattes are milk-based → no "No Milk"
   // base drink price by brew + size (null = price TBD)
   const PRICES = {
     'Cold Brew':   { Small:4.25, Medium:4.75, Large:5.25 },
@@ -1311,6 +1312,7 @@
     cbNav.style.display = (name==='done') ? 'none' : '';
     if(name==='signature') renderSignatures();
     if(name==='size') renderSizePrices();
+    if(name==='milk') renderMilkOptions();
     cbSteps.forEach(s=>{ s.classList.remove('is-active','in-right','in-left'); });
     const el=stepEl(name);
     el.classList.add('is-active', dir==='back'?'in-left':'in-right');
@@ -1318,6 +1320,16 @@
   }
   function next(){ if(idx<flow.length-1) show(idx+1,'fwd'); }
   function goto(name){ const i=flow.indexOf(name); if(i>=0) show(i,'fwd'); }
+  // hide "Black" (no milk) for Iced Mocha / Iced Latte — they're milk-based
+  function renderMilkOptions(){
+    const step=stepEl('milk'); if(!step) return;
+    const blackOpt=step.querySelector('.cb-opt[data-val="Black"]');
+    const grid=step.querySelector('.cb-options');
+    const hide=isMochaLatte(order.brew);
+    if(blackOpt) blackOpt.hidden=hide;
+    if(grid){ grid.classList.toggle('cb-3', !hide); grid.classList.toggle('cb-2', hide); }
+    if(hide && order.milk==='Black') order.milk=null; // clear an invalid prior pick
+  }
 
   function renderSignatures(){
     const list=SIGNATURES[order.brew]||[];
@@ -1742,7 +1754,8 @@
     const sizeOpts = sizes.map(s=>`<button class="fsb-opt fsb-size" data-size="${s.size}">
         <span class="fsb-oz">${s.oz}</span><span class="fsb-nm">${s.size}</span>
         <span class="fsb-pr">${s.price?fmt(+s.price):'$?.??'}</span></button>`).join('');
-    const milkOpts = FS_MILKS.map(m=>`<button class="fsb-opt fsb-milk" data-val="${m.val}">
+    const milks = isMochaLatte(drink) ? FS_MILKS.filter(m=>m.val!=='No Milk') : FS_MILKS;
+    const milkOpts = milks.map(m=>`<button class="fsb-opt fsb-milk" data-val="${m.val}">
         <span class="fsb-nm">${m.val}</span>${m.note?`<span class="fsb-pr${m.up?' fsb-up':''}">${m.note}</span>`:''}</button>`).join('');
     const pumpRows = flavors.map((f,i)=>fsStepperRow(f, 'pump:'+i)).join('');
     const shotBlock = noShots ? '' :
