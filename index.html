@@ -294,7 +294,7 @@
   /* ---- MOBILE: full-screen card morph (FLIP) + 3-step builder ---- */
   /* placeholder holds the card's slot in the grid while it is position:fixed */
   .hot-card-ph{ flex:0 0 auto; }
-  .hot-card.card-fs{
+  .card-fs{
     position:fixed; top:0; left:0; right:0; z-index:200;
     width:100%;
     height:100vh;            /* fallback for browsers without dvh */
@@ -305,28 +305,31 @@
     justify-content:flex-start;
   }
   .hot-card.card-fs::before{ display:none; }                 /* drop the card glow in full screen */
-  .hot-card.card-fs .ord{ display:none; }                    /* original order controls hidden in full screen (specialty .ord-spec + build .ord) */
-  /* steps 2 & 3 (Milk, Flavors): hide hero image/title/description to save space —
-     the small drink-name label inside the builder stands in. Use the child combinator
-     so this ONLY hits the card's own hero (direct children), not nested text like the
-     .cb-done confirmation heading/summary or the .fsb-sub price labels. */
-  .hot-card.card-fs > .hot-img,
-  .hot-card.card-fs > h3,
-  .hot-card.card-fs > p{ display:none; }
-  /* step 1 (Size): bring the hero image/title/description back above the options */
-  .hot-card.card-fs[data-fs-step="size"] .hot-img{ display:block; height:150px; margin:0 auto; }
-  .hot-card.card-fs[data-fs-step="size"] h3{ display:block; margin-top:8px; }
-  .hot-card.card-fs[data-fs-step="size"] p{ display:block; flex:0 0 auto; margin-top:8px; max-width:420px; }
-  .hot-card.card-fs[data-fs-step="size"] .fsb-title{ display:none; } /* real title shows, so drop the label */
+  /* hide ALL of the card's native content in full screen (hot/cold hero, orb art,
+     spotlight banner, order controls) — only the nested .fsb builder shows. */
+  .card-fs > *:not(.fsb){ display:none; }
+  /* step 1 (Size) — hot/cold show their native hero (image/title/description) */
+  .hot-card.card-fs[data-fs-step="size"] > .hot-img{ display:block; height:150px; margin:0 auto; }
+  .hot-card.card-fs[data-fs-step="size"] > h3{ display:block; margin-top:8px; }
+  .hot-card.card-fs[data-fs-step="size"] > p{ display:block; flex:0 0 auto; margin-top:8px; max-width:420px; }
+  /* refreshers (and any card without a native hero) render a hero INSIDE the .fsb */
+  .fsb-hero{ display:none; }
+  .card-fs[data-fs-step="size"] .fsb-hero{ display:block; text-align:center; }
+  .card-fs[data-fs-step="size"] .fsb-title{ display:none; } /* title shows on step 1, drop the small label */
+  .fsb-hero-img{ height:150px; width:auto; margin:0 auto; object-fit:contain; filter:drop-shadow(0 16px 24px rgba(0,0,0,.55)); }
+  .fsb-hero-title{ font-family:"Anton",sans-serif; font-size:21px; color:#fff; text-transform:uppercase; letter-spacing:1px; margin-top:6px; }
+  .fsb-hero-desc{ font-family:"Barlow Condensed",sans-serif; font-size:15px; color:var(--cream-85); margin-top:8px; max-width:420px; margin-inline:auto; line-height:1.4; }
 
   .card-fs-close{
-    position:fixed; top:14px; left:16px; z-index:210;        /* TOP-LEFT corner */
+    position:fixed; top:14px; z-index:210;
     width:44px; height:44px; border-radius:50%;
     display:flex; align-items:center; justify-content:center;
     background:rgba(255,255,255,.06); border:1px solid var(--gold-20);
     color:var(--cream); font-size:26px; line-height:1; cursor:pointer;
     opacity:0; transition:opacity .25s var(--ease);
   }
+  .card-fs-close.card-fs-left{ left:16px; }    /* back arrow (top-left) */
+  .card-fs-close.card-fs-right{ right:16px; }  /* X close (top-right) */
   .card-fs-close.show{ opacity:1; }
   .card-fs-close:hover{ color:var(--gold); border-color:var(--gold); }
 
@@ -1206,7 +1209,23 @@
       setTimeout(()=>{ b.classList.remove('added'); b.innerHTML=t; }, 1400);
     }
   }
-  document.querySelector('[data-panel="energy"]').addEventListener('click', ordHandler);
+  /* refreshers use the same .fsb flow: Size -> Flavor Pumps (no milk, no espresso shots) */
+  const REFRESHER_SIZES = [
+    {size:'Small',  oz:'16 oz', price:'4.50'},
+    {size:'Medium', oz:'20 oz', price:'6.00'},
+    {size:'Large',  oz:'32 oz', price:'8.00'}
+  ];
+  function refreshHandler(e){
+    if(e.target.closest('.fsb')) return;
+    const ord=e.target.closest('.ord[data-drink]'); if(!ord) return;
+    if(!e.target.closest('.ord-btn')) return;
+    const card=ord.closest('.orb-card') || ord.closest('.spot-banner'); if(!card) return;
+    const img=(card.querySelector('.orb-img')||card.querySelector('img'))?.src || '';
+    const firstRect=card.getBoundingClientRect();
+    fsbBuild(card, {drink:ord.dataset.drink, ord:null, noMilk:true, noShots:true, img, sizes:REFRESHER_SIZES, flavors:FS_FLAVORS});
+    fsOpen(card, firstRect);
+  }
+  document.querySelector('[data-panel="energy"]').addEventListener('click', refreshHandler);
   /* energy refreshers have their own sizes: 16 / 20 / 32 oz */
   const ENERGY_SIZES=[{oz:'16 oz',price:4.50},{oz:'20 oz',price:6.00},{oz:'32 oz',price:8.00}];
   document.querySelectorAll('[data-panel="energy"] .ord-sizes').forEach(s=>{
@@ -1368,6 +1387,7 @@
   const FS_DUR = 420;
   const FS_EASE = 'cubic-bezier(.2,.7,.2,1)';
   let fsCloseBtn = null;
+  let fsBackBtn = null;
   let fsDoneTimer = null; // mobile builder confirmation auto-dismiss timer
 
   function fsOpen(card, firstRect){
@@ -1384,15 +1404,21 @@
     card.classList.add('card-fs');
     document.body.style.overflow = 'hidden';
 
-    // close control lives on <body> so the card's transform never distorts it
+    // controls live on <body> so the card's transform never distorts them
+    fsBackBtn = document.createElement('button');
+    fsBackBtn.className = 'card-fs-close card-fs-left show';
+    fsBackBtn.setAttribute('aria-label','Back');
+    fsBackBtn.innerHTML = '←';
+    fsBackBtn.addEventListener('click', fsbBack);
+    document.body.appendChild(fsBackBtn);
+
     fsCloseBtn = document.createElement('button');
-    fsCloseBtn.className = 'card-fs-close';
+    fsCloseBtn.className = 'card-fs-close card-fs-right show';
     fsCloseBtn.setAttribute('aria-label','Close');
-    fsCloseBtn.innerHTML = '←'; // ← back arrow
+    fsCloseBtn.innerHTML = '×'; // X close
     fsCloseBtn.addEventListener('click', ()=>fsClose(card));
     document.body.appendChild(fsCloseBtn);
-    // make the close control available immediately (don't gate it on the morph)
-    fsCloseBtn.classList.add('show');
+    fsUpdateBack(); // hide the back arrow on step 1
 
     if(mqReduced.matches) return; // reduced motion: snap, no morph
 
@@ -1425,13 +1451,14 @@
       if(fsb && fsb.card===card) fsb=null;
       document.body.style.overflow='';
       if(fsCloseBtn && fsCloseBtn.parentNode) fsCloseBtn.parentNode.removeChild(fsCloseBtn);
-      fsCloseBtn=null;
+      if(fsBackBtn && fsBackBtn.parentNode) fsBackBtn.parentNode.removeChild(fsBackBtn);
+      fsCloseBtn=null; fsBackBtn=null;
       card._fsClosing=false;
     };
     if(mqReduced.matches){ finish(); return; } // reduced motion: instant close
     // CLEAN FADE OUT — opacity only, so nothing scales/skews (the reverse FLIP
     // morph distorted the confirmation check). The OPEN animation keeps the morph.
-    if(fsCloseBtn) fsCloseBtn.classList.remove('show');
+    if(fsCloseBtn) fsCloseBtn.classList.remove('show'); if(fsBackBtn) fsBackBtn.classList.remove('show');
     const FADE=280;
     const anim = card.animate([{opacity:1},{opacity:0}], { duration:FADE, easing:'ease', fill:'forwards' });
     // finalize once — via animation end OR a timeout fallback (never strand fullscreen)
@@ -1468,6 +1495,8 @@
     'Golden Caramel Macchiato':           ['Caramel','Vanilla']
   };
   let fsb = null; // active builder state
+  function fsbBack(){ if(fsb && fsb.step>0){ fsb.step--; fsbRender(); } }
+  function fsUpdateBack(){ if(fsBackBtn) fsBackBtn.style.display = (fsb && fsb.step>0) ? '' : 'none'; }
 
   function fsStepperRow(label, key, init=0){
     return `<div class="espresso-addon fsb-stp" data-key="${key}">
@@ -1481,9 +1510,9 @@
   }
   function fsbBuild(card, cfg){
     // cfg: { drink, ord (or null), noShots, sizes:[{size,oz,price}], flavors:[...] }
-    const { drink, ord=null, noShots=false, sizes, flavors } = cfg;
-    // Espresso (a plain shot) takes no milk → skip the milk step entirely.
-    const skipMilk = /espresso$/i.test((drink||'').trim());
+    const { drink, ord=null, noShots=false, noMilk=false, img='', desc='', sizes, flavors } = cfg;
+    // skip the milk step for refreshers (noMilk) and plain espresso shots
+    const skipMilk = noMilk || /espresso$/i.test((drink||'').trim());
     const steps = skipMilk ? ['size','extras'] : FS_STEPS;
     const recipe = SPECIALTY_RECIPE[(drink||'').trim()] || []; // preset pumps for named specialties
     const baseline = {}; recipe.forEach(f=>{ baseline[f]=(baseline[f]||0)+1; });
@@ -1508,7 +1537,7 @@
     const wrap=document.createElement('div');
     wrap.className='fsb';
     wrap.innerHTML=
-      `<div class="fsb-title">${fsb.drink}</div>
+      `${img?`<div class="fsb-hero"><img class="fsb-hero-img" src="${img}" alt="" /><div class="fsb-hero-title">${fsb.drink}</div>${desc?`<div class="fsb-hero-desc">${desc}</div>`:''}</div>`:''}<div class="fsb-title">${fsb.drink}</div>
        <div class="fsb-step" data-fstep="size">
          <div class="fsb-grid">${sizeOpts}</div>
        </div>
@@ -1545,6 +1574,7 @@
     if(name==='extras'){ next.textContent='Add to Order'; next.disabled=false; }
     else if(name==='size'){ next.textContent='Next'; next.disabled=!fsb.size; }
     else { next.textContent='Next'; next.disabled=!fsb.milk; }
+    fsUpdateBack();
   }
   function fsbClick(e){
     const step=e.target.closest('.ea-btn');
@@ -1596,7 +1626,7 @@
     const done=wrap.querySelector('.fsb-step[data-fstep="done"]'); if(done) done.classList.add('is-active');
     const nav=wrap.querySelector('.fsb-nav'); if(nav) nav.style.display='none';   // hide bottom button
     const label=wrap.querySelector('.fsb-title'); if(label) label.style.display='none';
-    if(fsCloseBtn) fsCloseBtn.style.display='none'; // hide the back arrow on the confirmation
+    if(fsCloseBtn) fsCloseBtn.style.display='none'; if(fsBackBtn) fsBackBtn.style.display='none'; // hide both controls on the confirmation
     card.dataset.fsStep='done'; // keep hero hidden (compact), like steps 2/3
     clearTimeout(fsDoneTimer);
     fsDoneTimer=setTimeout(()=>{ fsDoneTimer=null; fsClose(card); }, 2000); // auto-close
