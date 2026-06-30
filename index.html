@@ -871,13 +871,17 @@
             <img class="hot-img" src="assets/black-bold.png" alt="Espresso" />
             <h3>Espresso</h3>
             <p>A concentrated shot of pure, intense Northwoods roast. Straight and strong.</p>
-            <div class="ord ord-spec" data-drink="Espresso" data-kind="black" data-noshots="1">
+            <div class="ord ord-spec" data-drink="Espresso" data-kind="black">
               <button class="ord-btn">Add to Order</button>
               <div class="ord-panel" hidden>
                 <div class="ord-sizes">
-                  <button class="ord-size" data-size="Single"><b>1×</b> Single <span>$?.??</span></button>
-                  <button class="ord-size" data-size="Double"><b>2×</b> Double <span>$?.??</span></button>
-                  <button class="ord-size" data-size="Triple"><b>3×</b> Triple <span>$?.??</span></button>
+                  <button class="ord-size" data-size="Small"><b>12 oz</b> Small <span>$?.??</span></button>
+                  <button class="ord-size" data-size="Medium"><b>16 oz</b> Medium <span>$?.??</span></button>
+                  <button class="ord-size" data-size="Large"><b>20 oz</b> Large <span>$?.??</span></button>
+                </div>
+                <div class="espresso-addon ord-esp">
+                  <span class="ea-label">⚡ Extra shots <small>$1.00 each</small></span>
+                  <div class="ea-step"><button class="ea-btn ea-dec" aria-label="Remove shot">−</button><span class="ea-q">0</span><button class="ea-btn ea-inc" aria-label="Add shot">+</button></div>
                 </div>
                 <button class="ord-confirm" disabled>Add to order →</button>
               </div>
@@ -1010,7 +1014,7 @@
             <img class="hot-img" src="assets/iced-coffee.png" alt="Iced Espresso" />
             <h3>Iced Espresso</h3>
             <p>A chilled shot of intense Northwoods roast over ice.</p>
-            <div class="ord cold-ord" data-drink="Iced Espresso" data-noshots="1"><button class="ord-btn">Customize →</button></div>
+            <div class="ord cold-ord" data-drink="Iced Espresso"><button class="ord-btn">Customize →</button></div>
           </div>
         </div>
       </div>
@@ -1143,7 +1147,7 @@
   const hotCategory = card => card.closest('.hot-section')?.querySelector('.hot-cat')?.textContent.trim() || '';
   const SHOTS_BY_SIZE = {Small:1, Medium:2, Large:3}; // mochas & lattes: shots scale with size (12/16/20 oz)
   const AMERICANO_SHOTS = {Small:2, Medium:3, Large:4}; // americano runs stronger: 2/3/4 shots
-  const shotsForSize = (drink, cat, size) => /americano/i.test(drink||'') ? (AMERICANO_SHOTS[size]||0) : (isMochaLatte(cat) ? (SHOTS_BY_SIZE[size]||0) : 0);
+  const shotsForSize = (drink, cat, size) => /americano|espresso/i.test(drink||'') ? (AMERICANO_SHOTS[size]||0) : (isMochaLatte(cat) ? (SHOTS_BY_SIZE[size]||0) : 0);
   const shotText = size => SHOTS_BY_SIZE[size] ? `${SHOTS_BY_SIZE[size]} shot${SHOTS_BY_SIZE[size]>1?'s':''}` : '';
   // base drink price by drink + size (null = price TBD)
   const PRICES = {
@@ -1211,7 +1215,8 @@
   /* hot Black & Bold per-drink prices (Espresso TBD → stays $?.??) */
   const HOT_BLACK_PRICES = {
     'Drip Coffee': {Small:2.75, Medium:3.25, Large:3.75},
-    'Americano':   {Small:3.95, Medium:4.25, Large:4.75}
+    'Americano':   {Small:3.95, Medium:4.25, Large:4.75},
+    'Espresso':    {Small:3.95, Medium:4.25, Large:4.75}
   };
   document.querySelectorAll('[data-panel="hot"] .ord-spec[data-kind="black"]').forEach(ord=>{
     const m=HOT_BLACK_PRICES[ord.dataset.drink]; if(!m) return;
