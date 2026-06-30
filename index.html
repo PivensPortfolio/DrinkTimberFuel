@@ -367,6 +367,10 @@
   .ord-confirm{ margin-top:12px; font-family:"Oswald",sans-serif; font-weight:700; text-transform:uppercase; letter-spacing:1.5px; font-size:12px; color:var(--bg); background:var(--gold); border:none; border-radius:999px; padding:11px 22px; cursor:pointer; transition:transform .15s var(--ease), box-shadow .15s var(--ease), opacity .15s; }
   .ord-confirm:hover:not(:disabled){ transform:translateY(-2px); box-shadow:0 8px 18px rgba(245,197,24,.4); }
   .ord-confirm:disabled{ opacity:.4; cursor:not-allowed; }
+  /* included-shots labels on mocha/latte sizes */
+  .ord-size .shot-note{ margin-left:4px; font-family:"Barlow Condensed",sans-serif; font-weight:600; font-size:13px; color:var(--cream-85); }
+  .fsb-shots{ display:block; font-family:"Barlow Condensed",sans-serif; font-weight:600; font-size:13px; letter-spacing:.3px; text-transform:none; color:var(--cream-85); margin-top:2px; }
+  .cb-opt-shots{ font-family:"Barlow Condensed",sans-serif; font-size:14px; color:var(--cream-85); }
 
   .spotlight{ position:relative; margin-top:8px; border-radius:16px; overflow:hidden; border:1px solid var(--gold-20);
     background:radial-gradient(70% 130% at 15% 50%, rgba(245,197,24,.16), transparent 60%), linear-gradient(120deg, #1b1405, #0c1109);
@@ -1137,6 +1141,8 @@
   const OAT_MILK = 'Oat Milk';        // milk value that triggers the +$0.50 upcharge
   const isMochaLatte = s => /mocha|latte/i.test(s||''); // matches a Mochas/Lattes category
   const hotCategory = card => card.closest('.hot-section')?.querySelector('.hot-cat')?.textContent.trim() || '';
+  const SHOTS_BY_SIZE = {Small:1, Medium:2, Large:3}; // mochas & lattes: shots scale with size (12/16/20 oz)
+  const shotText = size => SHOTS_BY_SIZE[size] ? `${SHOTS_BY_SIZE[size]} shot${SHOTS_BY_SIZE[size]>1?'s':''}` : '';
   // base drink price by drink + size (null = price TBD)
   const PRICES = {
     'Cold Brew':   { Small:4.25, Medium:4.75, Large:5.25 },
@@ -1199,6 +1205,12 @@
   /* hot specialties (mocha/latte): $5 / $5.50 / $6 — black & bold stay $?.?? until priced */
   document.querySelectorAll('[data-panel="hot"] .ord-spec[data-kind="milk"] .ord-sizes .ord-size').forEach(b=>{
     const p=HOT_PRICES[b.dataset.size]; if(p!=null){ b.dataset.price=p; const sp=b.querySelector('span'); if(sp) sp.textContent=`$${p.toFixed(2)}`; }
+  });
+  /* mocha/latte specialty sizes show included shots (12oz=1, 16oz=2, 20oz=3); skip caffeine-free (noshots) */
+  document.querySelectorAll('[data-panel="hot"] .ord-spec[data-kind="milk"]:not([data-noshots]) .ord-sizes .ord-size').forEach(b=>{
+    const t=shotText(b.dataset.size); if(!t) return;
+    const note=document.createElement('span'); note.className='shot-note'; note.textContent='· '+t;
+    b.insertBefore(note, b.querySelector('span'));
   });
   /* hot specialty + black & bold: size + extra shots → confirm; "Customize" launches the builder */
   function hotHandler(e){
@@ -1272,9 +1284,11 @@
     }
   }
   document.querySelector('[data-panel="hot"]').addEventListener('click', hotHandler);
-  /* hot mix builder size step prices */
+  /* hot mix builder size step: prices + included shots (this builder is always a mocha/latte) */
   document.querySelectorAll('#hbSteps [data-hstep="size"] .cb-size').forEach(b=>{
     const p=HOT_PRICES[b.dataset.size]; const d=b.querySelector('.cb-opt-d'); if(p!=null && d) d.textContent=`$${p.toFixed(2)}`;
+    const t=shotText(b.dataset.size); const nm=b.querySelector('.cb-opt-t');
+    if(t && nm && !b.querySelector('.cb-opt-shots')){ const s=document.createElement('span'); s.className='cb-opt-shots'; s.textContent=t; nm.after(s); }
   });
 
   /* ===== HOT: Create Your Drink (mix) ===== */
@@ -1451,8 +1465,9 @@
     const steps = skipMilk ? ['size','extras'] : FS_STEPS;
     fsb = {card, ord, drink, noShots, sizes, flavors, steps, step:0, size:null, milk:null, pumps:{}, shots:0};
 
+    const showShots = isMochaLatte(hotCategory(card)) && !noShots; // mochas & lattes show shots-per-size
     const sizeOpts = sizes.map(s=>`<button class="fsb-opt fsb-size" data-size="${s.size}">
-        <span class="fsb-oz">${s.oz}</span><span class="fsb-nm">${s.size}</span>
+        <span class="fsb-oz">${s.oz}</span><span class="fsb-nm">${s.size}${showShots&&SHOTS_BY_SIZE[s.size]?`<small class="fsb-shots">${shotText(s.size)}</small>`:''}</span>
         <span class="fsb-pr">${s.price?fmt(+s.price):'$?.??'}</span></button>`).join('');
     // CATEGORY-based: any drink under the Mochas or Lattes section loses "No Milk",
     // regardless of its individual name (e.g. French Hazelnut Café, Golden Caramel Macchiato).
