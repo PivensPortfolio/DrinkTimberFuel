@@ -290,18 +290,24 @@
      (collapsed state / post-confirm "Added ✓") once the panel is hidden. */
   .ord-spec:has(.ord-panel:not([hidden])) > .ord-btn{ display:none; }
 
-  /* ---- MOBILE: full-screen card morph (FLIP) ---- */
+  /* ---- MOBILE: full-screen card morph (FLIP) + 3-step builder ---- */
   /* placeholder holds the card's slot in the grid while it is position:fixed */
   .hot-card-ph{ flex:0 0 auto; }
   .hot-card.card-fs{
     position:fixed; inset:0; z-index:200;
     width:auto; height:auto; max-width:none; margin:0;
     border:none; border-radius:0; background:var(--bg);
-    padding:74px 20px 32px; overflow-y:auto; will-change:transform;
+    padding:64px 18px 0; overflow-y:auto; will-change:transform;
+    justify-content:flex-start;
   }
-  .hot-card.card-fs::before{ display:none; } /* drop the small card glow in full screen */
+  .hot-card.card-fs::before{ display:none; }                 /* drop the card glow in full screen */
+  .hot-card.card-fs .hot-img{ height:140px; margin-top:0; }  /* compact hero so options sit higher */
+  .hot-card.card-fs h3{ margin-top:6px; }
+  .hot-card.card-fs p{ flex:0 0 auto; margin-top:8px; max-width:420px; } /* kill the flex:1 gap */
+  .hot-card.card-fs .ord-spec{ display:none; }               /* desktop inline panel is hidden in full screen */
+
   .card-fs-close{
-    position:fixed; top:14px; right:16px; z-index:210;
+    position:fixed; top:14px; left:16px; z-index:210;        /* TOP-LEFT corner */
     width:44px; height:44px; border-radius:50%;
     display:flex; align-items:center; justify-content:center;
     background:rgba(255,255,255,.06); border:1px solid var(--gold-20);
@@ -310,8 +316,31 @@
   }
   .card-fs-close.show{ opacity:1; }
   .card-fs-close:hover{ color:var(--gold); border-color:var(--gold); }
+
+  /* full-screen 3-step builder (size → milk → flavors+shots) */
+  .fsb{ width:100%; max-width:420px; margin:14px auto 0; display:flex; flex-direction:column; flex:1; min-height:0; }
+  .fsb-step{ display:none; }
+  .fsb-step.is-active{ display:block; animation:cbInR .3s var(--ease) both; }
+  .fsb-q{ font-family:"Anton",sans-serif; font-size:22px; color:#fff; text-transform:uppercase; letter-spacing:.5px; text-align:center; }
+  .fsb-sub{ text-align:center; color:var(--cream-85); font-size:14px; margin-top:4px; }
+  .fsb-grid{ display:flex; flex-direction:column; gap:10px; margin-top:16px; }
+  .fsb-opt{ display:flex; align-items:center; gap:12px; text-align:left; background:var(--bg-card); border:1.5px solid rgba(232,224,196,.14); border-radius:12px; padding:14px 16px; cursor:pointer; color:var(--cream); transition:border-color .18s var(--ease), background .18s var(--ease); }
+  .fsb-opt:hover{ border-color:var(--gold-20); }
+  .fsb-opt.sel{ border-color:var(--gold); background:rgba(245,197,24,.08); box-shadow:0 0 0 1px var(--gold); }
+  .fsb-oz{ font-family:"Anton",sans-serif; font-size:22px; color:var(--gold); min-width:54px; }
+  .fsb-nm{ font-family:"Oswald",sans-serif; font-weight:600; text-transform:uppercase; letter-spacing:1px; font-size:15px; color:#fff; flex:1; }
+  .fsb-pr{ font-family:"Barlow Condensed",sans-serif; font-weight:700; font-size:16px; color:var(--cream-85); }
+  .fsb-pr.fsb-up{ color:var(--gold); }                       /* oat milk +$0.50 accent */
+  .fsb-steppers{ display:flex; flex-direction:column; gap:10px; margin-top:14px; }
+  .fsb .espresso-addon{ margin-top:0; }
+  .fsb-nav{ position:sticky; bottom:0; margin-top:auto; padding:16px 0 calc(16px + env(safe-area-inset-bottom)); background:linear-gradient(180deg, transparent, var(--bg) 32%); }
+  .fsb-next{ width:100%; font-family:"Anton",sans-serif; font-size:20px; text-transform:uppercase; letter-spacing:.5px; color:var(--bg); background:var(--gold); border:none; border-radius:999px; padding:16px; cursor:pointer; box-shadow:0 6px 18px rgba(245,197,24,.3); transition:transform .15s var(--ease), opacity .2s; }
+  .fsb-next:hover:not(:disabled){ transform:translateY(-1px); }
+  .fsb-next:disabled{ opacity:.4; cursor:not-allowed; }
+
   @media (prefers-reduced-motion: reduce){
     .card-fs-close{ transition:none; }
+    .fsb-step.is-active{ animation:none; }
   }
   .ord-size.sel{ border-color:var(--gold); background:rgba(245,197,24,.16); }
   .ord-esp{ max-width:260px; margin:10px auto 0; padding:8px 10px 8px 14px; }
@@ -1452,6 +1481,7 @@
   });
   /* hot specialty + black & bold: size + extra shots → confirm; "Customize" launches the builder */
   function hotHandler(e){
+    if(e.target.closest('.fsb')) return; // mobile full-screen builder has its own handler
     const build=e.target.closest('.ord-build');
     if(build){ hbOpen(build.dataset.build); return; }
     const ord=e.target.closest('.ord-spec'); if(!ord) return;
@@ -1481,11 +1511,12 @@
     const addBtn=e.target.closest('.ord-btn');
     if(addBtn){
       const p=ord.querySelector('.ord-panel');
-      // MOBILE: morph the whole card to full screen (FLIP). DESKTOP: inline toggle (unchanged).
+      // MOBILE: morph the whole card to full screen (FLIP) + 3-step builder.
+      // DESKTOP: inline panel toggle (unchanged).
       if(mqFsMobile.matches && p.hidden){
         const card=ord.closest('.hot-card');
-        const firstRect=card.getBoundingClientRect(); // measure collapsed size BEFORE revealing panel
-        p.hidden=false;
+        const firstRect=card.getBoundingClientRect(); // measure collapsed size BEFORE building
+        fsbBuild(card);   // build the 3-step UI (inline panel stays hidden on mobile)
         fsOpen(card, firstRect);
         return;
       }
@@ -1620,6 +1651,8 @@
       if(ord){ const p=ord.querySelector('.ord-panel'); if(p) p.hidden=true; } // collapse back
       if(ph && ph.parentNode) ph.parentNode.removeChild(ph);
       card._fsPh=null;
+      const fb=card.querySelector('.fsb'); if(fb) fb.remove(); // tear down the 3-step builder
+      if(fsb && fsb.card===card) fsb=null;
       document.body.style.overflow='';
       if(fsCloseBtn && fsCloseBtn.parentNode) fsCloseBtn.parentNode.removeChild(fsCloseBtn);
       fsCloseBtn=null;
@@ -1640,6 +1673,125 @@
     const settle=()=>{ if(settled) return; settled=true; try{anim.cancel();}catch(e){} finish(); };
     anim.onfinish = settle; anim.oncancel = settle;
     setTimeout(settle, FS_DUR + 80);
+  }
+
+  /* ===================================================================
+     MOBILE FULL-SCREEN 3-STEP BUILDER (Hot specialty cards)
+     size → milk → flavor pumps + espresso shots. Mobile only; the desktop
+     inline panel is untouched. Pricing is additive on top of base size price.
+     =================================================================== */
+  const FS_STEPS = ['size','milk','extras'];
+  const FS_MILKS = [
+    {val:'Oatly Oat Milk', up:OAT_UPCHARGE, note:'+$0.50'}, // keeps the existing oat upcharge
+    {val:'Regular Milk',   up:0,            note:''},
+    {val:'No Milk',        up:0,            note:'Black'}
+  ];
+  const FS_FLAVORS = ['Flavor 1','Flavor 2','Flavor 3']; // PLACEHOLDERS — swap for real flavor names
+  let fsb = null; // active builder state
+
+  function fsStepperRow(label, key){
+    return `<div class="espresso-addon fsb-stp" data-key="${key}">
+        <span class="ea-label">${label}</span>
+        <div class="ea-step">
+          <button class="ea-btn ea-dec" aria-label="Remove one">−</button>
+          <span class="ea-q">0</span>
+          <button class="ea-btn ea-inc" aria-label="Add one">+</button>
+        </div>
+      </div>`;
+  }
+  function fsbBuild(card){
+    const ord = card.querySelector('.ord-spec');
+    const noShots = ord.dataset.noshots==='1';
+    // read sizes/prices straight off the card so real prices flow in automatically
+    const sizes = [...ord.querySelectorAll('.ord-sizes .ord-size')].map(b=>({
+      size:b.dataset.size, price:b.dataset.price||'', oz:(b.querySelector('b')?.textContent||'').trim()
+    }));
+    fsb = {card, ord, drink:ord.dataset.drink, noShots, sizes, step:0, size:null, milk:null, pumps:{}, shots:0};
+
+    const sizeOpts = sizes.map(s=>`<button class="fsb-opt fsb-size" data-size="${s.size}">
+        <span class="fsb-oz">${s.oz}</span><span class="fsb-nm">${s.size}</span>
+        <span class="fsb-pr">${s.price?fmt(+s.price):'$?.??'}</span></button>`).join('');
+    const milkOpts = FS_MILKS.map(m=>`<button class="fsb-opt fsb-milk" data-val="${m.val}">
+        <span class="fsb-nm">${m.val}</span>${m.note?`<span class="fsb-pr${m.up?' fsb-up':''}">${m.note}</span>`:''}</button>`).join('');
+    const pumpRows = FS_FLAVORS.map((f,i)=>fsStepperRow(f, 'pump:'+i)).join('');
+    const shotBlock = noShots ? '' :
+      `<h4 class="fsb-q" style="margin-top:22px;">Additional Espresso Shots</h4>
+       <p class="fsb-sub">$1.00 per shot</p>
+       <div class="fsb-steppers">${fsStepperRow('Espresso shots','shots')}</div>`;
+
+    const wrap=document.createElement('div');
+    wrap.className='fsb';
+    wrap.innerHTML=
+      `<div class="fsb-step" data-fstep="size">
+         <h4 class="fsb-q">Pick your size</h4>
+         <div class="fsb-grid">${sizeOpts}</div>
+       </div>
+       <div class="fsb-step" data-fstep="milk">
+         <h4 class="fsb-q">Choose your milk</h4>
+         <div class="fsb-grid">${milkOpts}</div>
+       </div>
+       <div class="fsb-step" data-fstep="extras">
+         <h4 class="fsb-q">Extra Flavor Pumps</h4>
+         <p class="fsb-sub">$0.25 per pump</p>
+         <div class="fsb-steppers">${pumpRows}</div>
+         ${shotBlock}
+       </div>
+       <div class="fsb-nav"><button class="fsb-next" disabled>Next</button></div>`;
+    card.appendChild(wrap);
+    fsb.wrap=wrap;
+    wrap.addEventListener('click', fsbClick);
+    fsbRender();
+  }
+  function fsbRender(){
+    const name=FS_STEPS[fsb.step];
+    fsb.wrap.querySelectorAll('.fsb-step').forEach(s=>s.classList.toggle('is-active', s.dataset.fstep===name));
+    fsb.wrap.querySelectorAll('.fsb-size').forEach(b=>b.classList.toggle('sel', b.dataset.size===fsb.size));
+    fsb.wrap.querySelectorAll('.fsb-milk').forEach(b=>b.classList.toggle('sel', b.dataset.val===fsb.milk));
+    const next=fsb.wrap.querySelector('.fsb-next');
+    if(name==='extras'){ next.textContent='Add to Order'; next.disabled=false; }
+    else if(name==='size'){ next.textContent='Next'; next.disabled=!fsb.size; }
+    else { next.textContent='Next'; next.disabled=!fsb.milk; }
+  }
+  function fsbClick(e){
+    const step=e.target.closest('.ea-btn');
+    if(step){
+      const row=step.closest('.fsb-stp'); const key=row.dataset.key;
+      const delta=step.classList.contains('ea-inc')?1:-1;
+      if(key==='shots'){ fsb.shots=Math.max(0,Math.min(9,fsb.shots+delta)); row.querySelector('.ea-q').textContent=fsb.shots; }
+      else { const f=FS_FLAVORS[+key.split(':')[1]]; const n=Math.max(0,Math.min(9,(fsb.pumps[f]||0)+delta)); if(n===0) delete fsb.pumps[f]; else fsb.pumps[f]=n; row.querySelector('.ea-q').textContent=n; }
+      return;
+    }
+    const size=e.target.closest('.fsb-size'); if(size){ fsb.size=size.dataset.size; fsbRender(); return; }
+    const milk=e.target.closest('.fsb-milk'); if(milk){ fsb.milk=milk.dataset.val; fsbRender(); return; }
+    const next=e.target.closest('.fsb-next');
+    if(next){
+      if(FS_STEPS[fsb.step]==='extras') fsbConfirm();
+      else { fsb.step++; fsbRender(); }
+    }
+  }
+  function fsbConfirm(){
+    const card=fsb.card, ord=fsb.ord;
+    const sizeObj=fsb.sizes.find(s=>s.size===fsb.size);
+    const base = sizeObj && sizeObj.price ? +sizeObj.price : null;
+    const oat = fsb.milk===OAT_MILK ? OAT_UPCHARGE : 0;
+    const pumpEnt = Object.entries(fsb.pumps).filter(([,v])=>v>0);
+    const pc = pumpEnt.reduce((s,[,v])=>s+v,0);
+    const es = fsb.shots||0;
+    const extrasCost = oat + pc*PUMP_PRICE + es*1;            // additive on top of base
+    const total = base!=null ? base + extrasCost : null;
+    const price = total!=null ? fmt(total) : '$?.??';
+    const extras=[];
+    if(pumpEnt.length) extras.push(pumpEnt.map(([k,v])=>v>1?`${k} ×${v}`:k).join(' + '));
+    if(es>0) extras.push(`${es} espresso shot${es>1?'s':''}`);
+    if(oat>0) extras.push('Oat milk');
+    const addon = extras.length ? `${extras.join(' · ')} · +${fmt(extrasCost)}` : '';
+    const sizeLabel = sizeObj ? `${sizeObj.oz} ${sizeObj.size}` : (fsb.size||'');
+    cart.push({name:fsb.drink, detail:fsb.milk||'Hot Drink', sizeLabel, price, addon});
+    bumpCart(); renderCart();
+    fsClose(card); // morph the card back down to its slot
+    // flash the collapsed button once it reappears (matches desktop feedback)
+    const b=ord.querySelector('.ord-btn');
+    if(b){ const t=b.innerHTML; b.classList.add('added'); b.textContent='Added ✓'; setTimeout(()=>{ b.classList.remove('added'); b.innerHTML=t; },1400); }
   }
 
   /* init */
