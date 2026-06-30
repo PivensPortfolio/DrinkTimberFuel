@@ -301,9 +301,11 @@
     justify-content:flex-start;
   }
   .hot-card.card-fs::before{ display:none; }                 /* drop the card glow in full screen */
-  .hot-card.card-fs .hot-img{ height:140px; margin-top:0; }  /* compact hero so options sit higher */
-  .hot-card.card-fs h3{ margin-top:6px; }
-  .hot-card.card-fs p{ flex:0 0 auto; margin-top:8px; max-width:420px; } /* kill the flex:1 gap */
+  /* in the order flow, hide the hero image / title / description to reclaim
+     vertical space — a small drink-name label inside the builder stands in. */
+  .hot-card.card-fs .hot-img,
+  .hot-card.card-fs h3,
+  .hot-card.card-fs p{ display:none; }
   .hot-card.card-fs .ord-spec{ display:none; }               /* desktop inline panel is hidden in full screen */
 
   .card-fs-close{
@@ -319,6 +321,7 @@
 
   /* full-screen 3-step builder (size → milk → flavors+shots) */
   .fsb{ width:100%; max-width:420px; margin:14px auto 0; display:flex; flex-direction:column; flex:1; min-height:0; }
+  .fsb-title{ font-family:"Oswald",sans-serif; font-weight:700; text-transform:uppercase; letter-spacing:2px; font-size:13px; color:var(--gold); text-align:center; margin-bottom:14px; }
   .fsb-step{ display:none; }
   .fsb-step.is-active{ display:block; animation:cbInR .3s var(--ease) both; }
   .fsb-q{ font-family:"Anton",sans-serif; font-size:22px; color:#fff; text-transform:uppercase; letter-spacing:.5px; text-align:center; }
@@ -1722,7 +1725,8 @@
     const wrap=document.createElement('div');
     wrap.className='fsb';
     wrap.innerHTML=
-      `<div class="fsb-step" data-fstep="size">
+      `<div class="fsb-title">${fsb.drink}</div>
+       <div class="fsb-step" data-fstep="size">
          <h4 class="fsb-q">Pick your size</h4>
          <div class="fsb-grid">${sizeOpts}</div>
        </div>
