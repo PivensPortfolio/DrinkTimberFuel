@@ -301,12 +301,17 @@
     justify-content:flex-start;
   }
   .hot-card.card-fs::before{ display:none; }                 /* drop the card glow in full screen */
-  /* in the order flow, hide the hero image / title / description to reclaim
-     vertical space — a small drink-name label inside the builder stands in. */
+  .hot-card.card-fs .ord-spec{ display:none; }               /* desktop inline panel is hidden in full screen */
+  /* steps 2 & 3 (Milk, Flavors): hide hero image/title/description to save space —
+     the small drink-name label inside the builder stands in. */
   .hot-card.card-fs .hot-img,
   .hot-card.card-fs h3,
   .hot-card.card-fs p{ display:none; }
-  .hot-card.card-fs .ord-spec{ display:none; }               /* desktop inline panel is hidden in full screen */
+  /* step 1 (Size): bring the hero image/title/description back above the options */
+  .hot-card.card-fs[data-fs-step="size"] .hot-img{ display:block; height:150px; margin:0 auto; }
+  .hot-card.card-fs[data-fs-step="size"] h3{ display:block; margin-top:8px; }
+  .hot-card.card-fs[data-fs-step="size"] p{ display:block; flex:0 0 auto; margin-top:8px; max-width:420px; }
+  .hot-card.card-fs[data-fs-step="size"] .fsb-title{ display:none; } /* real title shows, so drop the label */
 
   .card-fs-close{
     position:fixed; top:14px; left:16px; z-index:210;        /* TOP-LEFT corner */
@@ -1655,6 +1660,7 @@
       if(ph && ph.parentNode) ph.parentNode.removeChild(ph);
       card._fsPh=null;
       const fb=card.querySelector('.fsb'); if(fb) fb.remove(); // tear down the 3-step builder
+      card.removeAttribute('data-fs-step');
       if(fsb && fsb.card===card) fsb=null;
       document.body.style.overflow='';
       if(fsCloseBtn && fsCloseBtn.parentNode) fsCloseBtn.parentNode.removeChild(fsCloseBtn);
@@ -1727,7 +1733,6 @@
     wrap.innerHTML=
       `<div class="fsb-title">${fsb.drink}</div>
        <div class="fsb-step" data-fstep="size">
-         <h4 class="fsb-q">Pick your size</h4>
          <div class="fsb-grid">${sizeOpts}</div>
        </div>
        <div class="fsb-step" data-fstep="milk">
@@ -1748,6 +1753,7 @@
   }
   function fsbRender(){
     const name=FS_STEPS[fsb.step];
+    fsb.card.dataset.fsStep=name; // drives step-specific layout (hero shown on size step only)
     fsb.wrap.querySelectorAll('.fsb-step').forEach(s=>s.classList.toggle('is-active', s.dataset.fstep===name));
     fsb.wrap.querySelectorAll('.fsb-size').forEach(b=>b.classList.toggle('sel', b.dataset.size===fsb.size));
     fsb.wrap.querySelectorAll('.fsb-milk').forEach(b=>b.classList.toggle('sel', b.dataset.val===fsb.milk));
