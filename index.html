@@ -1511,7 +1511,10 @@
     const card=ord.closest('.orb-card') || ord.closest('.spot-banner'); if(!card) return;
     const img=(card.querySelector('.orb-img')||card.querySelector('img'))?.src || '';
     const firstRect=card.getBoundingClientRect();
-    fsbBuild(card, {drink:ord.dataset.drink, ord:null, noMilk:true, noShots:true, bases:REFRESHER_BASES, img, sizes:REFRESHER_SIZES, flavors:FS_FLAVORS});
+    // refreshers show ONLY the flavors defined for that drink in the admin (its signature list), minus sold-out
+    const sig=(SPECIALTY_DRINKS[ord.dataset.specId] && SPECIALTY_DRINKS[ord.dataset.specId].flavors) || [];
+    const drinkFlavors=sig.filter(f=>FS_FLAVORS.includes(f));
+    fsbBuild(card, {drink:ord.dataset.drink, ord:null, noMilk:true, noShots:true, bases:REFRESHER_BASES, img, sizes:REFRESHER_SIZES, flavors:drinkFlavors});
     fsOpen(card, firstRect);
   }
   document.querySelector('[data-panel="energy"]').addEventListener('click', refreshHandler);
@@ -1816,7 +1819,7 @@
     // refreshers add a Base step (Red Bull / Sugar-Free Red Bull / Lemonade) as step 1
     if(bases && bases.length) steps = ['base', ...steps];
     const recipe = SPECIALTY_RECIPE[(drink||'').trim()] || []; // preset pumps for named specialties
-    const baseline = {}; recipe.forEach(f=>{ baseline[f]=(baseline[f]||0)+1; });
+    const baseline = {}; recipe.forEach(f=>{ if(flavors.includes(f)) baseline[f]=(baseline[f]||0)+1; }); // only pre-load flavors that are actually shown
     fsb = {card, ord, drink, noShots, sizes, flavors, bases, steps, step:0, size:null, milk:null, base:null, pumps:{...baseline}, baseline, shots:0};
 
     const cat=hotCategory(card); // drink-aware shots: mochas/lattes 1/2/3, americano 2/3/4
@@ -1833,6 +1836,13 @@
     const baseOpts = (bases||[]).map(b=>`<button class="fsb-opt fsb-base" data-val="${b}">
         <span class="fsb-nm">${b}</span></button>`).join('');
     const pumpRows = flavors.map((f,i)=>fsStepperRow(f, 'pump:'+i, fsb.pumps[f]||0)).join('');
+    // flavor-pump list, or a friendly note when a drink has no flavors to add
+    const flavorBlock = flavors.length
+      ? `<h4 class="fsb-q"${noShots ? '' : ' style="margin-top:22px;"'}>Extra Flavor Pumps</h4>
+         <p class="fsb-sub">${fmt(PUMP_PRICE)} per pump</p>
+         <div class="fsb-steppers">${pumpRows}</div>`
+      : `<h4 class="fsb-q"${noShots ? '' : ' style="margin-top:22px;"'}>All set</h4>
+         <p class="fsb-sub">No add-ons for this drink — just tap Add to Order.</p>`;
     const shotBlock = noShots ? '' :
       `<h4 class="fsb-q">Additional Espresso Shots</h4>
        <p class="fsb-sub">$1.00 per shot</p>
@@ -1855,9 +1865,7 @@
        </div>
        <div class="fsb-step" data-fstep="extras">
          ${shotBlock}
-         <h4 class="fsb-q"${noShots ? '' : ' style="margin-top:22px;"'}>Extra Flavor Pumps</h4>
-         <p class="fsb-sub">${fmt(PUMP_PRICE)} per pump</p>
-         <div class="fsb-steppers">${pumpRows}</div>
+         ${flavorBlock}
        </div>
        <div class="fsb-step" data-fstep="done">
          <div class="cb-done">
