@@ -132,22 +132,28 @@
   .fl-secgroup:first-child .fl-sechead{ margin-top:0; }
   .fl-grouphead{ font-family:"Oswald",sans-serif; font-weight:700; font-size:12px; letter-spacing:1.5px; text-transform:uppercase; color:var(--cream-85); margin:12px 0 8px; }
   .fl-drinks{ display:flex; flex-direction:column; gap:10px; margin-bottom:8px; }
-  .fl-drink{ display:flex; gap:12px; align-items:flex-start; background:rgba(255,255,255,.02); border:1px solid var(--gold-faint); border-radius:10px; padding:12px; }
-  .fl-drink.editing{ display:block; border-color:var(--gold-20); background:rgba(245,197,24,.04); }
-  .fl-thumb{ width:56px; height:56px; object-fit:cover; border-radius:8px; background:#0c140f; flex:none; }
+  .fl-drink{ display:flex; gap:14px; align-items:center; background:rgba(255,255,255,.02); border:1px solid var(--gold-faint); border-radius:12px; padding:14px; }
+  .fl-drink.editing{ display:block; border-color:var(--gold-20); background:rgba(245,197,24,.04); padding:20px 22px; }
+  .fl-thumb{ width:60px; height:60px; object-fit:cover; border-radius:10px; background:#0c140f; flex:none; }
   .fl-drink-main{ flex:1; min-width:0; }
-  .fl-drink-desc{ font-family:"Barlow Condensed",sans-serif; font-size:13px; color:var(--cream-85); margin-top:4px; line-height:1.4; }
-  .fl-drink-edit{ display:flex; gap:16px; }
-  .fl-img-col{ display:flex; flex-direction:column; gap:8px; width:150px; flex:none; }
-  .fl-img-preview{ width:150px; height:150px; object-fit:cover; border-radius:10px; background:#0c140f; border:1px solid var(--gold-20); }
-  .fl-upload{ text-align:center; font-family:"Oswald",sans-serif; font-weight:700; font-size:11px; letter-spacing:1px; text-transform:uppercase; color:#06201b; background:var(--sf); border-radius:8px; padding:9px; cursor:pointer; }
-  .fl-img-url{ font-size:12px; }
+  .fl-drink-desc{ font-family:"Barlow Condensed",sans-serif; font-size:13px; color:var(--cream-85); margin-top:5px; line-height:1.45; }
+  .fl-drink-edit{ display:flex; gap:26px; }
+  .fl-img-col{ display:flex; flex-direction:column; gap:10px; width:160px; flex:none; }
+  .fl-img-preview{ width:160px; height:160px; object-fit:cover; border-radius:12px; background:#0c140f; border:1px solid var(--gold-20); }
+  .fl-upload{ text-align:center; font-family:"Oswald",sans-serif; font-weight:700; font-size:11px; letter-spacing:1px; text-transform:uppercase; color:#06201b; background:var(--sf); border-radius:9px; padding:11px; cursor:pointer; transition:filter .15s; }
+  .fl-upload:hover{ filter:brightness(1.08); }
+  .fl-img-url{ font-size:12px; padding:9px 11px; }
   .fl-upstatus{ font-family:"Barlow Condensed",sans-serif; font-size:12px; min-height:1em; text-align:center; }
   .fl-upstatus.ok{ color:var(--sf); } .fl-upstatus.err{ color:var(--fire); }
-  .fl-fields{ flex:1; min-width:0; display:flex; flex-direction:column; gap:8px; }
-  textarea.fl-txt{ resize:vertical; font-family:"Barlow Condensed",sans-serif; line-height:1.4; }
-  .fl-poolhint{ font-family:"Oswald",sans-serif; font-size:11px; letter-spacing:1px; text-transform:uppercase; color:var(--muted); margin-top:4px; }
-  @media (max-width:560px){ .fl-drink-edit{ flex-direction:column; } .fl-img-col{ width:100%; } .fl-img-preview{ width:100%; height:190px; } }
+  .fl-fields{ flex:1; min-width:0; display:flex; flex-direction:column; gap:13px; }
+  .fl-drink-edit .fl-spec-nameinput{ font-size:16px; font-weight:600; padding:12px 14px; }
+  textarea.fl-txt{ resize:vertical; min-height:58px; font-family:"Barlow Condensed",sans-serif; line-height:1.45; }
+  .fl-flavors-block{ border-top:1px solid var(--gold-faint); padding-top:15px; margin-top:2px; }
+  .fl-poolhint{ font-family:"Oswald",sans-serif; font-size:11px; letter-spacing:1.5px; text-transform:uppercase; color:var(--muted); margin-bottom:12px; }
+  .fl-drink-edit .fl-chips{ gap:10px; }
+  .fl-drink-edit .fl-chip{ padding:9px 15px; }
+  .fl-drink-edit .fl-done{ align-self:flex-start; margin-top:18px; padding:12px 36px; border-radius:9px; }
+  @media (max-width:560px){ .fl-drink-edit{ flex-direction:column; gap:16px; } .fl-img-col{ width:100%; } .fl-img-preview{ width:100%; height:200px; } .fl-drink-edit .fl-done{ align-self:stretch; text-align:center; } }
   .fl-savebar{ position:sticky; bottom:0; display:flex; align-items:center; gap:16px; padding:16px 0 8px; margin-top:8px; background:linear-gradient(180deg,transparent,var(--bg) 45%); }
   .fl-status{ font-family:"Barlow Condensed",sans-serif; font-size:14px; min-height:1em; }
   .fl-status.err{ color:var(--fire); }
@@ -431,8 +437,10 @@
           <div class="fl-fields">
             <input class="fl-txt fl-spec-nameinput" data-spec-name="${esc(id)}" value="${esc(d.name)}" placeholder="Drink name" />
             <textarea class="fl-txt fl-spec-desc" data-spec-desc="${esc(id)}" rows="2" placeholder="Description">${esc(d.desc||'')}</textarea>
-            <div class="fl-poolhint">Flavors this drink comes with:</div>
-            <div class="fl-chips">${chips}</div>
+            <div class="fl-flavors-block">
+              <div class="fl-poolhint">Flavors this drink comes with:</div>
+              <div class="fl-chips">${chips}</div>
+            </div>
             <button class="fl-done" data-done="${esc(id)}">Done</button>
           </div>
         </div>
