@@ -1504,6 +1504,12 @@
   ];
   // refresher base liquids — single-select, all the same price (no upcharge)
   const REFRESHER_BASES = ['Red Bull','Sugar-Free Red Bull','Lemonade'];
+  // Named specialties (cards with a data-spec-id) show ONLY their admin-defined flavors (minus sold-out).
+  // Returns null for non-specialty cards (build-your-own / plain coffee) so they keep the full flavor list.
+  function specialtyFlavorsFor(specId, pool){
+    const sig = specId && SPECIALTY_DRINKS[specId] && SPECIALTY_DRINKS[specId].flavors;
+    return Array.isArray(sig) ? sig.filter(f=>pool.includes(f)) : null;
+  }
   function refreshHandler(e){
     if(e.target.closest('.fsb')) return;
     const ord=e.target.closest('.ord[data-drink]'); if(!ord) return;
@@ -1511,9 +1517,8 @@
     const card=ord.closest('.orb-card') || ord.closest('.spot-banner'); if(!card) return;
     const img=(card.querySelector('.orb-img')||card.querySelector('img'))?.src || '';
     const firstRect=card.getBoundingClientRect();
-    // refreshers show ONLY the flavors defined for that drink in the admin (its signature list), minus sold-out
-    const sig=(SPECIALTY_DRINKS[ord.dataset.specId] && SPECIALTY_DRINKS[ord.dataset.specId].flavors) || [];
-    const drinkFlavors=sig.filter(f=>FS_FLAVORS.includes(f));
+    // refreshers show ONLY the flavors defined for that drink, starting at 0 (additional)
+    const drinkFlavors=specialtyFlavorsFor(ord.dataset.specId, FS_FLAVORS) || [];
     fsbBuild(card, {drink:ord.dataset.drink, ord:null, noMilk:true, noShots:true, preload:false, bases:REFRESHER_BASES, img, sizes:REFRESHER_SIZES, flavors:drinkFlavors});
     fsOpen(card, firstRect);
   }
@@ -1592,7 +1597,9 @@
       const sizes=[...ord.querySelectorAll('.ord-sizes .ord-size')].map(b=>({
         size:b.dataset.size, price:b.dataset.price||'', oz:(b.querySelector('b')?.textContent||'').trim()
       }));
-      fsbBuild(card, {drink:ord.dataset.drink, ord, noShots:ord.dataset.noshots==='1', sizes, flavors:BUILDER_FLAVORS});
+      // named specialties (data-spec-id) show only their defined flavors, starting at 0; plain Black & Bold keep the full list
+      const scoped=specialtyFlavorsFor(ord.dataset.specId, BUILDER_FLAVORS);
+      fsbBuild(card, {drink:ord.dataset.drink, ord, noShots:ord.dataset.noshots==='1', sizes, flavors: scoped||BUILDER_FLAVORS, preload: !scoped});
       fsOpen(card, firstRect);
       return;
     }
@@ -1966,7 +1973,9 @@
     const noShots=ord.dataset.noshots==='1';
     const firstRect=card.getBoundingClientRect();
     const sizes=['Small','Medium','Large'].map(s=>{ const p=priceOf(priceKey,s); return {size:s, oz:SIZE_OZ[s], price:p!=null?String(p):''}; });
-    fsbBuild(card, {drink, ord:null, noShots, sizes, flavors:BUILDER_FLAVORS});
+    // named iced drinks (data-spec-id) show only their defined flavors, starting at 0
+    const scoped=specialtyFlavorsFor(ord.dataset.specId, BUILDER_FLAVORS);
+    fsbBuild(card, {drink, ord:null, noShots, sizes, flavors: scoped||BUILDER_FLAVORS, preload: !scoped});
     fsOpen(card, firstRect);
   }
   document.querySelector('[data-panel="cold"]').addEventListener('click', coldHandler);
