@@ -109,17 +109,12 @@
   .fl-rm:hover{ background:rgba(232,98,10,.12); }
   .fl-add{ margin-top:4px; background:transparent; border:1px dashed var(--gold-20); color:var(--gold); border-radius:8px; padding:10px 16px; cursor:pointer; font-family:"Oswald",sans-serif; font-size:12px; text-transform:uppercase; letter-spacing:1px; }
   .fl-add:hover{ border-color:var(--gold); }
-  .fl-spec{ background:rgba(255,255,255,.02); border:1px solid var(--gold-faint); border-radius:10px; padding:12px 14px; margin-bottom:10px; }
-  .fl-spec:last-child{ margin-bottom:0; }
-  .fl-spec.editing{ border-color:var(--gold-20); background:rgba(245,197,24,.04); }
-  .fl-spec-row{ display:flex; align-items:center; justify-content:space-between; gap:12px; }
   .fl-spec-name{ font-family:"Anton",sans-serif; color:#fff; font-size:16px; text-transform:uppercase; letter-spacing:.5px; }
   .fl-tags{ display:flex; flex-wrap:wrap; gap:6px; margin-top:9px; }
   .fl-tag{ font-family:"Oswald",sans-serif; font-size:11px; letter-spacing:.5px; text-transform:uppercase; color:var(--gold); background:rgba(245,197,24,.1); border:1px solid var(--gold-20); border-radius:999px; padding:4px 11px; }
-  .fl-edit{ flex:none; font-family:"Oswald",sans-serif; font-weight:700; font-size:11px; letter-spacing:1px; text-transform:uppercase; color:var(--cream); background:transparent; border:1px solid var(--gold-20); border-radius:8px; padding:8px 16px; cursor:pointer; }
-  .fl-edit:hover{ border-color:var(--gold); color:var(--gold); }
-  .fl-done{ flex:none; font-family:"Oswald",sans-serif; font-weight:700; font-size:11px; letter-spacing:1px; text-transform:uppercase; color:#06201b; background:var(--sf); border:none; border-radius:8px; padding:9px 16px; cursor:pointer; }
-  .fl-spec-edithead{ display:flex; gap:10px; align-items:center; margin-bottom:12px; }
+  .fl-edit{ flex:none; font-family:"Oswald",sans-serif; font-weight:700; font-size:11px; letter-spacing:1px; text-transform:uppercase; color:var(--cream-85); background:transparent; border:1px solid var(--gold-20); border-radius:8px; padding:8px 15px; white-space:nowrap; }
+  .fl-drink-head:hover .fl-edit{ border-color:var(--gold); color:var(--gold); }
+  .fl-drink.editing .fl-edit{ border-color:var(--gold); color:var(--gold); }
   .fl-spec-nameinput{ flex:1; }
   .fl-chips{ display:flex; flex-wrap:wrap; gap:8px; }
   .fl-chip{ display:inline-flex; align-items:center; gap:7px; font-family:"Oswald",sans-serif; font-size:12px; text-transform:uppercase; letter-spacing:.5px; color:var(--cream-85); background:rgba(255,255,255,.03); border:1px solid var(--gold-20); border-radius:999px; padding:7px 13px; cursor:pointer; user-select:none; }
@@ -132,11 +127,14 @@
   .fl-secgroup:first-child .fl-sechead{ margin-top:0; }
   .fl-grouphead{ font-family:"Oswald",sans-serif; font-weight:700; font-size:12px; letter-spacing:1.5px; text-transform:uppercase; color:var(--cream-85); margin:12px 0 8px; }
   .fl-drinks{ display:flex; flex-direction:column; gap:10px; margin-bottom:8px; }
-  .fl-drink{ display:flex; gap:14px; align-items:center; background:rgba(255,255,255,.02); border:1px solid var(--gold-faint); border-radius:12px; padding:14px; }
-  .fl-drink.editing{ display:block; border-color:var(--gold-20); background:rgba(245,197,24,.04); padding:20px 22px; }
+  .fl-drink{ background:rgba(255,255,255,.02); border:1px solid var(--gold-faint); border-radius:12px; overflow:hidden; }
+  .fl-drink.editing{ border-color:var(--gold-20); background:rgba(245,197,24,.04); }
+  .fl-drink-head{ display:flex; gap:14px; align-items:center; padding:14px; cursor:pointer; transition:background .12s; }
+  .fl-drink-head:hover{ background:rgba(255,255,255,.03); }
+  .fl-drink.editing .fl-drink-head{ border-bottom:1px solid var(--gold-faint); }
   .fl-thumb{ width:60px; height:60px; object-fit:cover; border-radius:10px; background:#0c140f; flex:none; }
-  .fl-drink-main{ flex:1; min-width:0; }
-  .fl-drink-desc{ font-family:"Barlow Condensed",sans-serif; font-size:13px; color:var(--cream-85); margin-top:5px; line-height:1.45; }
+  .fl-drink-headmain{ flex:1; min-width:0; }
+  .fl-drink-body{ padding:18px 22px 22px; }
   .fl-drink-edit{ display:flex; gap:26px; }
   .fl-img-col{ display:flex; flex-direction:column; gap:10px; width:160px; flex:none; }
   .fl-img-preview{ width:160px; height:160px; object-fit:cover; border-radius:12px; background:#0c140f; border:1px solid var(--gold-20); }
@@ -152,11 +150,7 @@
   .fl-poolhint{ font-family:"Oswald",sans-serif; font-size:11px; letter-spacing:1.5px; text-transform:uppercase; color:var(--muted); margin-bottom:12px; }
   .fl-drink-edit .fl-chips{ gap:10px; }
   .fl-drink-edit .fl-chip{ padding:9px 15px; }
-  .fl-editactions{ display:flex; gap:12px; margin-top:18px; }
-  .fl-drink-edit .fl-done{ padding:12px 34px; border-radius:9px; }
-  .fl-cancel{ font-family:"Oswald",sans-serif; font-weight:700; font-size:11px; letter-spacing:1px; text-transform:uppercase; color:var(--cream-85); background:transparent; border:1px solid var(--gold-20); border-radius:9px; padding:12px 28px; cursor:pointer; transition:border-color .15s, color .15s; }
-  .fl-cancel:hover{ border-color:var(--fire); color:var(--fire); }
-  @media (max-width:560px){ .fl-drink-edit{ flex-direction:column; gap:16px; } .fl-img-col{ width:100%; } .fl-img-preview{ width:100%; height:200px; } .fl-editactions .fl-done, .fl-editactions .fl-cancel{ flex:1; text-align:center; padding:12px; } }
+  @media (max-width:560px){ .fl-drink-edit{ flex-direction:column; gap:16px; } .fl-img-col{ width:100%; } .fl-img-preview{ width:100%; height:200px; } }
   .fl-savebar{ position:sticky; bottom:0; z-index:6; display:flex; align-items:center; gap:16px; margin:14px -22px 0; padding:15px 22px calc(15px + env(safe-area-inset-bottom)); background:var(--bg-tab); border-top:1px solid var(--gold-20); box-shadow:0 -10px 24px rgba(0,0,0,.4); }
   .fl-autohint{ font-family:"Oswald",sans-serif; font-weight:600; font-size:12px; letter-spacing:.5px; text-transform:uppercase; color:var(--sf); }
   .fl-savebar .fl-status{ font-family:"Oswald",sans-serif; font-size:12px; letter-spacing:.5px; text-transform:uppercase; }
@@ -378,8 +372,7 @@
 
   /* ===== FLAVORS TAB ===== */
   let flavorsState=null;
-  let editingSpec=null;   // id of the specialty drink currently in edit mode
-  let specEditBackup=null; // snapshot of that drink taken on Edit, restored on Cancel
+  let editingSpec=null;   // id of the specialty drink currently expanded (accordion; one at a time)
   function flStatus(msg,isErr){ const s=$('flStatus'); s.textContent=msg||''; s.className='fl-status '+(msg?(isErr?'err':'ok'):''); }
   function slugify(s){ return String(s||'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'')||'drink'; }
   function normFlavors(d){
@@ -430,10 +423,23 @@
   function specPool(section){ return (section==='refresher'?flavorsState.refresherFlavors:flavorsState.builderFlavors).map(f=>f.name).filter(Boolean); }
   function specCard(id){
     const d=flavorsState.specialtyDrinks[id]; const flavors=d.flavors||[];
-    if(editingSpec===id){
-      const pool=specPool(d.section);
-      const chips = pool.map(n=>`<label class="fl-chip ${flavors.includes(n)?'on':''}"><input type="checkbox" data-spec="${esc(id)}" value="${esc(n)}" ${flavors.includes(n)?'checked':''}/> ${esc(n)}</label>`).join('') || '<span class="fl-empty">Add flavors in the list above first.</span>';
-      return `<div class="fl-drink editing" data-id="${esc(id)}">
+    const open = editingSpec===id;
+    const tags = flavors.length ? flavors.map(n=>`<span class="fl-tag">${esc(n)}</span>`).join('') : '<span class="fl-empty">No signature flavors</span>';
+    // accordion header — always visible, click anywhere on it to expand/collapse
+    const head = `<div class="fl-drink-head" data-toggle="${esc(id)}">
+        <img class="fl-thumb" src="${esc(d.image||'')}" alt="" onerror="this.style.visibility='hidden'" />
+        <div class="fl-drink-headmain">
+          <div class="fl-spec-name">${esc(d.name)}</div>
+          ${open ? '' : `<div class="fl-tags">${tags}</div>`}
+        </div>
+        <span class="fl-edit" aria-hidden="true">${open?'Close ▲':'Edit ▾'}</span>
+      </div>`;
+    if(!open) return `<div class="fl-drink" data-id="${esc(id)}">${head}</div>`;
+    const pool=specPool(d.section);
+    const chips = pool.map(n=>`<label class="fl-chip ${flavors.includes(n)?'on':''}"><input type="checkbox" data-spec="${esc(id)}" value="${esc(n)}" ${flavors.includes(n)?'checked':''}/> ${esc(n)}</label>`).join('') || '<span class="fl-empty">Add flavors in the list above first.</span>';
+    return `<div class="fl-drink editing" data-id="${esc(id)}">
+      ${head}
+      <div class="fl-drink-body">
         <div class="fl-drink-edit">
           <div class="fl-img-col">
             <img class="fl-img-preview" src="${esc(d.image||'')}" alt="" onerror="this.style.visibility='hidden'" />
@@ -448,21 +454,8 @@
               <div class="fl-poolhint">Flavors this drink comes with:</div>
               <div class="fl-chips">${chips}</div>
             </div>
-            <div class="fl-editactions">
-              <button class="fl-done" data-done="${esc(id)}">Done</button>
-              <button class="fl-cancel" data-cancel="${esc(id)}">Cancel</button>
-            </div>
           </div>
         </div>
-      </div>`;
-    }
-    const tags = flavors.length ? flavors.map(n=>`<span class="fl-tag">${esc(n)}</span>`).join('') : '<span class="fl-empty">No signature flavors</span>';
-    return `<div class="fl-drink" data-id="${esc(id)}">
-      <img class="fl-thumb" src="${esc(d.image||'')}" alt="" onerror="this.style.visibility='hidden'" />
-      <div class="fl-drink-main">
-        <div class="fl-spec-row"><div class="fl-spec-name">${esc(d.name)}</div><button class="fl-edit" data-edit="${esc(id)}">Edit</button></div>
-        ${d.desc?`<div class="fl-drink-desc">${esc(d.desc)}</div>`:''}
-        <div class="fl-tags">${tags}</div>
       </div>
     </div>`;
   }
@@ -492,7 +485,7 @@
     if(t.id==='flPumpPrice'){ flavorsState.pumpPrice=t.value; scheduleSave(); return; }
     if(t.dataset.specName!==undefined){ const d=flavorsState.specialtyDrinks[t.dataset.specName]; if(d) d.name=t.value; scheduleSave(); return; } // rename specialty drink (no re-render → keeps focus)
     if(t.dataset.specDesc!==undefined){ const d=flavorsState.specialtyDrinks[t.dataset.specDesc]; if(d) d.desc=t.value; scheduleSave(); return; }
-    if(t.dataset.imgUrl!==undefined){ const d=flavorsState.specialtyDrinks[t.dataset.imgUrl]; if(d){ d.image=t.value; const col=t.closest('.fl-img-col'); const prev=col&&col.querySelector('.fl-img-preview'); if(prev){ prev.src=t.value; prev.style.visibility=''; } } scheduleSave(); return; }
+    if(t.dataset.imgUrl!==undefined){ const d=flavorsState.specialtyDrinks[t.dataset.imgUrl]; if(d){ d.image=t.value; const card=t.closest('.fl-drink'); if(card){ const prev=card.querySelector('.fl-img-preview'); if(prev){ prev.src=t.value; prev.style.visibility=''; } const th=card.querySelector('.fl-thumb'); if(th){ th.src=t.value; th.style.visibility=''; } } } scheduleSave(); return; }
     const row=t.closest('.fl-row');
     if(row && t.dataset.field==='name'){
       const list=row.dataset.list==='builder'?'builderFlavors':'refresherFlavors';
@@ -525,9 +518,7 @@
     }
   });
   flView.addEventListener('click', e=>{
-    const ed=e.target.closest('[data-edit]'); if(ed){ editingSpec=ed.dataset.edit; specEditBackup=JSON.parse(JSON.stringify(flavorsState.specialtyDrinks[editingSpec]||{})); renderSpecialty(); return; }
-    const dn=e.target.closest('[data-done]'); if(dn){ editingSpec=null; specEditBackup=null; renderSpecialty(); return; }        // keep changes
-    const cx=e.target.closest('[data-cancel]'); if(cx){ if(editingSpec && specEditBackup){ flavorsState.specialtyDrinks[editingSpec]=specEditBackup; scheduleSave(); } editingSpec=null; specEditBackup=null; renderSpecialty(); return; } // discard changes (persist the revert)
+    const tg=e.target.closest('[data-toggle]'); if(tg){ editingSpec = (editingSpec===tg.dataset.toggle ? null : tg.dataset.toggle); renderSpecialty(); return; } // accordion open/close (edits already auto-save)
     const add=e.target.closest('[data-add]');
     if(add){ if(!flavorsState) return;
       const which=add.dataset.add;
@@ -578,6 +569,7 @@
         flavorsState.specialtyDrinks[id].image=r.url;
         const card=document.querySelector('.fl-drink[data-id="'+CSS.escape(id)+'"]');
         const prev=card&&card.querySelector('.fl-img-preview'); if(prev){ prev.src=r.url; prev.style.visibility=''; }
+        const th=card&&card.querySelector('.fl-thumb'); if(th){ th.src=r.url; th.style.visibility=''; }
         const urlIn=card&&card.querySelector('.fl-img-url'); if(urlIn) urlIn.value=r.url;
         set('Uploaded ✓','ok'); scheduleSave();
       } else { set((r&&r.error)||'Upload failed','err'); }
