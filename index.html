@@ -1314,6 +1314,7 @@
 </div>
 
 <script>
+  const pageLoadTs = Date.now();   // used as a bot "time trap" on form/order submits
   /* ---- tab switching ---- */
   const tabBtns = document.querySelectorAll('.tabnav button');
   const panels  = document.querySelectorAll('.panel');
@@ -1512,7 +1513,7 @@
     if(coPayMethod==='cash'){
       payBtn.disabled=true; note.textContent='Placing your order...';
       try{
-        const resp=await fetch('/api/order', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ order:{...orderBase, paymentMethod:'cash'} }) }).then(r=>r.json());
+        const resp=await fetch('/api/order', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ order:{...orderBase, paymentMethod:'cash'}, startedAt:pageLoadTs }) }).then(r=>r.json());
         if(resp && resp.ok){ coShowSuccess(name, true); }
         else { note.classList.add('err'); note.textContent=(resp&&resp.error)||'Could not place your order. Please try again.'; payBtn.disabled=false; }
       }catch(e){ note.classList.add('err'); note.textContent='Something went wrong. Please try again.'; payBtn.disabled=false; }
@@ -2025,7 +2026,7 @@
       if(!name||!email||!message){ note.classList.add('err'); note.textContent='Please fill in all fields.'; return; }
       btn.disabled=true; note.textContent='Sending...';
       try{
-        const resp=await fetch('/api/contact',{ method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({name,email,message,company}) }).then(r=>r.json());
+        const resp=await fetch('/api/contact',{ method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({name,email,message,company,startedAt:pageLoadTs}) }).then(r=>r.json());
         if(resp && resp.ok){ form.reset(); note.textContent='Thanks! We got your message and will get back to you soon.'; }
         else { note.classList.add('err'); note.textContent=(resp&&resp.error)||'Could not send. Please try again.'; }
       }catch(e){ note.classList.add('err'); note.textContent='Something went wrong. Please try again.'; }

@@ -9,6 +9,14 @@ async function kv(cmd){
 }
 function admin(req){ const p=process.env.ADMIN_PASSWORD||''; return !!p && (req.headers['x-admin-pass']||'')===p; }
 function readMsgs(r){ try{ return r && r.result ? JSON.parse(r.result) : []; }catch(e){ return []; } }
+function getIp(req){ return (req.headers['x-forwarded-for']||'').split(',')[0].trim() || req.headers['x-real-ip'] || 'unknown'; }
+async function rateLimit(ip, prefix, limit, windowSec){
+  const key='rl:'+prefix+':'+ip;
+  const c=await kv(['INCR', key]);
+  const n=(c && typeof c.result==='number') ? c.result : 1;
+  if(n===1){ await kv(['EXPIRE', key, windowSec]); }
+  return n<=limit;
+}
 
 module.exports = async (req,res)=>{
   if(req.method==='GET'){
@@ -28,8 +36,13 @@ module.exports = async (req,res)=>{
       return;
     }
 
-    // public submit
-    if(body.company){ res.status(200).json({ ok:true }); return; } // honeypot filled → silently drop
+    // public submit — layered bot defenses (no captcha)
+    if(body.company){ res.status(200).json({ ok:true }); return; }                 // 1. honeypot filled → drop
+    const startedAt=Number(body.startedAt||0);
+    if(!startedAt || (Date.now()-startedAt) < 2500){ res.status(200).json({ ok:true }); return; } // 2. submitted too fast → drop
+    if(!(await rateLimit(getIp(req), 'contact', 5, 3600))){                          // 3. rate limit: 5/hour/IP
+      res.status(429).json({ ok:false, error:'Too many messages from your connection. Please try again in a bit.' }); return;
+    }
     const name=String(body.name||'').trim(), email=String(body.email||'').trim(), message=String(body.message||'').trim();
     if(!name || !message || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){
       res.status(400).json({ ok:false, error:'Please fill in all fields with a valid email.' }); return;

@@ -8,6 +8,14 @@ async function kv(cmd){
     return await r.json();
   }catch(e){ return { result:null, _err:String(e) }; }
 }
+function getIp(req){ return (req.headers['x-forwarded-for']||'').split(',')[0].trim() || req.headers['x-real-ip'] || 'unknown'; }
+async function rateLimit(ip, prefix, limit, windowSec){
+  const key='rl:'+prefix+':'+ip;
+  const c=await kv(['INCR', key]);
+  const n=(c && typeof c.result==='number') ? c.result : 1;
+  if(n===1){ await kv(['EXPIRE', key, windowSec]); }
+  return n<=limit;
+}
 module.exports = async (req,res)=>{
   if(req.method!=='POST'){ res.status(405).json({ ok:false, error:'method not allowed' }); return; }
 
@@ -15,6 +23,13 @@ module.exports = async (req,res)=>{
   if(s && s.result==='0'){ res.status(403).json({ ok:false, error:'Online ordering is currently closed.' }); return; }
 
   let body=req.body; if(typeof body==='string'){ try{ body=JSON.parse(body); }catch(e){ body={}; } }
+  body=body||{};
+  // bot defenses: too-fast submit + per-IP rate limit
+  const startedAt=Number(body.startedAt||0);
+  if(!startedAt || (Date.now()-startedAt) < 2000){ res.status(200).json({ ok:true, id:'noop' }); return; }
+  if(!(await rateLimit(getIp(req), 'order', 10, 3600))){
+    res.status(429).json({ ok:false, error:'Too many orders from your connection. Please try again shortly.' }); return;
+  }
   const order=(body && body.order) || {};
   if(!order.name || !order.phone || !Array.isArray(order.items) || !order.items.length){
     res.status(400).json({ ok:false, error:'Missing order details.' }); return;
