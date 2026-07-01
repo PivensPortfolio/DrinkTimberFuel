@@ -158,7 +158,9 @@
   .fl-cancel:hover{ border-color:var(--fire); color:var(--fire); }
   @media (max-width:560px){ .fl-drink-edit{ flex-direction:column; gap:16px; } .fl-img-col{ width:100%; } .fl-img-preview{ width:100%; height:200px; } .fl-editactions .fl-done, .fl-editactions .fl-cancel{ flex:1; text-align:center; padding:12px; } }
   .fl-savebar{ position:sticky; bottom:0; z-index:6; display:flex; align-items:center; gap:16px; margin:14px -22px 0; padding:15px 22px calc(15px + env(safe-area-inset-bottom)); background:var(--bg-tab); border-top:1px solid var(--gold-20); box-shadow:0 -10px 24px rgba(0,0,0,.4); }
-  .fl-savebar .btn-gold{ padding:14px 26px; font-size:14px; }
+  .fl-autohint{ font-family:"Oswald",sans-serif; font-weight:600; font-size:12px; letter-spacing:.5px; text-transform:uppercase; color:var(--sf); }
+  .fl-savebar .fl-status{ font-family:"Oswald",sans-serif; font-size:12px; letter-spacing:.5px; text-transform:uppercase; }
+  .fl-savebar .refresh{ margin-left:auto; }
   .fl-status{ font-family:"Barlow Condensed",sans-serif; font-size:14px; min-height:1em; }
   .fl-status.err{ color:var(--fire); }
   .fl-status.ok{ color:var(--sf); }
@@ -243,9 +245,9 @@
       </div>
 
       <div class="fl-savebar">
-        <button class="btn-gold" id="flSave">Save Flavors</button>
-        <button class="refresh" id="flReload">Reload</button>
+        <span class="fl-autohint">✓ Changes save automatically</span>
         <span class="fl-status" id="flStatus"></span>
+        <button class="refresh" id="flReload">Reload</button>
       </div>
     </div>
   </div>
@@ -487,10 +489,10 @@
   const flView=$('viewFlavors');
   flView.addEventListener('input', e=>{
     const t=e.target; if(!flavorsState) return;
-    if(t.id==='flPumpPrice'){ flavorsState.pumpPrice=t.value; return; }
-    if(t.dataset.specName!==undefined){ const d=flavorsState.specialtyDrinks[t.dataset.specName]; if(d) d.name=t.value; return; } // rename specialty drink (no re-render → keeps focus)
-    if(t.dataset.specDesc!==undefined){ const d=flavorsState.specialtyDrinks[t.dataset.specDesc]; if(d) d.desc=t.value; return; }
-    if(t.dataset.imgUrl!==undefined){ const d=flavorsState.specialtyDrinks[t.dataset.imgUrl]; if(d){ d.image=t.value; const col=t.closest('.fl-img-col'); const prev=col&&col.querySelector('.fl-img-preview'); if(prev){ prev.src=t.value; prev.style.visibility=''; } } return; }
+    if(t.id==='flPumpPrice'){ flavorsState.pumpPrice=t.value; scheduleSave(); return; }
+    if(t.dataset.specName!==undefined){ const d=flavorsState.specialtyDrinks[t.dataset.specName]; if(d) d.name=t.value; scheduleSave(); return; } // rename specialty drink (no re-render → keeps focus)
+    if(t.dataset.specDesc!==undefined){ const d=flavorsState.specialtyDrinks[t.dataset.specDesc]; if(d) d.desc=t.value; scheduleSave(); return; }
+    if(t.dataset.imgUrl!==undefined){ const d=flavorsState.specialtyDrinks[t.dataset.imgUrl]; if(d){ d.image=t.value; const col=t.closest('.fl-img-col'); const prev=col&&col.querySelector('.fl-img-preview'); if(prev){ prev.src=t.value; prev.style.visibility=''; } } scheduleSave(); return; }
     const row=t.closest('.fl-row');
     if(row && t.dataset.field==='name'){
       const list=row.dataset.list==='builder'?'builderFlavors':'refresherFlavors';
@@ -501,6 +503,7 @@
         Object.values(flavorsState.specialtyDrinks).forEach(d=>{ d.flavors=(d.flavors||[]).map(n=>n===oldName?newName:n); });
         renderSpecialty(); // re-render chips only so the builder name input keeps focus
       }
+      scheduleSave();
     }
   });
   flView.addEventListener('change', e=>{
@@ -512,17 +515,19 @@
       const k=arr.indexOf(t.value);
       if(t.checked){ if(k<0) arr.push(t.value); } else if(k>=0){ arr.splice(k,1); }
       const chip=t.closest('.fl-chip'); if(chip) chip.classList.toggle('on', t.checked);
+      scheduleSave();
       return;
     }
     const row=t.closest('.fl-row');
     if(row && (t.dataset.field==='sugarFree'||t.dataset.field==='soldOut')){
       flavorsState[row.dataset.list==='builder'?'builderFlavors':'refresherFlavors'][+row.dataset.i][t.dataset.field]=t.checked;
+      scheduleSave();
     }
   });
   flView.addEventListener('click', e=>{
     const ed=e.target.closest('[data-edit]'); if(ed){ editingSpec=ed.dataset.edit; specEditBackup=JSON.parse(JSON.stringify(flavorsState.specialtyDrinks[editingSpec]||{})); renderSpecialty(); return; }
     const dn=e.target.closest('[data-done]'); if(dn){ editingSpec=null; specEditBackup=null; renderSpecialty(); return; }        // keep changes
-    const cx=e.target.closest('[data-cancel]'); if(cx){ if(editingSpec && specEditBackup) flavorsState.specialtyDrinks[editingSpec]=specEditBackup; editingSpec=null; specEditBackup=null; renderSpecialty(); return; } // discard changes
+    const cx=e.target.closest('[data-cancel]'); if(cx){ if(editingSpec && specEditBackup){ flavorsState.specialtyDrinks[editingSpec]=specEditBackup; scheduleSave(); } editingSpec=null; specEditBackup=null; renderSpecialty(); return; } // discard changes (persist the revert)
     const add=e.target.closest('[data-add]');
     if(add){ if(!flavorsState) return;
       const which=add.dataset.add;
@@ -542,7 +547,7 @@
         // drop the removed flavor from every specialty's signature list
         Object.values(flavorsState.specialtyDrinks).forEach(d=>{ d.flavors=(d.flavors||[]).filter(n=>n!==removed.name); });
       }
-      renderFlavors(); return;
+      renderFlavors(); scheduleSave(); return;
     }
   });
   // resize/compress an image file in the browser to keep uploads small
@@ -574,23 +579,31 @@
         const card=document.querySelector('.fl-drink[data-id="'+CSS.escape(id)+'"]');
         const prev=card&&card.querySelector('.fl-img-preview'); if(prev){ prev.src=r.url; prev.style.visibility=''; }
         const urlIn=card&&card.querySelector('.fl-img-url'); if(urlIn) urlIn.value=r.url;
-        set('Uploaded ✓','ok');
+        set('Uploaded ✓','ok'); scheduleSave();
       } else { set((r&&r.error)||'Upload failed','err'); }
     }catch(e){ set('Upload failed','err'); }
   }
-  async function saveFlavors(){
-    if(!flavorsState) return;
-    const pp=Number($('flPumpPrice').value); flavorsState.pumpPrice=(isFinite(pp)&&pp>=0)?pp:0.25;
-    flStatus('Saving…');
+  // Auto-save: debounced, no re-render on success (so typing/editing is never disrupted).
+  let saveTimer=null, saving=false, dirty=false;
+  function scheduleSave(){ if(!flavorsState) return; dirty=true; flStatus('Saving…'); clearTimeout(saveTimer); saveTimer=setTimeout(runSave, 700); }
+  async function runSave(){
+    if(!flavorsState || saving) return;
+    saving=true; dirty=false;
+    const pp=Number($('flPumpPrice').value); if(isFinite(pp)&&pp>=0) flavorsState.pumpPrice=pp;
     try{
       const r=await api('/api/flavors',{ method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(flavorsState) });
-      if(r&&r.ok){ flavorsState=normFlavors(r.flavors); renderFlavors(); flStatus('Saved ✓',false); toast('Flavors saved'); }
-      else{ flStatus('Save failed: '+((r&&r.error)||'error'),true); }
-    }catch(e){ flStatus('Save failed. Check connection.',true); }
+      if(r&&r.ok){ flStatus('Saved ✓',false); }
+      else { flStatus('Not saved: '+((r&&r.error)||'error'),true); }   // validation error — surfaced, not retried
+    }catch(e){ flStatus('Offline — will retry',true); dirty=true; }        // network error — retry
+    saving=false;
+    if(dirty){ clearTimeout(saveTimer); saveTimer=setTimeout(runSave, 2000); } // flush edits made during the save / retry
   }
-  $('flSave').addEventListener('click', saveFlavors);
   $('flReload').addEventListener('click', loadFlavors);
+  // flush any pending debounced save immediately (leaving the tab / hiding the page)
+  function flushSave(){ if(saveTimer){ clearTimeout(saveTimer); saveTimer=null; runSave(); } }
+  document.addEventListener('visibilitychange', ()=>{ if(document.visibilityState==='hidden') flushSave(); });
   document.querySelectorAll('.tab-btn').forEach(b=>b.addEventListener('click',()=>{
+    flushSave();
     const v=b.dataset.view;
     document.querySelectorAll('.tab-btn').forEach(x=>x.classList.toggle('active', x===b));
     $('viewOrders').hidden = v!=='orders';
