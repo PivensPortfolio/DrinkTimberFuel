@@ -1514,7 +1514,7 @@
     // refreshers show ONLY the flavors defined for that drink in the admin (its signature list), minus sold-out
     const sig=(SPECIALTY_DRINKS[ord.dataset.specId] && SPECIALTY_DRINKS[ord.dataset.specId].flavors) || [];
     const drinkFlavors=sig.filter(f=>FS_FLAVORS.includes(f));
-    fsbBuild(card, {drink:ord.dataset.drink, ord:null, noMilk:true, noShots:true, bases:REFRESHER_BASES, img, sizes:REFRESHER_SIZES, flavors:drinkFlavors});
+    fsbBuild(card, {drink:ord.dataset.drink, ord:null, noMilk:true, noShots:true, preload:false, bases:REFRESHER_BASES, img, sizes:REFRESHER_SIZES, flavors:drinkFlavors});
     fsOpen(card, firstRect);
   }
   document.querySelector('[data-panel="energy"]').addEventListener('click', refreshHandler);
@@ -1812,14 +1812,15 @@
   }
   function fsbBuild(card, cfg){
     // cfg: { drink, ord (or null), noShots, sizes:[{size,oz,price}], flavors:[...] }
-    const { drink, ord=null, noShots=false, noMilk=false, bases=null, img='', desc='', sizes, flavors } = cfg;
+    const { drink, ord=null, noShots=false, noMilk=false, bases=null, preload=true, img='', desc='', sizes, flavors } = cfg;
     // skip the milk step for refreshers (noMilk) and plain espresso shots
     const skipMilk = noMilk || /espresso$/i.test((drink||'').trim());
     let steps = skipMilk ? ['size','extras'] : FS_STEPS;
     // refreshers add a Base step (Red Bull / Sugar-Free Red Bull / Lemonade) as step 1
     if(bases && bases.length) steps = ['base', ...steps];
     const recipe = SPECIALTY_RECIPE[(drink||'').trim()] || []; // preset pumps for named specialties
-    const baseline = {}; recipe.forEach(f=>{ if(flavors.includes(f)) baseline[f]=(baseline[f]||0)+1; }); // only pre-load flavors that are actually shown
+    // pre-load included signature pumps (hot/cold). Refreshers pass preload:false so their flavors start at 0 (purely additional).
+    const baseline = {}; if(preload) recipe.forEach(f=>{ if(flavors.includes(f)) baseline[f]=(baseline[f]||0)+1; });
     fsb = {card, ord, drink, noShots, sizes, flavors, bases, steps, step:0, size:null, milk:null, base:null, pumps:{...baseline}, baseline, shots:0};
 
     const cat=hotCategory(card); // drink-aware shots: mochas/lattes 1/2/3, americano 2/3/4
