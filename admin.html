@@ -190,7 +190,7 @@
 
       <div class="fl-section">
         <h2>Specialty Signature Flavors</h2>
-        <p class="fl-hint">For each specialty drink, tick the flavors that come pre-loaded (included in price). Choices come from the Builder Flavors above — rename a builder flavor and re-tick it here if needed.</p>
+        <p class="fl-hint">For each specialty drink, tick the flavors that come pre-loaded (included in price). Choices come from the Builder Flavors above; renaming or removing a builder flavor updates these automatically.</p>
         <div id="flSpecialty"></div>
       </div>
 
@@ -364,6 +364,10 @@
     $('flPumpPrice').value = flavorsState.pumpPrice;
     $('flBuilder').innerHTML = flavorsState.builderFlavors.map(builderRow).join('') || '<p class="fl-empty">No flavors yet — add one.</p>';
     $('flRefresher').innerHTML = flavorsState.refresherFlavors.map(refresherRow).join('') || '<p class="fl-empty">No refresher flavors yet — add one.</p>';
+    renderSpecialty();
+  }
+  function renderSpecialty(){
+    if(!flavorsState) return;
     const names = flavorsState.builderFlavors.map(f=>f.name).filter(Boolean);
     const drinks = Object.keys(flavorsState.specialtyFlavors);
     $('flSpecialty').innerHTML = drinks.length ? drinks.map(drink=>{
@@ -377,7 +381,16 @@
     const t=e.target; if(!flavorsState) return;
     if(t.id==='flPumpPrice'){ flavorsState.pumpPrice=t.value; return; }
     const row=t.closest('.fl-row');
-    if(row && t.dataset.field==='name'){ flavorsState[row.dataset.list==='builder'?'builderFlavors':'refresherFlavors'][+row.dataset.i].name=t.value; }
+    if(row && t.dataset.field==='name'){
+      const list=row.dataset.list==='builder'?'builderFlavors':'refresherFlavors';
+      const arr=flavorsState[list], i=+row.dataset.i, oldName=arr[i].name, newName=t.value;
+      arr[i].name=newName;
+      if(list==='builderFlavors' && oldName && oldName!==newName){
+        // keep each specialty's signature references in sync with the rename
+        Object.keys(flavorsState.specialtyFlavors).forEach(d=>{ flavorsState.specialtyFlavors[d]=flavorsState.specialtyFlavors[d].map(n=>n===oldName?newName:n); });
+        renderSpecialty(); // re-render chips only so the name input keeps focus
+      }
+    }
   });
   flView.addEventListener('change', e=>{
     const t=e.target; if(!flavorsState) return;
@@ -397,7 +410,17 @@
     const add=e.target.closest('[data-add]');
     if(add){ if(!flavorsState) return; if(add.dataset.add==='builder') flavorsState.builderFlavors.push({name:'',sugarFree:false,soldOut:false}); else flavorsState.refresherFlavors.push({name:'',soldOut:false}); renderFlavors(); return; }
     const rm=e.target.closest('[data-rm]');
-    if(rm){ if(!flavorsState) return; flavorsState[rm.dataset.rm==='builder'?'builderFlavors':'refresherFlavors'].splice(+rm.dataset.i,1); renderFlavors(); return; }
+    if(rm){
+      if(!flavorsState) return;
+      const list=rm.dataset.rm==='builder'?'builderFlavors':'refresherFlavors';
+      const removed=flavorsState[list][+rm.dataset.i];
+      flavorsState[list].splice(+rm.dataset.i,1);
+      if(list==='builderFlavors' && removed && removed.name){
+        // drop the removed flavor from every specialty's signature list
+        Object.keys(flavorsState.specialtyFlavors).forEach(d=>{ flavorsState.specialtyFlavors[d]=flavorsState.specialtyFlavors[d].filter(n=>n!==removed.name); });
+      }
+      renderFlavors(); return;
+    }
   });
   async function saveFlavors(){
     if(!flavorsState) return;
