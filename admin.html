@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="robots" content="noindex, nofollow" />
+<title>Timber Fuel — Orders</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Barlow+Condensed:wght@400;500;600;700&family=Oswald:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+  :root{ --bg:#060c08; --bg-card:#0c140f; --bg-tab:#0a120d; --gold:#f5c518; --fire:#e8620a; --sf:#39c0aa; --cream:#e8e0c4; --cream-85:rgba(232,224,196,.85); --muted:#69616b; --gold-20:rgba(245,197,24,.2); --gold-faint:rgba(245,197,24,.12); }
+  *{ box-sizing:border-box; }
+  body{ margin:0; background:var(--bg); color:var(--cream); font-family:"Barlow Condensed",sans-serif; -webkit-font-smoothing:antialiased; }
+  h1,h2,h3{ font-family:"Anton",sans-serif; text-transform:uppercase; color:#fff; margin:0; letter-spacing:.5px; }
+
+  /* login */
+  .login{ min-height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:16px; padding:24px; }
+  .login h1{ font-size:34px; }
+  .login p{ color:var(--cream-85); margin:0; }
+  .login-form{ display:flex; gap:10px; width:min(340px,100%); margin-top:8px; }
+  .login input{ flex:1; background:rgba(255,255,255,.04); border:1px solid var(--gold-20); border-radius:10px; padding:13px 15px; color:var(--cream); font-family:"Barlow Condensed",sans-serif; font-size:16px; }
+  .login input:focus{ outline:none; border-color:var(--gold); }
+  .btn-gold{ font-family:"Oswald",sans-serif; font-weight:700; text-transform:uppercase; letter-spacing:1px; font-size:13px; color:var(--bg); background:var(--gold); border:none; border-radius:10px; padding:13px 20px; cursor:pointer; }
+  .login-err{ color:var(--fire); min-height:1em; font-size:14px; }
+
+  /* dashboard */
+  .dash{ display:none; }
+  .topbar{ position:sticky; top:0; z-index:5; display:flex; align-items:center; justify-content:space-between; gap:16px; padding:16px 22px; background:var(--bg-tab); border-bottom:1px solid var(--gold-faint); flex-wrap:wrap; }
+  .topbar h1{ font-size:22px; }
+  .topbar .sub{ font-family:"Oswald",sans-serif; font-size:11px; letter-spacing:2px; text-transform:uppercase; color:var(--muted); }
+  .store-ctl{ display:flex; align-items:center; gap:14px; }
+  .store-state{ font-family:"Anton",sans-serif; text-transform:uppercase; font-size:16px; letter-spacing:1px; }
+  .store-state.open{ color:var(--sf); }
+  .store-state.closed{ color:var(--fire); }
+  .switch{ position:relative; width:64px; height:34px; border-radius:999px; background:#2a2420; border:1px solid var(--gold-20); cursor:pointer; transition:background .2s; flex:none; }
+  .switch.on{ background:rgba(57,192,170,.35); border-color:var(--sf); }
+  .switch::after{ content:""; position:absolute; top:3px; left:3px; width:26px; height:26px; border-radius:50%; background:#fff; transition:transform .2s; }
+  .switch.on::after{ transform:translateX(30px); background:var(--sf); }
+
+  .wrap{ max-width:1100px; margin:0 auto; padding:22px; }
+  .meta-row{ display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; }
+  .count{ font-family:"Anton",sans-serif; font-size:20px; color:#fff; }
+  .count span{ color:var(--gold); }
+  .refresh{ font-family:"Oswald",sans-serif; font-size:11px; letter-spacing:1px; text-transform:uppercase; color:var(--muted); background:none; border:1px solid var(--gold-20); border-radius:999px; padding:8px 14px; cursor:pointer; }
+
+  .orders{ display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:16px; }
+  .order{ background:var(--bg-card); border:1px solid var(--gold-faint); border-radius:14px; padding:18px; display:flex; flex-direction:column; }
+  .order-top{ display:flex; align-items:flex-start; justify-content:space-between; gap:10px; }
+  .order-name{ font-family:"Anton",sans-serif; font-size:22px; color:#fff; line-height:1.05; }
+  .order-phone{ font-family:"Barlow Condensed",sans-serif; font-size:15px; color:var(--cream-85); margin-top:2px; }
+  .badge{ font-family:"Oswald",sans-serif; font-weight:700; text-transform:uppercase; letter-spacing:1px; font-size:11px; padding:5px 11px; border-radius:999px; white-space:nowrap; }
+  .badge.pickup{ color:#06201b; background:var(--sf); }
+  .badge.delivery{ color:var(--bg); background:var(--gold); }
+  .order-addr{ font-family:"Barlow Condensed",sans-serif; font-size:14px; color:var(--gold); margin-top:8px; line-height:1.4; }
+  .order-time{ font-family:"Oswald",sans-serif; font-size:10px; letter-spacing:1px; text-transform:uppercase; color:var(--muted); margin-top:8px; }
+  .order-items{ list-style:none; margin:12px 0 0; padding:12px 0 0; border-top:1px solid rgba(232,224,196,.08); }
+  .order-items li{ display:flex; justify-content:space-between; gap:10px; padding:4px 0; font-size:15px; }
+  .oi-name{ color:var(--cream); }
+  .oi-sub{ display:block; color:var(--muted); font-size:12px; }
+  .oi-price{ font-family:"Anton",sans-serif; color:#fff; white-space:nowrap; }
+  .order-totals{ margin-top:10px; font-size:14px; color:var(--cream-85); }
+  .order-totals .row{ display:flex; justify-content:space-between; padding:2px 0; }
+  .order-totals .row.total{ font-family:"Anton",sans-serif; font-size:19px; color:#fff; border-top:1px solid var(--gold-faint); margin-top:6px; padding-top:8px; }
+  .order-totals .row.total span:last-child{ color:var(--gold); }
+  .order-actions{ display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:16px; }
+  .btn-done{ font-family:"Oswald",sans-serif; font-weight:700; text-transform:uppercase; letter-spacing:1px; font-size:13px; color:#06201b; background:var(--sf); border:none; border-radius:10px; padding:13px; cursor:pointer; }
+  .btn-cancel{ font-family:"Oswald",sans-serif; font-weight:700; text-transform:uppercase; letter-spacing:1px; font-size:13px; color:var(--fire); background:transparent; border:1px solid var(--fire); border-radius:10px; padding:13px; cursor:pointer; }
+  .btn-done:active,.btn-cancel:active{ transform:scale(.97); }
+  .empty{ text-align:center; color:var(--muted); padding:60px 20px; font-size:17px; }
+  .toast{ position:fixed; bottom:20px; left:50%; transform:translateX(-50%); background:#0c1109; border:1px solid var(--gold-20); color:var(--cream); padding:12px 20px; border-radius:10px; font-size:14px; opacity:0; pointer-events:none; transition:opacity .2s; z-index:20; }
+  .toast.show{ opacity:1; }
+</style>
+</head>
+<body>
+  <!-- LOGIN -->
+  <div class="login" id="login">
+    <h1>Timber Fuel</h1>
+    <p class="sub" style="font-family:Oswald;letter-spacing:2px;text-transform:uppercase;font-size:11px;color:var(--muted)">Order Console</p>
+    <form class="login-form" id="loginForm" autocomplete="off">
+      <input type="password" id="pass" placeholder="Admin password" autocomplete="current-password" />
+      <button class="btn-gold" type="submit">Enter</button>
+    </form>
+    <div class="login-err" id="loginErr"></div>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div class="dash" id="dash">
+    <div class="topbar">
+      <div>
+        <h1>Timber Fuel Orders</h1>
+        <div class="sub">Online order console</div>
+      </div>
+      <div class="store-ctl">
+        <span class="store-state" id="storeState">—</span>
+        <div class="switch" id="storeSwitch" role="switch" aria-label="Toggle online ordering" tabindex="0"></div>
+      </div>
+    </div>
+    <div class="wrap">
+      <div class="meta-row">
+        <div class="count"><span id="orderCount">0</span> active order(s)</div>
+        <button class="refresh" id="refreshBtn">Refresh</button>
+      </div>
+      <div class="orders" id="orders"></div>
+      <div class="empty" id="empty" hidden>No active orders right now.</div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+<script>
+  const $=id=>document.getElementById(id);
+  const PASS_KEY='tf_admin_pass';
+  let pass = sessionStorage.getItem(PASS_KEY) || '';
+  let pollTimer=null;
+
+  function toast(msg){ const t=$('toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove('show'),1800); }
+  function fmt(n){ return '$'+(Number(n)||0).toFixed(2); }
+  function ago(ts){ const s=Math.max(0,Math.floor((Date.now()-ts)/1000)); if(s<60)return 'just now'; const m=Math.floor(s/60); if(m<60)return m+' min ago'; const h=Math.floor(m/60); return h+' hr ago'; }
+
+  async function api(path, opts){
+    opts=opts||{}; opts.headers=Object.assign({'x-admin-pass':pass}, opts.headers||{});
+    const r=await fetch(path, opts);
+    if(r.status===401){ showLogin('Wrong password.'); throw new Error('unauthorized'); }
+    return r.json();
+  }
+
+  function showLogin(err){ if(pollTimer) clearInterval(pollTimer); pollTimer=null; $('dash').style.display='none'; $('login').style.display='flex'; $('loginErr').textContent=err||''; sessionStorage.removeItem(PASS_KEY); pass=''; }
+  function showDash(){ $('login').style.display='none'; $('dash').style.display='block'; }
+
+  $('loginForm').addEventListener('submit', async e=>{
+    e.preventDefault();
+    pass=$('pass').value.trim(); if(!pass){ $('loginErr').textContent='Enter the password.'; return; }
+    $('loginErr').textContent='Checking…';
+    try{
+      const s=await api('/api/store');           // any authed-or-public call; use orders to verify pass
+      const o=await api('/api/orders');           // this requires the password
+      if(o && o.ok){ sessionStorage.setItem(PASS_KEY, pass); $('loginErr').textContent=''; start(); }
+    }catch(err){ /* showLogin already handled 401 */ }
+  });
+
+  const switchEl=$('storeSwitch');
+  switchEl.addEventListener('click', toggleStore);
+  switchEl.addEventListener('keydown', e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); toggleStore(); } });
+  async function toggleStore(){
+    const willOpen = !switchEl.classList.contains('on');
+    try{
+      const r=await api('/api/store', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ open: willOpen }) });
+      if(r && r.ok){ renderStore(r.open); toast(r.open?'Now taking orders':'Online ordering closed'); }
+    }catch(e){}
+  }
+  function renderStore(open){
+    switchEl.classList.toggle('on', !!open);
+    const s=$('storeState'); s.textContent = open?'Taking Orders':'Closed'; s.className='store-state '+(open?'open':'closed');
+  }
+
+  function orderCard(o){
+    const badge = o.mode==='delivery' ? '<span class="badge delivery">Delivery</span>' : '<span class="badge pickup">Pickup</span>';
+    const addr = (o.mode==='delivery' && o.address) ? `<div class="order-addr">📍 ${esc(o.address)}</div>` : '';
+    const items = (o.items||[]).map(it=>{
+      const sub=[it.sizeLabel,it.detail,it.addon].filter(Boolean).join(' · ');
+      return `<li><span><span class="oi-name">${esc(it.name||'')}</span>${sub?`<span class="oi-sub">${esc(sub)}</span>`:''}</span><span class="oi-price">${esc(it.price||'')}</span></li>`;
+    }).join('');
+    const totals = `<div class="order-totals">
+      ${o.delivery?`<div class="row"><span>Delivery</span><span>${fmt(o.delivery)}</span></div>`:''}
+      ${o.tip?`<div class="row"><span>Tip</span><span>${fmt(o.tip)}</span></div>`:''}
+      <div class="row total"><span>Total</span><span>${fmt(o.total)}</span></div>
+    </div>`;
+    return `<div class="order" data-id="${esc(o.id)}">
+      <div class="order-top">
+        <div><div class="order-name">${esc(o.name||'Order')}</div><div class="order-phone">${esc(o.phone||'')}</div></div>
+        ${badge}
+      </div>
+      ${addr}
+      <div class="order-time">${ago(o.ts)}</div>
+      <ul class="order-items">${items}</ul>
+      ${totals}
+      <div class="order-actions">
+        <button class="btn-done" data-act="done" data-id="${esc(o.id)}">Done ✓</button>
+        <button class="btn-cancel" data-act="cancel" data-id="${esc(o.id)}">Cancel</button>
+      </div>
+    </div>`;
+  }
+  function esc(s){ return String(s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+  async function loadOrders(){
+    let data; try{ data=await api('/api/orders'); }catch(e){ return; }
+    const orders=(data&&data.orders)||[];
+    $('orderCount').textContent=orders.length;
+    $('empty').hidden = orders.length>0;
+    $('orders').innerHTML = orders.map(orderCard).join('');
+  }
+  async function loadStore(){ try{ const s=await api('/api/store'); renderStore(s.open); }catch(e){} }
+
+  document.getElementById('orders').addEventListener('click', async e=>{
+    const btn=e.target.closest('[data-act]'); if(!btn) return;
+    const act=btn.dataset.act, id=btn.dataset.id;
+    if(act==='cancel' && !confirm('Cancel this order? (Refund the customer in Square if already paid.)')) return;
+    btn.disabled=true;
+    try{
+      const r=await api('/api/orders', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ action:act, id }) });
+      if(r && r.ok){ toast(act==='done'?'Order completed':'Order cancelled'); loadOrders(); }
+    }catch(err){ btn.disabled=false; }
+  });
+  $('refreshBtn').addEventListener('click', loadOrders);
+
+  function start(){ showDash(); loadStore(); loadOrders(); if(pollTimer) clearInterval(pollTimer); pollTimer=setInterval(loadOrders, 8000); }
+
+  // auto-login if we already have a stored password this session
+  if(pass){ (async()=>{ try{ const o=await api('/api/orders'); if(o&&o.ok) start(); }catch(e){} })(); }
+</script>
+</body>
+</html>

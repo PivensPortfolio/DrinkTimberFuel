@@ -401,6 +401,11 @@
   .cb-head .cb-title{ font-family:"Anton",sans-serif; font-size:clamp(34px,4.6vw,52px); color:#fff; text-transform:uppercase; line-height:1; margin-top:14px; }
   .header-cta{ display:flex; align-items:center; }
   .order-now[hidden], .cart-btn[hidden]{ display:none; }
+  .store-pill{ display:inline-flex; align-items:center; gap:7px; font-family:"Oswald",sans-serif; font-weight:700; text-transform:uppercase; letter-spacing:1.2px; font-size:11px; padding:7px 13px; border-radius:999px; margin-right:12px; border:1px solid transparent; }
+  .store-pill::before{ content:""; width:8px; height:8px; border-radius:50%; background:currentColor; box-shadow:0 0 8px currentColor; }
+  .store-pill.open{ color:var(--sf); border-color:rgba(57,192,170,.4); background:rgba(57,192,170,.08); }
+  .store-pill.closed{ color:var(--fire); border-color:rgba(232,98,10,.4); background:rgba(232,98,10,.08); }
+  .store-pill[hidden]{ display:none; }
   .cart-btn{ display:inline-flex; align-items:center; gap:9px; font-family:"Oswald",sans-serif; font-weight:700; text-transform:uppercase; letter-spacing:1.5px; font-size:13px; color:var(--cream); background:rgba(255,255,255,.04); border:1px solid var(--gold-20); border-radius:999px; padding:11px 18px; cursor:pointer; transition:border-color .2s var(--ease), background .2s var(--ease); }
   .cart-btn:hover{ border-color:var(--gold); background:rgba(245,197,24,.08); }
   .cart-btn svg{ width:18px; height:18px; }
@@ -684,6 +689,7 @@
       <a href="#contact">Contact</a>
     </nav>
     <div class="header-cta">
+      <span class="store-pill" id="storePill" hidden></span>
       <a href="#menu" class="order-now" id="orderNowBtn"><span class="bolt">⚡</span> Order Now</a>
       <button class="cart-btn header-cart" id="headerCartBtn" hidden aria-label="View your order">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.7 13.4a2 2 0 0 0 2 1.6h9.7a2 2 0 0 0 2-1.6L23 6H6"/></svg>
@@ -1305,7 +1311,7 @@
     const box=document.getElementById('cartItems');
     cartCount.textContent=cart.length;
     updateHeaderCart();
-    const _co=document.getElementById('cartCheckout'); if(_co) _co.disabled=!cart.length;
+    updateCheckoutBtn();
     saveCart();
     if(!cart.length){ box.innerHTML='<p class="cart-empty">Your order is empty.<br/>Build a drink to get started.</p>'; return; }
     box.innerHTML='';
@@ -1327,6 +1333,11 @@
 
   /* ---- checkout (page built; Square Web Payments SDK wired next) ---- */
   const checkoutOverlay=document.getElementById('checkoutOverlay');
+  /* store open/closed status (from KV via /api/store) */
+  let storeOpen=true;
+  function updateCheckoutBtn(){ const co=document.getElementById('cartCheckout'); if(!co) return; if(!storeOpen){ co.disabled=true; co.textContent='Ordering Closed'; } else { co.disabled=!cart.length; co.textContent='Checkout →'; } }
+  function applyStoreState(){ const pill=document.getElementById('storePill'); if(pill){ pill.hidden=false; pill.textContent=storeOpen?'Taking Orders':'Currently Closed'; pill.className='store-pill '+(storeOpen?'open':'closed'); } updateCheckoutBtn(); }
+  async function refreshStoreStatus(){ try{ const s=await fetch('/api/store').then(r=>r.json()); storeOpen = !(s && s.open===false); }catch(e){ storeOpen=true; } applyStoreState(); }
   function cartTotal(){ return cart.reduce((s,o)=>{ const v=parseFloat(String(o.price).replace(/[^0-9.]/g,'')); return s+(isFinite(v)?v:0); },0); }
   let coMode='pickup', coTipPct=0; const DELIVERY_FEE=3;
   function recomputeCheckout(){
@@ -1362,7 +1373,7 @@
     document.getElementById('coAddressFields').hidden=true;
     document.getElementById('coPickupInfo').style.display='';
   }
-  function openCheckout(){ if(!cart.length) return; resetCheckoutView(); renderCheckout(); closeCart(); checkoutOverlay.classList.add('open'); initSquare(); }
+  function openCheckout(){ if(!cart.length || !storeOpen) return; resetCheckoutView(); renderCheckout(); closeCart(); checkoutOverlay.classList.add('open'); initSquare(); }
   function closeCheckout(){ checkoutOverlay.classList.remove('open'); }
   document.getElementById('cartCheckout').addEventListener('click', openCheckout);
   document.getElementById('checkoutClose').addEventListener('click', closeCheckout);
@@ -1428,8 +1439,11 @@
       const parts=[`${name} / ${phone}`, fulfill, summary];
       if(nums.delivery>0) parts.push(`delivery ${fmt(nums.delivery)}`);
       if(nums.tip>0) parts.push(`tip ${fmt(nums.tip)}`);
+      const orderData={ name, phone, mode:coMode, address: coMode==='delivery'?`${addr}, ${city} ${zip}`:'',
+        items: cart.map(o=>({ name:o.name, sizeLabel:o.sizeLabel, detail:o.detail, addon:o.addon, price:o.price })),
+        subtotal:nums.sub, delivery:nums.delivery, tip:nums.tip, total:nums.total };
       const resp = await fetch('/api/charge', { method:'POST', headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({ sourceId:result.token, amountCents, idempotencyKey:idem, locationId:sqConfig.locationId, note:parts.join(' | ') }) }).then(r=>r.json());
+        body: JSON.stringify({ sourceId:result.token, amountCents, idempotencyKey:idem, locationId:sqConfig.locationId, note:parts.join(' | '), order:orderData }) }).then(r=>r.json());
       if(resp && resp.ok){
         document.getElementById('coMain').hidden=true;
         document.getElementById('coSuccessMsg').textContent = coMode==='delivery'
@@ -1918,6 +1932,8 @@
   /* init */
   loadCart();
   renderCart();
+  refreshStoreStatus();
+  setInterval(refreshStoreStatus, 60000);
 </script>
 </body>
 </html>
