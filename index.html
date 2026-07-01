@@ -623,6 +623,8 @@
   .co-tip-none{ font-family:"Oswald",sans-serif; font-weight:700; text-transform:uppercase; font-size:12px; letter-spacing:.5px; }
   .co-cash-note{ font-family:"Barlow Condensed",sans-serif; color:var(--cream-85); font-size:15px; text-align:center; padding:16px; background:rgba(255,255,255,.03); border:1px dashed var(--gold-20); border-radius:12px; line-height:1.5; }
   .co-cash-note[hidden]{ display:none; }
+  .co-closed{ text-align:center; font-family:"Barlow Condensed",sans-serif; font-size:17px; color:var(--cream); background:rgba(232,98,10,.1); border:1px solid rgba(232,98,10,.45); border-radius:12px; padding:22px 20px; margin-top:22px; line-height:1.5; }
+  .co-closed[hidden]{ display:none; }
   @media (max-width:600px){ .checkout-overlay{ padding:0; } .checkout{ min-height:100vh; border-radius:0; border:none; width:100%; } }
 
   /* =================================================================
@@ -1240,7 +1242,7 @@
       </div>
     </section>
 
-    <section class="co-section">
+    <section class="co-section" id="coPaymentSection">
       <h3>Payment</h3>
       <div class="co-toggle">
         <button type="button" class="co-toggle-btn sel" data-pay="card">Pay Now · Card</button>
@@ -1254,6 +1256,7 @@
     </section>
 
     <button class="co-pay" id="coPay"><span id="coPayLabel">Pay</span> <span id="coPayAmount">$0.00</span></button>
+    <div class="co-closed" id="coClosedMsg" hidden>😴 We're currently closed for online orders.<br/>Please check back during our hours.</div>
     <p class="co-note" id="coNote"></p>
     <p class="co-secure">🔒 Payments are processed securely by Square.<br/>We never see or store your card number.</p>
     </div>
@@ -1342,8 +1345,14 @@
   const checkoutOverlay=document.getElementById('checkoutOverlay');
   /* store open/closed status (from KV via /api/store) */
   let storeOpen=true;
-  function updateCheckoutBtn(){ const co=document.getElementById('cartCheckout'); if(!co) return; if(!storeOpen){ co.disabled=true; co.textContent='Ordering Closed'; } else { co.disabled=!cart.length; co.textContent='Checkout →'; } }
-  function applyStoreState(){ const pill=document.getElementById('storePill'); if(pill){ pill.hidden=false; pill.textContent=storeOpen?'Taking Orders':'Currently Closed'; pill.className='store-pill '+(storeOpen?'open':'closed'); } updateCheckoutBtn(); }
+  function updateCheckoutBtn(){ const co=document.getElementById('cartCheckout'); if(!co) return; co.disabled=!cart.length; co.textContent='Checkout →'; }
+  function applyCheckoutClosed(){
+    const closed=!storeOpen;
+    const sec=document.getElementById('coPaymentSection'); if(sec) sec.style.display=closed?'none':'';
+    const pay=document.getElementById('coPay'); if(pay) pay.style.display=closed?'none':'';
+    const msg=document.getElementById('coClosedMsg'); if(msg) msg.hidden=!closed;
+  }
+  function applyStoreState(){ const pill=document.getElementById('storePill'); if(pill){ pill.hidden=false; pill.textContent=storeOpen?'Taking Orders':'Currently Closed'; pill.className='store-pill '+(storeOpen?'open':'closed'); } updateCheckoutBtn(); applyCheckoutClosed(); }
   async function refreshStoreStatus(){ try{ const s=await fetch('/api/store').then(r=>r.json()); storeOpen = !(s && s.open===false); }catch(e){ storeOpen=true; } applyStoreState(); }
   function cartTotal(){ return cart.reduce((s,o)=>{ const v=parseFloat(String(o.price).replace(/[^0-9.]/g,'')); return s+(isFinite(v)?v:0); },0); }
   let coMode='pickup', coTipPct=0, coPayMethod='card'; const DELIVERY_FEE=3;
@@ -1388,7 +1397,7 @@
     document.getElementById('coPickupInfo').style.display='';
     applyPayMethod();
   }
-  function openCheckout(){ if(!cart.length || !storeOpen) return; resetCheckoutView(); renderCheckout(); closeCart(); checkoutOverlay.classList.add('open'); initSquare(); }
+  function openCheckout(){ if(!cart.length) return; resetCheckoutView(); renderCheckout(); applyCheckoutClosed(); closeCart(); checkoutOverlay.classList.add('open'); if(storeOpen) initSquare(); }
   function closeCheckout(){ checkoutOverlay.classList.remove('open'); }
   document.getElementById('cartCheckout').addEventListener('click', openCheckout);
   document.getElementById('checkoutClose').addEventListener('click', closeCheckout);
