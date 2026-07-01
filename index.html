@@ -406,6 +406,11 @@
   .store-pill.open{ color:var(--sf); border-color:rgba(57,192,170,.4); background:rgba(57,192,170,.08); }
   .store-pill.closed{ color:var(--fire); border-color:rgba(232,98,10,.4); background:rgba(232,98,10,.08); }
   .store-pill[hidden]{ display:none; }
+  .store-pill-hero{ display:none; margin:18px 0 0; font-size:13px; padding:9px 18px; letter-spacing:1.4px; }
+  @media (max-width:600px){
+    .header-cta .store-pill{ display:none; }
+    .store-pill-hero{ display:inline-flex; }
+  }
   .cart-btn{ display:inline-flex; align-items:center; gap:9px; font-family:"Oswald",sans-serif; font-weight:700; text-transform:uppercase; letter-spacing:1.5px; font-size:13px; color:var(--cream); background:rgba(255,255,255,.04); border:1px solid var(--gold-20); border-radius:999px; padding:11px 18px; cursor:pointer; transition:border-color .2s var(--ease), background .2s var(--ease); }
   .cart-btn:hover{ border-color:var(--gold); background:rgba(245,197,24,.08); }
   .cart-btn svg{ width:18px; height:18px; }
@@ -712,6 +717,7 @@
 
   <div class="hero-content">
     <img class="hero-logo" src="assets/logo.png" alt="Timber Fuel — Fuel for the Northwoods" />
+    <span class="store-pill store-pill-hero" id="storePillHero" hidden></span>
     <div class="divider">
       <span class="line l"></span>
       <span class="b1">⚡</span><span class="b2">⚡</span><span class="b3">⚡</span>
@@ -1352,7 +1358,7 @@
     const pay=document.getElementById('coPay'); if(pay) pay.style.display=closed?'none':'';
     const msg=document.getElementById('coClosedMsg'); if(msg) msg.hidden=!closed;
   }
-  function applyStoreState(){ const pill=document.getElementById('storePill'); if(pill){ pill.hidden=false; pill.textContent=storeOpen?'Taking Orders':'Currently Closed'; pill.className='store-pill '+(storeOpen?'open':'closed'); } updateCheckoutBtn(); applyCheckoutClosed(); }
+  function applyStoreState(){ document.querySelectorAll('.store-pill').forEach(pill=>{ pill.hidden=false; pill.textContent=storeOpen?'Taking Orders':'Currently Closed'; pill.classList.remove('open','closed'); pill.classList.add(storeOpen?'open':'closed'); }); updateCheckoutBtn(); applyCheckoutClosed(); }
   async function refreshStoreStatus(){ try{ const s=await fetch('/api/store').then(r=>r.json()); storeOpen = !(s && s.open===false); }catch(e){ storeOpen=true; } applyStoreState(); }
   function cartTotal(){ return cart.reduce((s,o)=>{ const v=parseFloat(String(o.price).replace(/[^0-9.]/g,'')); return s+(isFinite(v)?v:0); },0); }
   let coMode='pickup', coTipPct=0, coPayMethod='card'; const DELIVERY_FEE=3;
