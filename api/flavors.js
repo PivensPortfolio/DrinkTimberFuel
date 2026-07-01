@@ -36,16 +36,20 @@ const DEFAULT_FLAVORS = {
     { name:'Flavor 2', soldOut:false },
     { name:'Flavor 3', soldOut:false }
   ],
-  // Per-specialty signature flavors — pre-loaded (included in price) as pumps for that drink.
-  specialtyFlavors: {
-    'Campfire Mocha':                    ['Chocolate','Toasted Marshmallow'],
-    'French Hazelnut Café':              ['Hazelnut','French Vanilla'],
-    'Toasted Marshmallow Pumpkin Cocoa': ['Chocolate','Toasted Marshmallow','Pumpkin Spice'],
-    'Cinnamon Roll Latte':               ['Cinnamon','Vanilla'],
-    'Autumn Velvet Latte':               ['Hazelnut','Pumpkin Spice'],
-    'Golden Caramel Macchiato':          ['Caramel','Vanilla']
+  // Per-specialty drinks keyed by a STABLE id so the display name can be renamed in
+  // the admin (the id keeps the customer menu card + recipe wired up). `flavors` are
+  // pre-loaded (included in price) as pumps for that drink.
+  specialtyDrinks: {
+    'campfire-mocha':                    { name:'Campfire Mocha',                     flavors:['Chocolate','Toasted Marshmallow'] },
+    'french-hazelnut-cafe':              { name:'French Hazelnut Café',               flavors:['Hazelnut','French Vanilla'] },
+    'toasted-marshmallow-pumpkin-cocoa': { name:'Toasted Marshmallow Pumpkin Cocoa',  flavors:['Chocolate','Toasted Marshmallow','Pumpkin Spice'] },
+    'cinnamon-roll-latte':               { name:'Cinnamon Roll Latte',                flavors:['Cinnamon','Vanilla'] },
+    'autumn-velvet-latte':               { name:'Autumn Velvet Latte',                flavors:['Hazelnut','Pumpkin Spice'] },
+    'golden-caramel-macchiato':          { name:'Golden Caramel Macchiato',           flavors:['Caramel','Vanilla'] }
   }
 };
+
+const slug = s => str(s,80).toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'') || 'drink';
 
 function str(v,max){ return String(v==null?'':v).slice(0,max).trim(); }
 
@@ -67,24 +71,33 @@ function sanitize(input){
     .filter(f=>f.name && !rseen.has(f.name.toLowerCase()) && rseen.add(f.name.toLowerCase()))
     .slice(0,40);
 
-  const specialtyFlavors={};
-  const sf=(input.specialtyFlavors && typeof input.specialtyFlavors==='object') ? input.specialtyFlavors : {};
-  Object.keys(sf).slice(0,40).forEach(k=>{
-    const name=str(k,80); if(!name) return;
-    const arr=Array.isArray(sf[k])?sf[k]:[];
+  const cleanFlavors = arr => {
     const cseen=new Set();
-    specialtyFlavors[name]=arr.map(x=>str(x,60)).filter(x=>x && !cseen.has(x.toLowerCase()) && cseen.add(x.toLowerCase())).slice(0,20);
+    return (Array.isArray(arr)?arr:[]).map(x=>str(x,60)).filter(x=>x && !cseen.has(x.toLowerCase()) && cseen.add(x.toLowerCase())).slice(0,20);
+  };
+  // specialty drinks are keyed by a stable id; migrate the legacy name-keyed shape if seen.
+  let sd = (input.specialtyDrinks && typeof input.specialtyDrinks==='object') ? input.specialtyDrinks : null;
+  if(!sd && input.specialtyFlavors && typeof input.specialtyFlavors==='object'){
+    sd={}; Object.keys(input.specialtyFlavors).forEach(nm=>{ sd[slug(nm)]={ name:nm, flavors:input.specialtyFlavors[nm] }; });
+  }
+  sd = sd || {};
+  const specialtyDrinks={};
+  Object.keys(sd).slice(0,40).forEach(k=>{
+    const id=slug(k); if(!id) return;
+    const v=sd[k]||{}; const name=str(v.name!=null?v.name:k,80); if(!name) return;
+    specialtyDrinks[id]={ name, flavors:cleanFlavors(v.flavors) };
   });
 
-  return { pumpPrice, builderFlavors, refresherFlavors, specialtyFlavors };
+  return { pumpPrice, builderFlavors, refresherFlavors, specialtyDrinks };
 }
 
 module.exports = async (req,res)=>{
   if(req.method==='GET'){
     const r=await kv(['GET','flavors']);
     let cfg=null; try{ cfg = r && r.result ? JSON.parse(r.result) : null; }catch(e){ cfg=null; }
-    // return the stored config if it looks valid, otherwise the seeded default
-    res.status(200).json(cfg && Array.isArray(cfg.builderFlavors) && cfg.builderFlavors.length ? cfg : DEFAULT_FLAVORS);
+    // normalize the stored config on read (also migrates the legacy specialty shape);
+    // fall back to the seeded default if nothing valid is stored.
+    res.status(200).json(cfg && Array.isArray(cfg.builderFlavors) && cfg.builderFlavors.length ? sanitize(cfg) : DEFAULT_FLAVORS);
     return;
   }
   if(req.method==='POST'){

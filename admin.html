@@ -109,9 +109,18 @@
   .fl-rm:hover{ background:rgba(232,98,10,.12); }
   .fl-add{ margin-top:4px; background:transparent; border:1px dashed var(--gold-20); color:var(--gold); border-radius:8px; padding:10px 16px; cursor:pointer; font-family:"Oswald",sans-serif; font-size:12px; text-transform:uppercase; letter-spacing:1px; }
   .fl-add:hover{ border-color:var(--gold); }
-  .fl-spec{ margin-bottom:18px; }
+  .fl-spec{ background:rgba(255,255,255,.02); border:1px solid var(--gold-faint); border-radius:10px; padding:12px 14px; margin-bottom:10px; }
   .fl-spec:last-child{ margin-bottom:0; }
-  .fl-spec-name{ font-family:"Anton",sans-serif; color:#fff; font-size:16px; text-transform:uppercase; letter-spacing:.5px; margin-bottom:9px; }
+  .fl-spec.editing{ border-color:var(--gold-20); background:rgba(245,197,24,.04); }
+  .fl-spec-row{ display:flex; align-items:center; justify-content:space-between; gap:12px; }
+  .fl-spec-name{ font-family:"Anton",sans-serif; color:#fff; font-size:16px; text-transform:uppercase; letter-spacing:.5px; }
+  .fl-tags{ display:flex; flex-wrap:wrap; gap:6px; margin-top:9px; }
+  .fl-tag{ font-family:"Oswald",sans-serif; font-size:11px; letter-spacing:.5px; text-transform:uppercase; color:var(--gold); background:rgba(245,197,24,.1); border:1px solid var(--gold-20); border-radius:999px; padding:4px 11px; }
+  .fl-edit{ flex:none; font-family:"Oswald",sans-serif; font-weight:700; font-size:11px; letter-spacing:1px; text-transform:uppercase; color:var(--cream); background:transparent; border:1px solid var(--gold-20); border-radius:8px; padding:8px 16px; cursor:pointer; }
+  .fl-edit:hover{ border-color:var(--gold); color:var(--gold); }
+  .fl-done{ flex:none; font-family:"Oswald",sans-serif; font-weight:700; font-size:11px; letter-spacing:1px; text-transform:uppercase; color:#06201b; background:var(--sf); border:none; border-radius:8px; padding:9px 16px; cursor:pointer; }
+  .fl-spec-edithead{ display:flex; gap:10px; align-items:center; margin-bottom:12px; }
+  .fl-spec-nameinput{ flex:1; }
   .fl-chips{ display:flex; flex-wrap:wrap; gap:8px; }
   .fl-chip{ display:inline-flex; align-items:center; gap:7px; font-family:"Oswald",sans-serif; font-size:12px; text-transform:uppercase; letter-spacing:.5px; color:var(--cream-85); background:rgba(255,255,255,.03); border:1px solid var(--gold-20); border-radius:999px; padding:7px 13px; cursor:pointer; user-select:none; }
   .fl-chip input{ accent-color:var(--gold); width:15px; height:15px; }
@@ -149,10 +158,11 @@
     </div>
     <div class="tabs">
       <button class="tab-btn active" data-view="orders">Orders</button>
+      <button class="tab-btn" data-view="messages">Messages</button>
       <button class="tab-btn" data-view="flavors">Flavors</button>
     </div>
 
-    <!-- ORDERS + MESSAGES -->
+    <!-- ORDERS -->
     <div class="wrap view" id="viewOrders">
       <div class="meta-row">
         <div class="count"><span id="orderCount">0</span> active order(s)</div>
@@ -160,8 +170,14 @@
       </div>
       <div class="orders" id="orders"></div>
       <div class="empty" id="empty" hidden>No active orders right now.</div>
+    </div>
 
-      <div class="meta-row msg-head"><div class="count"><span id="msgCount">0</span> message(s)</div></div>
+    <!-- MESSAGES -->
+    <div class="wrap view" id="viewMessages" hidden>
+      <div class="meta-row">
+        <div class="count"><span id="msgCount">0</span> message(s)</div>
+        <button class="refresh" id="refreshMsgBtn">Refresh</button>
+      </div>
       <div class="messages" id="messages"></div>
       <div class="empty" id="msgEmpty" hidden>No messages.</div>
     </div>
@@ -189,8 +205,8 @@
       </div>
 
       <div class="fl-section">
-        <h2>Specialty Signature Flavors</h2>
-        <p class="fl-hint">For each specialty drink, tick the flavors that come pre-loaded (included in price). Choices come from the Builder Flavors above; renaming or removing a builder flavor updates these automatically.</p>
+        <h2>Specialty Drinks</h2>
+        <p class="fl-hint">Each specialty drink and the signature flavors it comes with (included in price). Hit <b>Edit</b> to rename the drink (the new name shows on the customer menu) or change its flavors. Renaming or removing a builder flavor updates these automatically.</p>
         <div id="flSpecialty"></div>
       </div>
 
@@ -328,15 +344,23 @@
 
   /* ===== FLAVORS TAB ===== */
   let flavorsState=null;
+  let editingSpec=null;   // id of the specialty drink currently in edit mode
   function flStatus(msg,isErr){ const s=$('flStatus'); s.textContent=msg||''; s.className='fl-status '+(msg?(isErr?'err':'ok'):''); }
+  function slugify(s){ return String(s||'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'')||'drink'; }
   function normFlavors(d){
     d=d&&typeof d==='object'?d:{};
     const pp=Number(d.pumpPrice);
+    // specialty drinks keyed by a stable id; migrate the legacy name-keyed shape if seen
+    let sd=(d.specialtyDrinks&&typeof d.specialtyDrinks==='object')?d.specialtyDrinks:null;
+    if(!sd && d.specialtyFlavors && typeof d.specialtyFlavors==='object'){ sd={}; Object.keys(d.specialtyFlavors).forEach(nm=>{ sd[slugify(nm)]={name:nm, flavors:d.specialtyFlavors[nm]}; }); }
+    sd=sd||{};
+    const specialtyDrinks={};
+    Object.keys(sd).forEach(id=>{ const v=sd[id]||{}; specialtyDrinks[id]={ name:String(v.name!=null?v.name:id), flavors:Array.isArray(v.flavors)?v.flavors.map(String):[] }; });
     return {
       pumpPrice: (isFinite(pp)&&pp>=0)?pp:0.25,
       builderFlavors: (Array.isArray(d.builderFlavors)?d.builderFlavors:[]).map(f=> typeof f==='string'?{name:f,sugarFree:false,soldOut:false}:{name:String((f&&f.name)||''),sugarFree:!!(f&&f.sugarFree),soldOut:!!(f&&f.soldOut)}),
       refresherFlavors: (Array.isArray(d.refresherFlavors)?d.refresherFlavors:[]).map(f=> typeof f==='string'?{name:f,soldOut:false}:{name:String((f&&f.name)||''),soldOut:!!(f&&f.soldOut)}),
-      specialtyFlavors: (d.specialtyFlavors&&typeof d.specialtyFlavors==='object')?Object.fromEntries(Object.keys(d.specialtyFlavors).map(k=>[k, Array.isArray(d.specialtyFlavors[k])?d.specialtyFlavors[k].map(String):[]])):{}
+      specialtyDrinks
     };
   }
   async function loadFlavors(){
@@ -369,33 +393,48 @@
   function renderSpecialty(){
     if(!flavorsState) return;
     const names = flavorsState.builderFlavors.map(f=>f.name).filter(Boolean);
-    const drinks = Object.keys(flavorsState.specialtyFlavors);
-    $('flSpecialty').innerHTML = drinks.length ? drinks.map(drink=>{
-      const chosen = flavorsState.specialtyFlavors[drink]||[];
-      const chips = names.map(n=>`<label class="fl-chip ${chosen.includes(n)?'on':''}"><input type="checkbox" data-spec="${esc(drink)}" value="${esc(n)}" ${chosen.includes(n)?'checked':''}/> ${esc(n)}</label>`).join('');
-      return `<div class="fl-spec"><div class="fl-spec-name">${esc(drink)}</div><div class="fl-chips">${chips||'<span class="fl-empty">Add builder flavors first.</span>'}</div></div>`;
+    const ids = Object.keys(flavorsState.specialtyDrinks);
+    $('flSpecialty').innerHTML = ids.length ? ids.map(id=>{
+      const d=flavorsState.specialtyDrinks[id]; const flavors=d.flavors||[];
+      if(editingSpec===id){
+        const chips = names.map(n=>`<label class="fl-chip ${flavors.includes(n)?'on':''}"><input type="checkbox" data-spec="${esc(id)}" value="${esc(n)}" ${flavors.includes(n)?'checked':''}/> ${esc(n)}</label>`).join('') || '<span class="fl-empty">Add builder flavors first.</span>';
+        return `<div class="fl-spec editing" data-id="${esc(id)}">
+          <div class="fl-spec-edithead">
+            <input class="fl-txt fl-spec-nameinput" data-spec-name="${esc(id)}" value="${esc(d.name)}" placeholder="Drink name" />
+            <button class="fl-done" data-done="${esc(id)}">Done</button>
+          </div>
+          <div class="fl-chips">${chips}</div>
+        </div>`;
+      }
+      const tags = flavors.length ? flavors.map(n=>`<span class="fl-tag">${esc(n)}</span>`).join('') : '<span class="fl-empty">No signature flavors</span>';
+      return `<div class="fl-spec" data-id="${esc(id)}">
+        <div class="fl-spec-row"><div class="fl-spec-name">${esc(d.name)}</div><button class="fl-edit" data-edit="${esc(id)}">Edit</button></div>
+        <div class="fl-tags">${tags}</div>
+      </div>`;
     }).join('') : '<p class="fl-empty">No specialty drinks configured.</p>';
   }
   const flView=$('viewFlavors');
   flView.addEventListener('input', e=>{
     const t=e.target; if(!flavorsState) return;
     if(t.id==='flPumpPrice'){ flavorsState.pumpPrice=t.value; return; }
+    if(t.dataset.specName!==undefined){ const d=flavorsState.specialtyDrinks[t.dataset.specName]; if(d) d.name=t.value; return; } // rename specialty drink (no re-render → keeps focus)
     const row=t.closest('.fl-row');
     if(row && t.dataset.field==='name'){
       const list=row.dataset.list==='builder'?'builderFlavors':'refresherFlavors';
       const arr=flavorsState[list], i=+row.dataset.i, oldName=arr[i].name, newName=t.value;
       arr[i].name=newName;
       if(list==='builderFlavors' && oldName && oldName!==newName){
-        // keep each specialty's signature references in sync with the rename
-        Object.keys(flavorsState.specialtyFlavors).forEach(d=>{ flavorsState.specialtyFlavors[d]=flavorsState.specialtyFlavors[d].map(n=>n===oldName?newName:n); });
-        renderSpecialty(); // re-render chips only so the name input keeps focus
+        // keep each specialty's signature flavor references in sync with the rename
+        Object.values(flavorsState.specialtyDrinks).forEach(d=>{ d.flavors=(d.flavors||[]).map(n=>n===oldName?newName:n); });
+        renderSpecialty(); // re-render chips only so the builder name input keeps focus
       }
     }
   });
   flView.addEventListener('change', e=>{
     const t=e.target; if(!flavorsState) return;
     if(t.dataset.spec!==undefined){
-      const arr = flavorsState.specialtyFlavors[t.dataset.spec] || (flavorsState.specialtyFlavors[t.dataset.spec]=[]);
+      const d=flavorsState.specialtyDrinks[t.dataset.spec]; if(!d) return;
+      const arr=d.flavors||(d.flavors=[]);
       const k=arr.indexOf(t.value);
       if(t.checked){ if(k<0) arr.push(t.value); } else if(k>=0){ arr.splice(k,1); }
       const chip=t.closest('.fl-chip'); if(chip) chip.classList.toggle('on', t.checked);
@@ -407,6 +446,8 @@
     }
   });
   flView.addEventListener('click', e=>{
+    const ed=e.target.closest('[data-edit]'); if(ed){ editingSpec=ed.dataset.edit; renderSpecialty(); return; }
+    const dn=e.target.closest('[data-done]'); if(dn){ editingSpec=null; renderSpecialty(); return; }
     const add=e.target.closest('[data-add]');
     if(add){ if(!flavorsState) return; if(add.dataset.add==='builder') flavorsState.builderFlavors.push({name:'',sugarFree:false,soldOut:false}); else flavorsState.refresherFlavors.push({name:'',soldOut:false}); renderFlavors(); return; }
     const rm=e.target.closest('[data-rm]');
@@ -417,7 +458,7 @@
       flavorsState[list].splice(+rm.dataset.i,1);
       if(list==='builderFlavors' && removed && removed.name){
         // drop the removed flavor from every specialty's signature list
-        Object.keys(flavorsState.specialtyFlavors).forEach(d=>{ flavorsState.specialtyFlavors[d]=flavorsState.specialtyFlavors[d].filter(n=>n!==removed.name); });
+        Object.values(flavorsState.specialtyDrinks).forEach(d=>{ d.flavors=(d.flavors||[]).filter(n=>n!==removed.name); });
       }
       renderFlavors(); return;
     }
@@ -438,9 +479,11 @@
     const v=b.dataset.view;
     document.querySelectorAll('.tab-btn').forEach(x=>x.classList.toggle('active', x===b));
     $('viewOrders').hidden = v!=='orders';
+    $('viewMessages').hidden = v!=='messages';
     $('viewFlavors').hidden = v!=='flavors';
     if(v==='flavors' && !flavorsState) loadFlavors();
   }));
+  $('refreshMsgBtn').addEventListener('click', loadMessages);
 
   function start(){ showDash(); loadStore(); loadOrders(); loadMessages(); if(pollTimer) clearInterval(pollTimer); pollTimer=setInterval(()=>{ loadOrders(); loadMessages(); }, 8000); }
 

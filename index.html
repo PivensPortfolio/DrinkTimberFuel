@@ -792,7 +792,7 @@
             <img class="hot-img" src="assets/campfire-mocha.png" alt="Campfire Mocha" />
             <h3>Campfire Mocha</h3>
             <p>Deep chocolate and sweet marshmallow: a fire-roasted s'more in a mug.</p>
-            <div class="ord ord-spec" data-drink="Campfire Mocha" data-kind="milk">
+            <div class="ord ord-spec" data-spec-id="campfire-mocha" data-drink="Campfire Mocha" data-kind="milk">
               <button class="ord-btn">Add to Order</button>
               <div class="ord-panel" hidden>
                 <div class="ord-sizes">
@@ -812,7 +812,7 @@
             <img class="hot-img" src="assets/french-hazelnut.png" alt="French Hazelnut Café" />
             <h3>French Hazelnut Café</h3>
             <p>A clean, sweet aromatic baseline that lets bold, nutty accents take center stage.</p>
-            <div class="ord ord-spec" data-drink="French Hazelnut Café" data-kind="milk">
+            <div class="ord ord-spec" data-spec-id="french-hazelnut-cafe" data-drink="French Hazelnut Café" data-kind="milk">
               <button class="ord-btn">Add to Order</button>
               <div class="ord-panel" hidden>
                 <div class="ord-sizes">
@@ -832,7 +832,7 @@
             <img class="hot-img" src="assets/hot-coffee.png" alt="Toasted Marshmallow Pumpkin Cocoa" />
             <h3>Toasted Marshmallow Pumpkin Cocoa</h3>
             <p>Caffeine-free luxury cocoa with toasted marshmallow and warm campfire spice.</p>
-            <div class="ord ord-spec" data-drink="Toasted Marshmallow Pumpkin Cocoa" data-kind="milk" data-noshots="1">
+            <div class="ord ord-spec" data-spec-id="toasted-marshmallow-pumpkin-cocoa" data-drink="Toasted Marshmallow Pumpkin Cocoa" data-kind="milk" data-noshots="1">
               <button class="ord-btn">Add to Order</button>
               <div class="ord-panel" hidden>
                 <div class="ord-sizes">
@@ -861,7 +861,7 @@
             <img class="hot-img" src="assets/cinnamon-roll-latte.png" alt="Cinnamon Roll Latte" />
             <h3>Cinnamon Roll Latte</h3>
             <p>A warm cinnamon roll fresh from the oven, with a sweet vanilla icing finish.</p>
-            <div class="ord ord-spec" data-drink="Cinnamon Roll Latte" data-kind="milk">
+            <div class="ord ord-spec" data-spec-id="cinnamon-roll-latte" data-drink="Cinnamon Roll Latte" data-kind="milk">
               <button class="ord-btn">Add to Order</button>
               <div class="ord-panel" hidden>
                 <div class="ord-sizes">
@@ -881,7 +881,7 @@
             <img class="hot-img" src="assets/hot-coffee.png" alt="Autumn Velvet Latte" />
             <h3>Autumn Velvet Latte</h3>
             <p>Toasted nuttiness balanced with bright, aromatic seasonal harvest spice.</p>
-            <div class="ord ord-spec" data-drink="Autumn Velvet Latte" data-kind="milk">
+            <div class="ord ord-spec" data-spec-id="autumn-velvet-latte" data-drink="Autumn Velvet Latte" data-kind="milk">
               <button class="ord-btn">Add to Order</button>
               <div class="ord-panel" hidden>
                 <div class="ord-sizes">
@@ -901,7 +901,7 @@
             <img class="hot-img" src="assets/caramel-macchiato.png" alt="Golden Caramel Macchiato" />
             <h3>Golden Caramel Macchiato</h3>
             <p>Custard-like vanilla milk and strong espresso, crowned with buttery caramel.</p>
-            <div class="ord ord-spec" data-drink="Golden Caramel Macchiato" data-kind="milk">
+            <div class="ord ord-spec" data-spec-id="golden-caramel-macchiato" data-drink="Golden Caramel Macchiato" data-kind="milk">
               <button class="ord-btn">Add to Order</button>
               <div class="ord-panel" hidden>
                 <div class="ord-sizes">
@@ -1728,26 +1728,38 @@
       {name:'Flavor 2',soldOut:false},
       {name:'Flavor 3',soldOut:false}
     ],
-    specialtyFlavors: {
-      'Campfire Mocha':                     ['Chocolate','Toasted Marshmallow'],
-      'French Hazelnut Café':               ['Hazelnut','French Vanilla'],
-      'Toasted Marshmallow Pumpkin Cocoa':  ['Chocolate','Toasted Marshmallow','Pumpkin Spice'],
-      'Cinnamon Roll Latte':                ['Cinnamon','Vanilla'],
-      'Autumn Velvet Latte':                ['Hazelnut','Pumpkin Spice'],
-      'Golden Caramel Macchiato':           ['Caramel','Vanilla']
+    specialtyDrinks: {
+      'campfire-mocha':                    {name:'Campfire Mocha',                     flavors:['Chocolate','Toasted Marshmallow']},
+      'french-hazelnut-cafe':              {name:'French Hazelnut Café',               flavors:['Hazelnut','French Vanilla']},
+      'toasted-marshmallow-pumpkin-cocoa': {name:'Toasted Marshmallow Pumpkin Cocoa',  flavors:['Chocolate','Toasted Marshmallow','Pumpkin Spice']},
+      'cinnamon-roll-latte':               {name:'Cinnamon Roll Latte',                flavors:['Cinnamon','Vanilla']},
+      'autumn-velvet-latte':               {name:'Autumn Velvet Latte',                flavors:['Hazelnut','Pumpkin Spice']},
+      'golden-caramel-macchiato':          {name:'Golden Caramel Macchiato',           flavors:['Caramel','Vanilla']}
     }
   };
   // Working values the builder reads. Names only; sold-out flavors are hidden from customers.
   let BUILDER_FLAVORS = [];   // build-your-own / cold / hot-specialty flavor-pump list
   let FS_FLAVORS = [];        // refresher flavor-pump list (their own fruit/candy list)
-  let SPECIALTY_RECIPE = {};  // per-specialty included signature pumps (included in price)
+  let SPECIALTY_RECIPE = {};  // name -> included signature pumps (included in price), derived from specialtyDrinks
+  let SPECIALTY_DRINKS = {};  // id -> {name, flavors} (drives the renamable menu cards)
+  // Rewrite the specialty menu cards (name/alt/data-drink) from config so admin renames show on the site.
+  function applySpecialtyNames(){
+    document.querySelectorAll('.ord-spec[data-spec-id]').forEach(ord=>{
+      const d=SPECIALTY_DRINKS[ord.dataset.specId]; if(!d || !d.name) return;
+      ord.dataset.drink=d.name;
+      const card=ord.closest('.hot-card'); if(card){ const h3=card.querySelector('h3'); if(h3) h3.textContent=d.name; const img=card.querySelector('.hot-img'); if(img) img.alt=d.name; }
+    });
+  }
   function applyFlavorsConfig(cfg){
     cfg = cfg && typeof cfg==='object' ? cfg : {};
     const bf = Array.isArray(cfg.builderFlavors) && cfg.builderFlavors.length ? cfg.builderFlavors : FLAVORS_DEFAULT.builderFlavors;
     const rf = Array.isArray(cfg.refresherFlavors) ? cfg.refresherFlavors : FLAVORS_DEFAULT.refresherFlavors;
     BUILDER_FLAVORS = bf.filter(f=>f && f.name && !f.soldOut).map(f=>f.name);       // hide sold-out
     FS_FLAVORS      = rf.filter(f=>f && f.name && !f.soldOut).map(f=>f.name);        // hide sold-out
-    SPECIALTY_RECIPE = (cfg.specialtyFlavors && typeof cfg.specialtyFlavors==='object') ? cfg.specialtyFlavors : FLAVORS_DEFAULT.specialtyFlavors;
+    SPECIALTY_DRINKS = (cfg.specialtyDrinks && typeof cfg.specialtyDrinks==='object') ? cfg.specialtyDrinks : FLAVORS_DEFAULT.specialtyDrinks;
+    SPECIALTY_RECIPE = {};   // rebuild the name->flavors recipe map used by the builder
+    Object.values(SPECIALTY_DRINKS).forEach(d=>{ if(d && d.name) SPECIALTY_RECIPE[String(d.name).trim()] = Array.isArray(d.flavors)?d.flavors:[]; });
+    applySpecialtyNames();
     const pp = Number(cfg.pumpPrice);
     PUMP_PRICE = (isFinite(pp) && pp>=0) ? pp : FLAVORS_DEFAULT.pumpPrice;
   }

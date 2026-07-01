@@ -40,12 +40,15 @@ The client changes flavors often, so flavor data lives in KV, not hardcoded arra
   "pumpPrice": 0.25,
   "builderFlavors":  [ { "name": "Chocolate", "sugarFree": false, "soldOut": false }, ... ],
   "refresherFlavors":[ { "name": "Mango", "soldOut": false }, ... ],   // refreshers' own fruit/candy list
-  "specialtyFlavors":{ "Campfire Mocha": ["Chocolate","Toasted Marshmallow"], ... }
+  "specialtyDrinks": {                                                 // keyed by a STABLE id so drinks can be renamed
+    "campfire-mocha": { "name": "Campfire Mocha", "flavors": ["Chocolate","Toasted Marshmallow"] }, ...
+  }
 }
 ```
 
-- **Admin → Flavors tab** edits the builder list (add/rename/remove, sugar-free, sold-out), the separate refresher list, each specialty drink's signature (included) flavors, and the pump price. Save → `POST /api/flavors`.
-- **`index.html`** fetches `GET /api/flavors` at load and sources all flavor-pump lists + pump price from it. If the fetch fails it falls back to hardcoded defaults (mirrored in `api/flavors.js`), so the site never breaks. Sold-out flavors are hidden from customers.
+- **Admin → Flavors tab** edits the builder list (add/rename/remove, sugar-free, sold-out), the separate refresher list, the pump price, and each **specialty drink** — a compact per-drink card with an **Edit** button to rename the drink and pick its signature (included) flavors. Save → `POST /api/flavors`.
+- **`index.html`** fetches `GET /api/flavors` at load and sources all flavor-pump lists, the pump price, and the specialty drink **names** from it — each specialty menu card carries a `data-spec-id`, so renaming a drink in the admin updates its card name (and cart name/recipe) live. If the fetch fails it falls back to hardcoded defaults (mirrored in `api/flavors.js`), so the site never breaks. Sold-out flavors are hidden from customers.
+- The admin has three tabs — **Orders**, **Messages**, **Flavors**.
 
 ## Environment variables (set in Vercel, not committed)
 `KV_REST_API_URL`, `KV_REST_API_TOKEN`, `ADMIN_PASSWORD`, `SQUARE_ENV` (`sandbox`|`production`), `SQUARE_APP_ID`, `SQUARE_ACCESS_TOKEN`.
