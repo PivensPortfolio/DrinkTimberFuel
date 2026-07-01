@@ -44,8 +44,10 @@
   .count span{ color:var(--gold); }
   .refresh{ font-family:"Oswald",sans-serif; font-size:11px; letter-spacing:1px; text-transform:uppercase; color:var(--muted); background:none; border:1px solid var(--gold-20); border-radius:999px; padding:8px 14px; cursor:pointer; }
 
-  .orders{ display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:16px; }
-  .order{ background:var(--bg-card); border:1px solid var(--gold-faint); border-radius:14px; padding:18px; display:flex; flex-direction:column; }
+  .orders{ display:flex; flex-direction:row; gap:16px; overflow-x:auto; align-items:flex-start; padding-bottom:16px; -webkit-overflow-scrolling:touch; }
+  .orders::-webkit-scrollbar{ height:10px; }
+  .orders::-webkit-scrollbar-thumb{ background:var(--gold-20); border-radius:999px; }
+  .order{ flex:0 0 330px; max-width:330px; background:var(--bg-card); border:1px solid var(--gold-faint); border-radius:14px; padding:18px; display:flex; flex-direction:column; }
   .order-top{ display:flex; align-items:flex-start; justify-content:space-between; gap:10px; }
   .order-name{ font-family:"Anton",sans-serif; font-size:22px; color:#fff; line-height:1.05; }
   .order-phone{ font-family:"Barlow Condensed",sans-serif; font-size:15px; color:var(--cream-85); margin-top:2px; }
