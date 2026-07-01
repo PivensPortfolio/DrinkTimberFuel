@@ -157,7 +157,8 @@
   .fl-cancel{ font-family:"Oswald",sans-serif; font-weight:700; font-size:11px; letter-spacing:1px; text-transform:uppercase; color:var(--cream-85); background:transparent; border:1px solid var(--gold-20); border-radius:9px; padding:12px 28px; cursor:pointer; transition:border-color .15s, color .15s; }
   .fl-cancel:hover{ border-color:var(--fire); color:var(--fire); }
   @media (max-width:560px){ .fl-drink-edit{ flex-direction:column; gap:16px; } .fl-img-col{ width:100%; } .fl-img-preview{ width:100%; height:200px; } .fl-editactions .fl-done, .fl-editactions .fl-cancel{ flex:1; text-align:center; padding:12px; } }
-  .fl-savebar{ position:sticky; bottom:0; display:flex; align-items:center; gap:16px; padding:16px 0 8px; margin-top:8px; background:linear-gradient(180deg,transparent,var(--bg) 45%); }
+  .fl-savebar{ position:sticky; bottom:0; z-index:6; display:flex; align-items:center; gap:16px; margin:14px -22px 0; padding:15px 22px calc(15px + env(safe-area-inset-bottom)); background:var(--bg-tab); border-top:1px solid var(--gold-20); box-shadow:0 -10px 24px rgba(0,0,0,.4); }
+  .fl-savebar .btn-gold{ padding:14px 26px; font-size:14px; }
   .fl-status{ font-family:"Barlow Condensed",sans-serif; font-size:14px; min-height:1em; }
   .fl-status.err{ color:var(--fire); }
   .fl-status.ok{ color:var(--sf); }
@@ -523,7 +524,14 @@
     const dn=e.target.closest('[data-done]'); if(dn){ editingSpec=null; specEditBackup=null; renderSpecialty(); return; }        // keep changes
     const cx=e.target.closest('[data-cancel]'); if(cx){ if(editingSpec && specEditBackup) flavorsState.specialtyDrinks[editingSpec]=specEditBackup; editingSpec=null; specEditBackup=null; renderSpecialty(); return; } // discard changes
     const add=e.target.closest('[data-add]');
-    if(add){ if(!flavorsState) return; if(add.dataset.add==='builder') flavorsState.builderFlavors.push({name:'',sugarFree:false,soldOut:false}); else flavorsState.refresherFlavors.push({name:'',soldOut:false}); renderFlavors(); return; }
+    if(add){ if(!flavorsState) return;
+      const which=add.dataset.add;
+      if(which==='builder') flavorsState.builderFlavors.push({name:'',sugarFree:false,soldOut:false}); else flavorsState.refresherFlavors.push({name:'',soldOut:false});
+      renderFlavors();
+      // drop the cursor into the new row so it's obvious what to type, then Save below
+      const rows=document.querySelectorAll((which==='builder'?'#flBuilder':'#flRefresher')+' .fl-row .fl-txt');
+      const last=rows[rows.length-1]; if(last){ last.focus(); last.scrollIntoView({block:'center',behavior:'smooth'}); }
+      return; }
     const rm=e.target.closest('[data-rm]');
     if(rm){
       if(!flavorsState) return;
