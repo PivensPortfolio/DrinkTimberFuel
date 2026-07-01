@@ -71,6 +71,16 @@
   .btn-cancel{ font-family:"Oswald",sans-serif; font-weight:700; text-transform:uppercase; letter-spacing:1px; font-size:13px; color:var(--fire); background:transparent; border:1px solid var(--fire); border-radius:10px; padding:13px; cursor:pointer; }
   .btn-done:active,.btn-cancel:active{ transform:scale(.97); }
   .empty{ text-align:center; color:var(--muted); padding:60px 20px; font-size:17px; }
+  .msg-head{ margin-top:40px; border-top:1px solid var(--gold-faint); padding-top:24px; }
+  .messages{ display:grid; grid-template-columns:repeat(auto-fill,minmax(320px,1fr)); gap:16px; }
+  .msg{ background:var(--bg-card); border:1px solid var(--gold-faint); border-radius:14px; padding:18px; }
+  .msg-top{ display:flex; justify-content:space-between; align-items:baseline; gap:10px; }
+  .msg-name{ font-family:"Anton",sans-serif; font-size:19px; color:#fff; }
+  .msg-time{ font-family:"Oswald",sans-serif; font-size:10px; letter-spacing:1px; text-transform:uppercase; color:var(--muted); white-space:nowrap; }
+  .msg-email{ display:inline-block; font-family:"Barlow Condensed",sans-serif; font-size:15px; color:var(--gold); margin-top:3px; text-decoration:none; }
+  .msg-email:hover{ text-decoration:underline; }
+  .msg-body{ font-family:"Barlow Condensed",sans-serif; font-size:15px; color:var(--cream); line-height:1.5; margin:12px 0 0; white-space:pre-wrap; }
+  .msg-dismiss{ margin-top:16px; width:100%; }
   .toast{ position:fixed; bottom:20px; left:50%; transform:translateX(-50%); background:#0c1109; border:1px solid var(--gold-20); color:var(--cream); padding:12px 20px; border-radius:10px; font-size:14px; opacity:0; pointer-events:none; transition:opacity .2s; z-index:20; }
   .toast.show{ opacity:1; }
 </style>
@@ -106,6 +116,10 @@
       </div>
       <div class="orders" id="orders"></div>
       <div class="empty" id="empty" hidden>No active orders right now.</div>
+
+      <div class="meta-row msg-head"><div class="count"><span id="msgCount">0</span> message(s)</div></div>
+      <div class="messages" id="messages"></div>
+      <div class="empty" id="msgEmpty" hidden>No messages.</div>
     </div>
   </div>
 
@@ -199,6 +213,28 @@
   }
   async function loadStore(){ try{ const s=await api('/api/store'); renderStore(s.open); }catch(e){} }
 
+  function msgCard(m){
+    return `<div class="msg" data-id="${esc(m.id)}">
+      <div class="msg-top"><span class="msg-name">${esc(m.name||'')}</span><span class="msg-time">${ago(m.ts)}</span></div>
+      <a class="msg-email" href="mailto:${esc(m.email)}">${esc(m.email||'')}</a>
+      <p class="msg-body">${esc(m.message||'')}</p>
+      <button class="btn-cancel msg-dismiss" data-act="msg-dismiss" data-id="${esc(m.id)}">Dismiss</button>
+    </div>`;
+  }
+  async function loadMessages(){
+    let data; try{ data=await api('/api/contact'); }catch(e){ return; }
+    const msgs=(data&&data.messages)||[];
+    document.getElementById('msgCount').textContent=msgs.length;
+    document.getElementById('msgEmpty').hidden = msgs.length>0;
+    document.getElementById('messages').innerHTML = msgs.map(msgCard).join('');
+  }
+  document.getElementById('messages').addEventListener('click', async e=>{
+    const btn=e.target.closest('[data-act="msg-dismiss"]'); if(!btn) return;
+    btn.disabled=true;
+    try{ const r=await api('/api/contact', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ action:'dismiss', id:btn.dataset.id }) }); if(r&&r.ok){ toast('Message dismissed'); loadMessages(); } }
+    catch(err){ btn.disabled=false; }
+  });
+
   document.getElementById('orders').addEventListener('click', async e=>{
     const btn=e.target.closest('[data-act]'); if(!btn) return;
     const act=btn.dataset.act, id=btn.dataset.id;
@@ -209,9 +245,9 @@
       if(r && r.ok){ toast(act==='done'?'Order completed':'Order cancelled'); loadOrders(); }
     }catch(err){ btn.disabled=false; }
   });
-  $('refreshBtn').addEventListener('click', loadOrders);
+  $('refreshBtn').addEventListener('click', ()=>{ loadOrders(); loadMessages(); });
 
-  function start(){ showDash(); loadStore(); loadOrders(); if(pollTimer) clearInterval(pollTimer); pollTimer=setInterval(loadOrders, 8000); }
+  function start(){ showDash(); loadStore(); loadOrders(); loadMessages(); if(pollTimer) clearInterval(pollTimer); pollTimer=setInterval(()=>{ loadOrders(); loadMessages(); }, 8000); }
 
   // auto-login if we already have a stored password this session
   if(pass){ (async()=>{ try{ const o=await api('/api/orders'); if(o&&o.ok) start(); }catch(e){} })(); }

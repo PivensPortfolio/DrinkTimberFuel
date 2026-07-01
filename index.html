@@ -630,6 +630,27 @@
   .co-cash-note[hidden]{ display:none; }
   .co-closed{ text-align:center; font-family:"Barlow Condensed",sans-serif; font-size:17px; color:var(--cream); background:rgba(232,98,10,.1); border:1px solid rgba(232,98,10,.45); border-radius:12px; padding:22px 20px; margin-top:22px; line-height:1.5; }
   .co-closed[hidden]{ display:none; }
+
+  /* =========== CONTACT =========== */
+  .contact{ position:relative; z-index:1; background:var(--bg-tab); border-top:1px solid var(--gold-faint); padding:66px 24px; }
+  .contact-inner{ max-width:640px; margin:0 auto; text-align:center; }
+  .contact h2{ font-family:"Anton",sans-serif; font-size:clamp(30px,5vw,46px); color:#fff; text-transform:uppercase; letter-spacing:1px; }
+  .contact-sub{ font-family:"Barlow Condensed",sans-serif; color:var(--cream-85); font-size:17px; margin-top:8px; line-height:1.5; }
+  .contact-form{ margin-top:30px; text-align:left; }
+  .cf-row{ display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+  .cf-field{ display:block; margin-bottom:14px; }
+  .cf-field span{ display:block; font-family:"Oswald",sans-serif; font-size:11px; letter-spacing:1px; text-transform:uppercase; color:var(--cream-85); margin-bottom:6px; }
+  .cf-field input, .cf-field textarea{ width:100%; box-sizing:border-box; background:rgba(255,255,255,.04); border:1px solid var(--gold-20); border-radius:10px; padding:12px 14px; color:var(--cream); font-family:"Barlow Condensed",sans-serif; font-size:16px; }
+  .cf-field textarea{ resize:vertical; min-height:110px; }
+  .cf-field input:focus, .cf-field textarea:focus{ outline:none; border-color:var(--gold); background:rgba(245,197,24,.05); }
+  .cf-field input::placeholder, .cf-field textarea::placeholder{ color:var(--muted); }
+  .cf-hp{ position:absolute; left:-9999px; width:1px; height:1px; opacity:0; }
+  .cf-send{ width:100%; font-family:"Anton",sans-serif; font-size:20px; text-transform:uppercase; letter-spacing:.5px; color:var(--bg); background:var(--gold); border:none; border-radius:999px; padding:15px; cursor:pointer; box-shadow:0 6px 18px rgba(245,197,24,.3); transition:transform .15s var(--ease); margin-top:4px; }
+  .cf-send:hover:not(:disabled){ transform:translateY(-1px); }
+  .cf-send:disabled{ opacity:.5; cursor:not-allowed; }
+  .cf-note{ text-align:center; font-family:"Barlow Condensed",sans-serif; font-size:15px; margin-top:14px; min-height:1em; color:var(--sf); }
+  .cf-note.err{ color:var(--fire); }
+  @media (max-width:600px){ .cf-row{ grid-template-columns:1fr; } .contact{ padding:52px 20px; } }
   @media (max-width:600px){ .checkout-overlay{ padding:0; } .checkout{ min-height:100vh; border-radius:0; border:none; width:100%; } }
 
   /* =================================================================
@@ -1176,6 +1197,24 @@
         </div>
       </div>
 
+    </div>
+  </section>
+
+  <!-- ===== CONTACT ===== -->
+  <section class="contact" id="contact">
+    <div class="contact-inner">
+      <h2>Get in Touch</h2>
+      <p class="contact-sub">Questions, catering, or feedback? Drop us a line and we'll get back to you.</p>
+      <form class="contact-form" id="contactForm" autocomplete="on">
+        <div class="cf-row">
+          <label class="cf-field"><span>Name</span><input type="text" id="cfName" name="name" required placeholder="Your name" /></label>
+          <label class="cf-field"><span>Email</span><input type="email" id="cfEmail" name="email" required placeholder="you@email.com" /></label>
+        </div>
+        <label class="cf-field"><span>Message</span><textarea id="cfMessage" name="message" rows="4" required placeholder="How can we help?"></textarea></label>
+        <input type="text" id="cfCompany" class="cf-hp" tabindex="-1" autocomplete="off" aria-hidden="true" />
+        <button type="submit" class="cf-send" id="cfSend">Send Message</button>
+        <p class="cf-note" id="cfNote"></p>
+      </form>
     </div>
   </section>
 
@@ -1971,6 +2010,28 @@
     fsOpen(card, firstRect);
   }
   document.querySelector('[data-panel="cold"]').addEventListener('click', coldHandler);
+
+  /* contact form */
+  (function(){
+    const form=document.getElementById('contactForm'); if(!form) return;
+    form.addEventListener('submit', async e=>{
+      e.preventDefault();
+      const note=document.getElementById('cfNote'); const btn=document.getElementById('cfSend');
+      const name=document.getElementById('cfName').value.trim();
+      const email=document.getElementById('cfEmail').value.trim();
+      const message=document.getElementById('cfMessage').value.trim();
+      const company=document.getElementById('cfCompany').value;
+      note.classList.remove('err');
+      if(!name||!email||!message){ note.classList.add('err'); note.textContent='Please fill in all fields.'; return; }
+      btn.disabled=true; note.textContent='Sending...';
+      try{
+        const resp=await fetch('/api/contact',{ method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({name,email,message,company}) }).then(r=>r.json());
+        if(resp && resp.ok){ form.reset(); note.textContent='Thanks! We got your message and will get back to you soon.'; }
+        else { note.classList.add('err'); note.textContent=(resp&&resp.error)||'Could not send. Please try again.'; }
+      }catch(e){ note.classList.add('err'); note.textContent='Something went wrong. Please try again.'; }
+      btn.disabled=false;
+    });
+  })();
 
   /* init */
   loadCart();
