@@ -126,6 +126,28 @@
   .fl-chip input{ accent-color:var(--gold); width:15px; height:15px; }
   .fl-chip.on{ background:rgba(245,197,24,.12); border-color:var(--gold); color:#fff; }
   .fl-empty{ color:var(--muted); font-family:"Barlow Condensed",sans-serif; font-size:14px; }
+  /* specialty drinks — organized by section like the site */
+  .fl-secgroup{ margin-bottom:18px; }
+  .fl-sechead{ font-family:"Anton",sans-serif; font-size:18px; color:var(--gold); text-transform:uppercase; letter-spacing:.5px; margin:14px 0 6px; }
+  .fl-secgroup:first-child .fl-sechead{ margin-top:0; }
+  .fl-grouphead{ font-family:"Oswald",sans-serif; font-weight:700; font-size:12px; letter-spacing:1.5px; text-transform:uppercase; color:var(--cream-85); margin:12px 0 8px; }
+  .fl-drinks{ display:flex; flex-direction:column; gap:10px; margin-bottom:8px; }
+  .fl-drink{ display:flex; gap:12px; align-items:flex-start; background:rgba(255,255,255,.02); border:1px solid var(--gold-faint); border-radius:10px; padding:12px; }
+  .fl-drink.editing{ display:block; border-color:var(--gold-20); background:rgba(245,197,24,.04); }
+  .fl-thumb{ width:56px; height:56px; object-fit:cover; border-radius:8px; background:#0c140f; flex:none; }
+  .fl-drink-main{ flex:1; min-width:0; }
+  .fl-drink-desc{ font-family:"Barlow Condensed",sans-serif; font-size:13px; color:var(--cream-85); margin-top:4px; line-height:1.4; }
+  .fl-drink-edit{ display:flex; gap:16px; }
+  .fl-img-col{ display:flex; flex-direction:column; gap:8px; width:150px; flex:none; }
+  .fl-img-preview{ width:150px; height:150px; object-fit:cover; border-radius:10px; background:#0c140f; border:1px solid var(--gold-20); }
+  .fl-upload{ text-align:center; font-family:"Oswald",sans-serif; font-weight:700; font-size:11px; letter-spacing:1px; text-transform:uppercase; color:#06201b; background:var(--sf); border-radius:8px; padding:9px; cursor:pointer; }
+  .fl-img-url{ font-size:12px; }
+  .fl-upstatus{ font-family:"Barlow Condensed",sans-serif; font-size:12px; min-height:1em; text-align:center; }
+  .fl-upstatus.ok{ color:var(--sf); } .fl-upstatus.err{ color:var(--fire); }
+  .fl-fields{ flex:1; min-width:0; display:flex; flex-direction:column; gap:8px; }
+  textarea.fl-txt{ resize:vertical; font-family:"Barlow Condensed",sans-serif; line-height:1.4; }
+  .fl-poolhint{ font-family:"Oswald",sans-serif; font-size:11px; letter-spacing:1px; text-transform:uppercase; color:var(--muted); margin-top:4px; }
+  @media (max-width:560px){ .fl-drink-edit{ flex-direction:column; } .fl-img-col{ width:100%; } .fl-img-preview{ width:100%; height:190px; } }
   .fl-savebar{ position:sticky; bottom:0; display:flex; align-items:center; gap:16px; padding:16px 0 8px; margin-top:8px; background:linear-gradient(180deg,transparent,var(--bg) 45%); }
   .fl-status{ font-family:"Barlow Condensed",sans-serif; font-size:14px; min-height:1em; }
   .fl-status.err{ color:var(--fire); }
@@ -206,7 +228,7 @@
 
       <div class="fl-section">
         <h2>Specialty Drinks</h2>
-        <p class="fl-hint">Each specialty drink and the signature flavors it comes with (included in price). Hit <b>Edit</b> to rename the drink (the new name shows on the customer menu) or change its flavors. Renaming or removing a builder flavor updates these automatically.</p>
+        <p class="fl-hint">Every Hot, Cold, and Refresher drink, organized like the menu. Hit <b>Edit</b> to change a drink's name, description, photo, and signature flavors — changes show on the customer menu. Renaming or removing a flavor above updates the drinks automatically.</p>
         <div id="flSpecialty"></div>
       </div>
 
@@ -355,7 +377,7 @@
     if(!sd && d.specialtyFlavors && typeof d.specialtyFlavors==='object'){ sd={}; Object.keys(d.specialtyFlavors).forEach(nm=>{ sd[slugify(nm)]={name:nm, flavors:d.specialtyFlavors[nm]}; }); }
     sd=sd||{};
     const specialtyDrinks={};
-    Object.keys(sd).forEach(id=>{ const v=sd[id]||{}; specialtyDrinks[id]={ name:String(v.name!=null?v.name:id), flavors:Array.isArray(v.flavors)?v.flavors.map(String):[] }; });
+    Object.keys(sd).forEach(id=>{ const v=sd[id]||{}; specialtyDrinks[id]={ section:String(v.section||'hot'), group:String(v.group!=null?v.group:''), name:String(v.name!=null?v.name:id), desc:String(v.desc!=null?v.desc:''), image:String(v.image!=null?v.image:''), flavors:Array.isArray(v.flavors)?v.flavors.map(String):[] }; });
     return {
       pumpPrice: (isFinite(pp)&&pp>=0)?pp:0.25,
       builderFlavors: (Array.isArray(d.builderFlavors)?d.builderFlavors:[]).map(f=> typeof f==='string'?{name:f,sugarFree:false,soldOut:false}:{name:String((f&&f.name)||''),sugarFree:!!(f&&f.sugarFree),soldOut:!!(f&&f.soldOut)}),
@@ -390,34 +412,69 @@
     $('flRefresher').innerHTML = flavorsState.refresherFlavors.map(refresherRow).join('') || '<p class="fl-empty">No refresher flavors yet — add one.</p>';
     renderSpecialty();
   }
-  function renderSpecialty(){
-    if(!flavorsState) return;
-    const names = flavorsState.builderFlavors.map(f=>f.name).filter(Boolean);
-    const ids = Object.keys(flavorsState.specialtyDrinks);
-    $('flSpecialty').innerHTML = ids.length ? ids.map(id=>{
-      const d=flavorsState.specialtyDrinks[id]; const flavors=d.flavors||[];
-      if(editingSpec===id){
-        const chips = names.map(n=>`<label class="fl-chip ${flavors.includes(n)?'on':''}"><input type="checkbox" data-spec="${esc(id)}" value="${esc(n)}" ${flavors.includes(n)?'checked':''}/> ${esc(n)}</label>`).join('') || '<span class="fl-empty">Add builder flavors first.</span>';
-        return `<div class="fl-spec editing" data-id="${esc(id)}">
-          <div class="fl-spec-edithead">
+  const SECTION_LABELS={ hot:'Hot Drinks', cold:'Cold Drinks', refresher:'Refreshers' };
+  const SECTION_ORDER=['hot','cold','refresher'];
+  function specPool(section){ return (section==='refresher'?flavorsState.refresherFlavors:flavorsState.builderFlavors).map(f=>f.name).filter(Boolean); }
+  function specCard(id){
+    const d=flavorsState.specialtyDrinks[id]; const flavors=d.flavors||[];
+    if(editingSpec===id){
+      const pool=specPool(d.section);
+      const chips = pool.map(n=>`<label class="fl-chip ${flavors.includes(n)?'on':''}"><input type="checkbox" data-spec="${esc(id)}" value="${esc(n)}" ${flavors.includes(n)?'checked':''}/> ${esc(n)}</label>`).join('') || '<span class="fl-empty">Add flavors in the list above first.</span>';
+      return `<div class="fl-drink editing" data-id="${esc(id)}">
+        <div class="fl-drink-edit">
+          <div class="fl-img-col">
+            <img class="fl-img-preview" src="${esc(d.image||'')}" alt="" onerror="this.style.visibility='hidden'" />
+            <label class="fl-upload">Upload photo<input type="file" accept="image/*" data-upload="${esc(id)}" hidden /></label>
+            <input class="fl-txt fl-img-url" data-img-url="${esc(id)}" value="${esc(d.image||'')}" placeholder="or image URL" />
+            <span class="fl-upstatus" data-upstatus="${esc(id)}"></span>
+          </div>
+          <div class="fl-fields">
             <input class="fl-txt fl-spec-nameinput" data-spec-name="${esc(id)}" value="${esc(d.name)}" placeholder="Drink name" />
+            <textarea class="fl-txt fl-spec-desc" data-spec-desc="${esc(id)}" rows="2" placeholder="Description">${esc(d.desc||'')}</textarea>
+            <div class="fl-poolhint">Flavors this drink comes with:</div>
+            <div class="fl-chips">${chips}</div>
             <button class="fl-done" data-done="${esc(id)}">Done</button>
           </div>
-          <div class="fl-chips">${chips}</div>
-        </div>`;
-      }
-      const tags = flavors.length ? flavors.map(n=>`<span class="fl-tag">${esc(n)}</span>`).join('') : '<span class="fl-empty">No signature flavors</span>';
-      return `<div class="fl-spec" data-id="${esc(id)}">
-        <div class="fl-spec-row"><div class="fl-spec-name">${esc(d.name)}</div><button class="fl-edit" data-edit="${esc(id)}">Edit</button></div>
-        <div class="fl-tags">${tags}</div>
+        </div>
       </div>`;
-    }).join('') : '<p class="fl-empty">No specialty drinks configured.</p>';
+    }
+    const tags = flavors.length ? flavors.map(n=>`<span class="fl-tag">${esc(n)}</span>`).join('') : '<span class="fl-empty">No signature flavors</span>';
+    return `<div class="fl-drink" data-id="${esc(id)}">
+      <img class="fl-thumb" src="${esc(d.image||'')}" alt="" onerror="this.style.visibility='hidden'" />
+      <div class="fl-drink-main">
+        <div class="fl-spec-row"><div class="fl-spec-name">${esc(d.name)}</div><button class="fl-edit" data-edit="${esc(id)}">Edit</button></div>
+        ${d.desc?`<div class="fl-drink-desc">${esc(d.desc)}</div>`:''}
+        <div class="fl-tags">${tags}</div>
+      </div>
+    </div>`;
+  }
+  function renderSpecialty(){
+    if(!flavorsState) return;
+    const ids = Object.keys(flavorsState.specialtyDrinks);
+    if(!ids.length){ $('flSpecialty').innerHTML='<p class="fl-empty">No specialty drinks configured.</p>'; return; }
+    // group by section, then by group label, preserving insertion (site) order
+    const bySection={};
+    ids.forEach(id=>{ const d=flavorsState.specialtyDrinks[id]; const s=d.section||'hot', g=d.group||'';
+      (bySection[s]=bySection[s]||{}); (bySection[s][g]=bySection[s][g]||[]).push(id); });
+    const order=[...SECTION_ORDER, ...Object.keys(bySection).filter(s=>!SECTION_ORDER.includes(s))];
+    let html='';
+    order.forEach(sec=>{ if(!bySection[sec]) return;
+      html+=`<div class="fl-secgroup"><h3 class="fl-sechead">${esc(SECTION_LABELS[sec]||sec)}</h3>`;
+      Object.keys(bySection[sec]).forEach(g=>{
+        if(g) html+=`<div class="fl-grouphead">${esc(g)}</div>`;
+        html+=`<div class="fl-drinks">`+bySection[sec][g].map(specCard).join('')+`</div>`;
+      });
+      html+='</div>';
+    });
+    $('flSpecialty').innerHTML=html;
   }
   const flView=$('viewFlavors');
   flView.addEventListener('input', e=>{
     const t=e.target; if(!flavorsState) return;
     if(t.id==='flPumpPrice'){ flavorsState.pumpPrice=t.value; return; }
     if(t.dataset.specName!==undefined){ const d=flavorsState.specialtyDrinks[t.dataset.specName]; if(d) d.name=t.value; return; } // rename specialty drink (no re-render → keeps focus)
+    if(t.dataset.specDesc!==undefined){ const d=flavorsState.specialtyDrinks[t.dataset.specDesc]; if(d) d.desc=t.value; return; }
+    if(t.dataset.imgUrl!==undefined){ const d=flavorsState.specialtyDrinks[t.dataset.imgUrl]; if(d){ d.image=t.value; const col=t.closest('.fl-img-col'); const prev=col&&col.querySelector('.fl-img-preview'); if(prev){ prev.src=t.value; prev.style.visibility=''; } } return; }
     const row=t.closest('.fl-row');
     if(row && t.dataset.field==='name'){
       const list=row.dataset.list==='builder'?'builderFlavors':'refresherFlavors';
@@ -432,6 +489,7 @@
   });
   flView.addEventListener('change', e=>{
     const t=e.target; if(!flavorsState) return;
+    if(t.dataset.upload!==undefined){ if(t.files&&t.files[0]) uploadDrinkImage(t.dataset.upload, t.files[0]); return; }
     if(t.dataset.spec!==undefined){
       const d=flavorsState.specialtyDrinks[t.dataset.spec]; if(!d) return;
       const arr=d.flavors||(d.flavors=[]);
@@ -463,6 +521,39 @@
       renderFlavors(); return;
     }
   });
+  // resize/compress an image file in the browser to keep uploads small
+  function resizeImage(file, maxDim){
+    return new Promise((resolve,reject)=>{
+      const img=new Image(), url=URL.createObjectURL(file);
+      img.onload=()=>{ URL.revokeObjectURL(url);
+        let w=img.width, h=img.height;
+        if(w>maxDim||h>maxDim){ const s=maxDim/Math.max(w,h); w=Math.round(w*s); h=Math.round(h*s); }
+        const c=document.createElement('canvas'); c.width=w; c.height=h;
+        c.getContext('2d').drawImage(img,0,0,w,h);
+        resolve(c.toDataURL('image/jpeg',0.85));
+      };
+      img.onerror=()=>{ URL.revokeObjectURL(url); reject(new Error('bad image')); };
+      img.src=url;
+    });
+  }
+  async function uploadDrinkImage(id, file){
+    const st=document.querySelector('[data-upstatus="'+CSS.escape(id)+'"]');
+    const set=(m,cls)=>{ if(st){ st.textContent=m||''; st.className='fl-upstatus '+(cls||''); } };
+    if(!/^image\//.test(file.type)){ set('Not an image file','err'); return; }
+    set('Uploading…','');
+    try{
+      const dataUrl=await resizeImage(file, 900);
+      const base64=dataUrl.split(',')[1];
+      const r=await api('/api/upload',{ method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ filename:(flavorsState.specialtyDrinks[id].name||id), contentType:'image/jpeg', dataBase64:base64 }) });
+      if(r&&r.ok&&r.url){
+        flavorsState.specialtyDrinks[id].image=r.url;
+        const card=document.querySelector('.fl-drink[data-id="'+CSS.escape(id)+'"]');
+        const prev=card&&card.querySelector('.fl-img-preview'); if(prev){ prev.src=r.url; prev.style.visibility=''; }
+        const urlIn=card&&card.querySelector('.fl-img-url'); if(urlIn) urlIn.value=r.url;
+        set('Uploaded ✓','ok');
+      } else { set((r&&r.error)||'Upload failed','err'); }
+    }catch(e){ set('Upload failed','err'); }
+  }
   async function saveFlavors(){
     if(!flavorsState) return;
     const pp=Number($('flPumpPrice').value); flavorsState.pumpPrice=(isFinite(pp)&&pp>=0)?pp:0.25;

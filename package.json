@@ -1,0 +1,7 @@
+{
+  "name": "drink-timber-fuel",
+  "private": true,
+  "dependencies": {
+    "@vercel/blob": "latest"
+  }
+}

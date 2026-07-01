@@ -239,6 +239,9 @@
   /* cup breaks out the top of the card for a 2D pop */
   .orb-img{ position:relative; z-index:1; display:block; height:255px; width:auto; max-width:100%; object-fit:contain; margin:-72px auto 4px; filter:drop-shadow(0 18px 24px rgba(0,0,0,.55)); }
   .orb-card h4{ position:relative; z-index:1; font-family:"Anton",sans-serif; font-size:19px; color:#fff; text-transform:uppercase; line-height:1.1; letter-spacing:1.2px; }
+  /* optional refresher description (admin-editable) — only shows when set */
+  .orb-desc{ position:relative; z-index:1; font-family:"Barlow Condensed",sans-serif; font-size:14px; color:var(--cream-85); line-height:1.4; margin-top:7px; }
+  .orb-desc:empty{ display:none; }
   .orb-card .num{ display:none; }
 
   /* per-drink Add to Order (inline expand) */
@@ -1006,13 +1009,13 @@
             <img class="hot-img" src="assets/cold-brew.png" alt="Iced Mocha" />
             <h3>Iced Mocha</h3>
             <p>Espresso, chocolate &amp; milk over ice. Rich, sweet, indulgent.</p>
-            <div class="ord cold-ord" data-drink="Iced Mocha"><button class="ord-btn">Customize →</button></div>
+            <div class="ord cold-ord" data-spec-id="iced-mocha" data-drink="Iced Mocha"><button class="ord-btn">Customize →</button></div>
           </div>
           <div class="hot-card">
             <img class="hot-img" src="assets/cold-brew.png" alt="Iced Latte" />
             <h3>Iced Latte</h3>
             <p>Smooth espresso &amp; milk over ice. Mellow and easy-drinking.</p>
-            <div class="ord cold-ord" data-drink="Iced Latte"><button class="ord-btn">Customize →</button></div>
+            <div class="ord cold-ord" data-spec-id="iced-latte" data-drink="Iced Latte"><button class="ord-btn">Customize →</button></div>
           </div>
         </div>
       </div>
@@ -1025,25 +1028,25 @@
             <img class="hot-img" src="assets/iced-coffee.png" alt="Iced Coffee" />
             <h3>Iced Coffee</h3>
             <p>Brewed hot, flash-chilled over ice. Bright, crisp, clean.</p>
-            <div class="ord cold-ord" data-drink="Iced Coffee"><button class="ord-btn">Customize →</button></div>
+            <div class="ord cold-ord" data-spec-id="iced-coffee" data-drink="Iced Coffee"><button class="ord-btn">Customize →</button></div>
           </div>
           <div class="hot-card">
             <img class="hot-img" src="assets/iced-coffee.png" alt="Cold Brew" />
             <h3>Cold Brew</h3>
             <p>Steeped cold 18+ hours. Rich, smooth, far less acidic.</p>
-            <div class="ord cold-ord" data-drink="Cold Brew"><button class="ord-btn">Customize →</button></div>
+            <div class="ord cold-ord" data-spec-id="cold-brew" data-drink="Cold Brew"><button class="ord-btn">Customize →</button></div>
           </div>
           <div class="hot-card">
             <img class="hot-img" src="assets/iced-coffee.png" alt="Iced Americano" />
             <h3>Iced Americano</h3>
             <p>Bold espresso over ice and cold water. Smooth and full-bodied.</p>
-            <div class="ord cold-ord" data-drink="Iced Americano"><button class="ord-btn">Customize →</button></div>
+            <div class="ord cold-ord" data-spec-id="iced-americano" data-drink="Iced Americano"><button class="ord-btn">Customize →</button></div>
           </div>
           <div class="hot-card">
             <img class="hot-img" src="assets/iced-coffee.png" alt="Iced Espresso" />
             <h3>Iced Espresso</h3>
             <p>A chilled shot of intense Northwoods roast over ice.</p>
-            <div class="ord cold-ord" data-drink="Iced Espresso"><button class="ord-btn">Customize →</button></div>
+            <div class="ord cold-ord" data-spec-id="iced-espresso" data-drink="Iced Espresso"><button class="ord-btn">Customize →</button></div>
           </div>
         </div>
       </div>
@@ -1064,7 +1067,7 @@
           <source media="(max-width:600px)" srcset="assets/Feature_EnerygyDrink_mobile.png" />
           <img src="assets/Feature_EnerygyDrink_Desktop.png" alt="Spotlight Drink — Spicy Mango Energy Refresher · Sweet Mango with a Kick! · Limited Time Feature" />
         </picture>
-        <div class="ord" data-drink="Spicy Mango">
+        <div class="ord" data-spec-id="spicy-mango" data-drink="Spicy Mango">
           <button class="ord-btn"><span class="bolt">⚡</span> Add to Order</button>
           <div class="ord-sizes" hidden>
             <button class="ord-size" data-size="Small"><b>12 oz</b> Small <span>$?.??</span></button>
@@ -1079,7 +1082,8 @@
           <span class="num">01</span><span class="orb-glow"></span>
           <img class="orb-img" src="assets/peach-lg.png" alt="Georgia Peach refresher" />
           <h4>Georgia Peach</h4>
-          <div class="ord" data-drink="Georgia Peach">
+          <p class="orb-desc"></p>
+          <div class="ord" data-spec-id="georgia-peach" data-drink="Georgia Peach">
             <button class="ord-btn">Add to Order</button>
             <div class="ord-sizes" hidden>
               <button class="ord-size" data-size="Small"><b>12 oz</b> Small <span>$?.??</span></button>
@@ -1092,7 +1096,8 @@
           <span class="num">02</span><span class="orb-glow"></span>
           <img class="orb-img" src="assets/apple-lg.png" alt="Green Apple Jolly refresher" />
           <h4>Green Apple Jolly</h4>
-          <div class="ord" data-drink="Green Apple Jolly">
+          <p class="orb-desc"></p>
+          <div class="ord" data-spec-id="green-apple-jolly" data-drink="Green Apple Jolly">
             <button class="ord-btn">Add to Order</button>
             <div class="ord-sizes" hidden>
               <button class="ord-size" data-size="Small"><b>12 oz</b> Small <span>$?.??</span></button>
@@ -1105,7 +1110,8 @@
           <span class="num">03</span><span class="orb-glow"></span>
           <img class="orb-img" src="assets/watermelon-lg.png" alt="Watermelon Jolly refresher" />
           <h4>Watermelon Jolly</h4>
-          <div class="ord" data-drink="Watermelon Jolly">
+          <p class="orb-desc"></p>
+          <div class="ord" data-spec-id="watermelon-jolly" data-drink="Watermelon Jolly">
             <button class="ord-btn">Add to Order</button>
             <div class="ord-sizes" hidden>
               <button class="ord-size" data-size="Small"><b>12 oz</b> Small <span>$?.??</span></button>
@@ -1118,7 +1124,8 @@
           <span class="num">04</span><span class="orb-glow"></span>
           <img class="orb-img" src="assets/blue-lg.png" alt="Blue Raspberry Lemonade refresher" />
           <h4>Blue Raspberry Lemonade</h4>
-          <div class="ord" data-drink="Blue Raspberry Lemonade">
+          <p class="orb-desc"></p>
+          <div class="ord" data-spec-id="blue-raspberry-lemonade" data-drink="Blue Raspberry Lemonade">
             <button class="ord-btn">Add to Order</button>
             <div class="ord-sizes" hidden>
               <button class="ord-size" data-size="Small"><b>12 oz</b> Small <span>$?.??</span></button>
@@ -1729,25 +1736,43 @@
       {name:'Flavor 3',soldOut:false}
     ],
     specialtyDrinks: {
-      'campfire-mocha':                    {name:'Campfire Mocha',                     flavors:['Chocolate','Toasted Marshmallow']},
-      'french-hazelnut-cafe':              {name:'French Hazelnut Café',               flavors:['Hazelnut','French Vanilla']},
-      'toasted-marshmallow-pumpkin-cocoa': {name:'Toasted Marshmallow Pumpkin Cocoa',  flavors:['Chocolate','Toasted Marshmallow','Pumpkin Spice']},
-      'cinnamon-roll-latte':               {name:'Cinnamon Roll Latte',                flavors:['Cinnamon','Vanilla']},
-      'autumn-velvet-latte':               {name:'Autumn Velvet Latte',                flavors:['Hazelnut','Pumpkin Spice']},
-      'golden-caramel-macchiato':          {name:'Golden Caramel Macchiato',           flavors:['Caramel','Vanilla']}
+      'campfire-mocha':                    {section:'hot', group:'Mochas', name:'Campfire Mocha',                    desc:"Deep chocolate and sweet marshmallow: a fire-roasted s'more in a mug.", image:'assets/campfire-mocha.png', flavors:['Chocolate','Toasted Marshmallow']},
+      'french-hazelnut-cafe':              {section:'hot', group:'Mochas', name:'French Hazelnut Café',              desc:"A clean, sweet aromatic baseline that lets bold, nutty accents take center stage.", image:'assets/french-hazelnut.png', flavors:['Hazelnut','French Vanilla']},
+      'toasted-marshmallow-pumpkin-cocoa': {section:'hot', group:'Mochas', name:'Toasted Marshmallow Pumpkin Cocoa', desc:"Caffeine-free luxury cocoa with toasted marshmallow and warm campfire spice.", image:'assets/hot-coffee.png', flavors:['Chocolate','Toasted Marshmallow','Pumpkin Spice']},
+      'cinnamon-roll-latte':               {section:'hot', group:'Lattes', name:'Cinnamon Roll Latte',               desc:"A warm cinnamon roll fresh from the oven, with a sweet vanilla icing finish.", image:'assets/cinnamon-roll-latte.png', flavors:['Cinnamon','Vanilla']},
+      'autumn-velvet-latte':               {section:'hot', group:'Lattes', name:'Autumn Velvet Latte',               desc:"Toasted nuttiness balanced with bright, aromatic seasonal harvest spice.", image:'assets/hot-coffee.png', flavors:['Hazelnut','Pumpkin Spice']},
+      'golden-caramel-macchiato':          {section:'hot', group:'Lattes', name:'Golden Caramel Macchiato',          desc:"Custard-like vanilla milk and strong espresso, crowned with buttery caramel.", image:'assets/caramel-macchiato.png', flavors:['Caramel','Vanilla']},
+      'iced-mocha':                        {section:'cold', group:'Iced Mochas & Lattes', name:'Iced Mocha', desc:"Espresso, chocolate & milk over ice. Rich, sweet, indulgent.", image:'assets/cold-brew.png', flavors:[]},
+      'iced-latte':                        {section:'cold', group:'Iced Mochas & Lattes', name:'Iced Latte', desc:"Smooth espresso & milk over ice. Mellow and easy-drinking.", image:'assets/cold-brew.png', flavors:[]},
+      'iced-coffee':                       {section:'cold', group:'Iced Black & Bold', name:'Iced Coffee',    desc:"Brewed hot, flash-chilled over ice. Bright, crisp, clean.", image:'assets/iced-coffee.png', flavors:[]},
+      'cold-brew':                         {section:'cold', group:'Iced Black & Bold', name:'Cold Brew',      desc:"Steeped cold 18+ hours. Rich, smooth, far less acidic.", image:'assets/iced-coffee.png', flavors:[]},
+      'iced-americano':                    {section:'cold', group:'Iced Black & Bold', name:'Iced Americano', desc:"Bold espresso over ice and cold water. Smooth and full-bodied.", image:'assets/iced-coffee.png', flavors:[]},
+      'iced-espresso':                     {section:'cold', group:'Iced Black & Bold', name:'Iced Espresso',  desc:"A chilled shot of intense Northwoods roast over ice.", image:'assets/iced-coffee.png', flavors:[]},
+      'spicy-mango':                       {section:'refresher', group:'Refreshers', name:'Spicy Mango',             desc:"", image:'assets/Feature_EnerygyDrink_Desktop.png', flavors:[]},
+      'georgia-peach':                     {section:'refresher', group:'Refreshers', name:'Georgia Peach',           desc:"", image:'assets/peach-lg.png', flavors:[]},
+      'green-apple-jolly':                 {section:'refresher', group:'Refreshers', name:'Green Apple Jolly',       desc:"", image:'assets/apple-lg.png', flavors:[]},
+      'watermelon-jolly':                  {section:'refresher', group:'Refreshers', name:'Watermelon Jolly',        desc:"", image:'assets/watermelon-lg.png', flavors:[]},
+      'blue-raspberry-lemonade':           {section:'refresher', group:'Refreshers', name:'Blue Raspberry Lemonade', desc:"", image:'assets/blue-lg.png', flavors:[]}
     }
   };
+  // Stable id -> original drink name, used for price lookups that must survive a rename (cold drinks).
+  const ORIGINAL_NAME_BY_ID = {}; Object.keys(FLAVORS_DEFAULT.specialtyDrinks).forEach(id=>{ ORIGINAL_NAME_BY_ID[id]=FLAVORS_DEFAULT.specialtyDrinks[id].name; });
   // Working values the builder reads. Names only; sold-out flavors are hidden from customers.
   let BUILDER_FLAVORS = [];   // build-your-own / cold / hot-specialty flavor-pump list
   let FS_FLAVORS = [];        // refresher flavor-pump list (their own fruit/candy list)
   let SPECIALTY_RECIPE = {};  // name -> included signature pumps (included in price), derived from specialtyDrinks
   let SPECIALTY_DRINKS = {};  // id -> {name, flavors} (drives the renamable menu cards)
-  // Rewrite the specialty menu cards (name/alt/data-drink) from config so admin renames show on the site.
-  function applySpecialtyNames(){
-    document.querySelectorAll('.ord-spec[data-spec-id]').forEach(ord=>{
-      const d=SPECIALTY_DRINKS[ord.dataset.specId]; if(!d || !d.name) return;
-      ord.dataset.drink=d.name;
-      const card=ord.closest('.hot-card'); if(card){ const h3=card.querySelector('h3'); if(h3) h3.textContent=d.name; const img=card.querySelector('.hot-img'); if(img) img.alt=d.name; }
+  // Overlay the specialty menu cards (name/description/image/data-drink) from config so
+  // admin edits show on the site live. Handles hot/cold (.hot-card h3 + p + .hot-img),
+  // refresher orbs (.orb-card h4 + .orb-desc + .orb-img) and the spotlight banner.
+  function applySpecialtyOverlay(){
+    document.querySelectorAll('[data-spec-id]').forEach(el=>{
+      const d=SPECIALTY_DRINKS[el.dataset.specId]; if(!d) return;
+      if(d.name) el.dataset.drink=d.name;   // el is the .ord / .ord-spec / .cold-ord
+      const card=el.closest('.hot-card') || el.closest('.orb-card') || el.closest('.spot-banner'); if(!card) return;
+      if(d.name){ const nm=card.querySelector('h3, h4'); if(nm) nm.textContent=d.name; }
+      if(d.desc!=null){ const p=card.querySelector('p'); if(p) p.textContent=d.desc; }
+      if(d.image){ const img=card.querySelector('.hot-img, .orb-img, img'); if(img){ img.src=d.image; img.alt=d.name||img.alt; } const src=card.querySelector('source'); if(src) src.srcset=d.image; }
     });
   }
   function applyFlavorsConfig(cfg){
@@ -1759,7 +1784,7 @@
     SPECIALTY_DRINKS = (cfg.specialtyDrinks && typeof cfg.specialtyDrinks==='object') ? cfg.specialtyDrinks : FLAVORS_DEFAULT.specialtyDrinks;
     SPECIALTY_RECIPE = {};   // rebuild the name->flavors recipe map used by the builder
     Object.values(SPECIALTY_DRINKS).forEach(d=>{ if(d && d.name) SPECIALTY_RECIPE[String(d.name).trim()] = Array.isArray(d.flavors)?d.flavors:[]; });
-    applySpecialtyNames();
+    applySpecialtyOverlay();
     const pp = Number(cfg.pumpPrice);
     PUMP_PRICE = (isFinite(pp) && pp>=0) ? pp : FLAVORS_DEFAULT.pumpPrice;
   }
@@ -1927,10 +1952,11 @@
     const ord=e.target.closest('.cold-ord'); if(!ord) return;
     if(!e.target.closest('.ord-btn')) return;
     const card=ord.closest('.hot-card');
-    const drink=ord.dataset.drink;
+    const drink=ord.dataset.drink;                                        // display name (may be renamed in admin)
+    const priceKey=ORIGINAL_NAME_BY_ID[ord.dataset.specId] || drink;      // stable key so prices survive a rename
     const noShots=ord.dataset.noshots==='1';
     const firstRect=card.getBoundingClientRect();
-    const sizes=['Small','Medium','Large'].map(s=>{ const p=priceOf(drink,s); return {size:s, oz:SIZE_OZ[s], price:p!=null?String(p):''}; });
+    const sizes=['Small','Medium','Large'].map(s=>{ const p=priceOf(priceKey,s); return {size:s, oz:SIZE_OZ[s], price:p!=null?String(p):''}; });
     fsbBuild(card, {drink, ord:null, noShots, sizes, flavors:BUILDER_FLAVORS});
     fsOpen(card, firstRect);
   }
