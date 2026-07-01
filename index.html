@@ -1504,11 +1504,14 @@
   ];
   // refresher base liquids — single-select, all the same price (no upcharge)
   const REFRESHER_BASES = ['Red Bull','Sugar-Free Red Bull','Lemonade'];
-  // Named specialties (cards with a data-spec-id) show ONLY their admin-defined flavors (minus sold-out).
-  // Returns null for non-specialty cards (build-your-own / plain coffee) so they keep the full flavor list.
+  // A drink shows ONLY its admin-defined flavors (minus sold-out) if it has any; returns null
+  // when it has none — so build-your-own / plain-coffee drinks (e.g. Iced Black & Bold) keep the
+  // full flavor list with no included flavor.
   function specialtyFlavorsFor(specId, pool){
     const sig = specId && SPECIALTY_DRINKS[specId] && SPECIALTY_DRINKS[specId].flavors;
-    return Array.isArray(sig) ? sig.filter(f=>pool.includes(f)) : null;
+    if(!Array.isArray(sig)) return null;
+    const list = sig.filter(f=>pool.includes(f));
+    return list.length ? list : null;
   }
   function refreshHandler(e){
     if(e.target.closest('.fsb')) return;
@@ -1517,9 +1520,9 @@
     const card=ord.closest('.orb-card') || ord.closest('.spot-banner'); if(!card) return;
     const img=(card.querySelector('.orb-img')||card.querySelector('img'))?.src || '';
     const firstRect=card.getBoundingClientRect();
-    // refreshers show ONLY the flavors defined for that drink, starting at 0 (additional)
-    const drinkFlavors=specialtyFlavorsFor(ord.dataset.specId, FS_FLAVORS) || [];
-    fsbBuild(card, {drink:ord.dataset.drink, ord:null, noMilk:true, noShots:true, preload:false, bases:REFRESHER_BASES, img, sizes:REFRESHER_SIZES, flavors:drinkFlavors});
+    // refreshers show ONLY their defined flavors starting at 0; a refresher with none defined falls back to the full list
+    const scoped=specialtyFlavorsFor(ord.dataset.specId, FS_FLAVORS);
+    fsbBuild(card, {drink:ord.dataset.drink, ord:null, noMilk:true, noShots:true, preload: !scoped, bases:REFRESHER_BASES, img, sizes:REFRESHER_SIZES, flavors: scoped||FS_FLAVORS});
     fsOpen(card, firstRect);
   }
   document.querySelector('[data-panel="energy"]').addEventListener('click', refreshHandler);
