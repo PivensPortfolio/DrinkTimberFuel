@@ -67,6 +67,8 @@ module.exports = async (req, res) => {
         id: paymentId || ('o' + Date.now()),
         ts: Date.now(),
         status: 'new',
+        paymentMethod: 'card',
+        paid: true,
         paymentId: paymentId || null,
         name: String(order.name || '').slice(0, 80),
         phone: String(order.phone || '').slice(0, 40),

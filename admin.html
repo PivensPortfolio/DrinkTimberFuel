@@ -54,6 +54,9 @@
   .badge{ font-family:"Oswald",sans-serif; font-weight:700; text-transform:uppercase; letter-spacing:1px; font-size:11px; padding:5px 11px; border-radius:999px; white-space:nowrap; }
   .badge.pickup{ color:#06201b; background:var(--sf); }
   .badge.delivery{ color:var(--bg); background:var(--gold); }
+  .badges{ display:flex; flex-direction:column; gap:6px; align-items:flex-end; flex:none; }
+  .badge.paid{ color:var(--sf); background:transparent; border:1px solid var(--sf); }
+  .badge.unpaid{ color:var(--fire); background:transparent; border:1px solid var(--fire); }
   .order-addr{ font-family:"Barlow Condensed",sans-serif; font-size:14px; color:var(--gold); margin-top:8px; line-height:1.4; }
   .order-time{ font-family:"Oswald",sans-serif; font-size:10px; letter-spacing:1px; text-transform:uppercase; color:var(--muted); margin-top:8px; }
   .order-items{ list-style:none; margin:12px 0 0; padding:12px 0 0; border-top:1px solid rgba(232,224,196,.08); }
@@ -158,6 +161,10 @@
 
   function orderCard(o){
     const badge = o.mode==='delivery' ? '<span class="badge delivery">Delivery</span>' : '<span class="badge pickup">Pickup</span>';
+    const isCash = o.paymentMethod==='cash' || o.paid===false;
+    const payBadge = isCash
+      ? `<span class="badge unpaid">${o.mode==='delivery'?'Pay on Delivery':'Pay at Pickup'}</span>`
+      : '<span class="badge paid">Paid · Card</span>';
     const addr = (o.mode==='delivery' && o.address) ? `<div class="order-addr">📍 ${esc(o.address)}</div>` : '';
     const items = (o.items||[]).map(it=>{
       const sub=[it.sizeLabel,it.detail,it.addon].filter(Boolean).join(' · ');
@@ -171,7 +178,7 @@
     return `<div class="order" data-id="${esc(o.id)}">
       <div class="order-top">
         <div><div class="order-name">${esc(o.name||'Order')}</div><div class="order-phone">${esc(o.phone||'')}</div></div>
-        ${badge}
+        <div class="badges">${badge}${payBadge}</div>
       </div>
       ${addr}
       <div class="order-time">${ago(o.ts)}</div>
