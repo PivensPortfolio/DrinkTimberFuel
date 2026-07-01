@@ -83,6 +83,44 @@
   .msg-dismiss{ margin-top:16px; width:100%; }
   .toast{ position:fixed; bottom:20px; left:50%; transform:translateX(-50%); background:#0c1109; border:1px solid var(--gold-20); color:var(--cream); padding:12px 20px; border-radius:10px; font-size:14px; opacity:0; pointer-events:none; transition:opacity .2s; z-index:20; }
   .toast.show{ opacity:1; }
+
+  /* tabs (Orders / Flavors) */
+  .tabs{ max-width:1100px; margin:0 auto; display:flex; gap:8px; padding:16px 22px 0; }
+  .tab-btn{ font-family:"Oswald",sans-serif; font-weight:700; text-transform:uppercase; letter-spacing:1px; font-size:13px; color:var(--cream-85); background:transparent; border:1px solid var(--gold-20); border-bottom:none; border-radius:10px 10px 0 0; padding:11px 22px; cursor:pointer; }
+  .tab-btn.active{ color:var(--bg); background:var(--gold); border-color:var(--gold); }
+  .view[hidden]{ display:none; }
+
+  /* flavors editor */
+  .fl-section{ background:var(--bg-card); border:1px solid var(--gold-faint); border-radius:14px; padding:18px 20px; margin-bottom:18px; }
+  .fl-section h2{ font-size:18px; margin-bottom:4px; }
+  .fl-hint{ color:var(--muted); font-size:13px; margin:0 0 14px; font-family:"Barlow Condensed",sans-serif; line-height:1.5; }
+  .fl-price{ display:flex; align-items:center; gap:12px; }
+  .fl-price label{ font-family:"Oswald",sans-serif; font-size:12px; letter-spacing:1px; text-transform:uppercase; color:var(--cream-85); }
+  .fl-price .cur{ font-family:"Anton",sans-serif; color:var(--gold); font-size:20px; }
+  .fl-num{ width:110px; background:rgba(255,255,255,.04); border:1px solid var(--gold-20); border-radius:8px; padding:10px 12px; color:var(--cream); font-family:"Barlow Condensed",sans-serif; font-size:16px; }
+  .fl-num:focus{ outline:none; border-color:var(--gold); }
+  .fl-row{ display:flex; align-items:center; gap:10px; margin-bottom:10px; flex-wrap:wrap; }
+  .fl-txt{ flex:1; min-width:180px; background:rgba(255,255,255,.04); border:1px solid var(--gold-20); border-radius:8px; padding:10px 12px; color:var(--cream); font-family:"Barlow Condensed",sans-serif; font-size:15px; }
+  .fl-txt:focus{ outline:none; border-color:var(--gold); }
+  .fl-toggle{ display:inline-flex; align-items:center; gap:6px; font-family:"Oswald",sans-serif; font-size:11px; letter-spacing:.5px; text-transform:uppercase; color:var(--cream-85); cursor:pointer; white-space:nowrap; user-select:none; }
+  .fl-toggle input{ accent-color:var(--gold); width:16px; height:16px; }
+  .fl-toggle.sold input{ accent-color:var(--fire); }
+  .fl-rm{ background:transparent; border:1px solid var(--fire); color:var(--fire); border-radius:8px; padding:9px 12px; cursor:pointer; font-family:"Oswald",sans-serif; font-size:11px; text-transform:uppercase; letter-spacing:.5px; }
+  .fl-rm:hover{ background:rgba(232,98,10,.12); }
+  .fl-add{ margin-top:4px; background:transparent; border:1px dashed var(--gold-20); color:var(--gold); border-radius:8px; padding:10px 16px; cursor:pointer; font-family:"Oswald",sans-serif; font-size:12px; text-transform:uppercase; letter-spacing:1px; }
+  .fl-add:hover{ border-color:var(--gold); }
+  .fl-spec{ margin-bottom:18px; }
+  .fl-spec:last-child{ margin-bottom:0; }
+  .fl-spec-name{ font-family:"Anton",sans-serif; color:#fff; font-size:16px; text-transform:uppercase; letter-spacing:.5px; margin-bottom:9px; }
+  .fl-chips{ display:flex; flex-wrap:wrap; gap:8px; }
+  .fl-chip{ display:inline-flex; align-items:center; gap:7px; font-family:"Oswald",sans-serif; font-size:12px; text-transform:uppercase; letter-spacing:.5px; color:var(--cream-85); background:rgba(255,255,255,.03); border:1px solid var(--gold-20); border-radius:999px; padding:7px 13px; cursor:pointer; user-select:none; }
+  .fl-chip input{ accent-color:var(--gold); width:15px; height:15px; }
+  .fl-chip.on{ background:rgba(245,197,24,.12); border-color:var(--gold); color:#fff; }
+  .fl-empty{ color:var(--muted); font-family:"Barlow Condensed",sans-serif; font-size:14px; }
+  .fl-savebar{ position:sticky; bottom:0; display:flex; align-items:center; gap:16px; padding:16px 0 8px; margin-top:8px; background:linear-gradient(180deg,transparent,var(--bg) 45%); }
+  .fl-status{ font-family:"Barlow Condensed",sans-serif; font-size:14px; min-height:1em; }
+  .fl-status.err{ color:var(--fire); }
+  .fl-status.ok{ color:var(--sf); }
 </style>
 </head>
 <body>
@@ -109,7 +147,13 @@
         <div class="switch" id="storeSwitch" role="switch" aria-label="Toggle online ordering" tabindex="0"></div>
       </div>
     </div>
-    <div class="wrap">
+    <div class="tabs">
+      <button class="tab-btn active" data-view="orders">Orders</button>
+      <button class="tab-btn" data-view="flavors">Flavors</button>
+    </div>
+
+    <!-- ORDERS + MESSAGES -->
+    <div class="wrap view" id="viewOrders">
       <div class="meta-row">
         <div class="count"><span id="orderCount">0</span> active order(s)</div>
         <button class="refresh" id="refreshBtn">Refresh</button>
@@ -120,6 +164,41 @@
       <div class="meta-row msg-head"><div class="count"><span id="msgCount">0</span> message(s)</div></div>
       <div class="messages" id="messages"></div>
       <div class="empty" id="msgEmpty" hidden>No messages.</div>
+    </div>
+
+    <!-- FLAVORS -->
+    <div class="wrap view" id="viewFlavors" hidden>
+      <div class="fl-section">
+        <h2>Pump Price</h2>
+        <p class="fl-hint">Charged per extra flavor pump beyond a drink's included signature flavors.</p>
+        <div class="fl-price"><span class="cur">$</span><input class="fl-num" id="flPumpPrice" type="number" min="0" step="0.05" /><label>per pump</label></div>
+      </div>
+
+      <div class="fl-section">
+        <h2>Builder Flavors</h2>
+        <p class="fl-hint">The build-your-own list shown on hot &amp; cold drinks. Rename, add, or remove; mark sugar-free; toggle <b>Sold out</b> to hide a flavor from customers without deleting it.</p>
+        <div id="flBuilder"></div>
+        <button class="fl-add" data-add="builder">+ Add flavor</button>
+      </div>
+
+      <div class="fl-section">
+        <h2>Refresher Flavors</h2>
+        <p class="fl-hint">The separate fruit/candy list shown on Refreshers (their own list, not the coffee flavors). Rename the placeholders to real flavors here.</p>
+        <div id="flRefresher"></div>
+        <button class="fl-add" data-add="refresher">+ Add flavor</button>
+      </div>
+
+      <div class="fl-section">
+        <h2>Specialty Signature Flavors</h2>
+        <p class="fl-hint">For each specialty drink, tick the flavors that come pre-loaded (included in price). Choices come from the Builder Flavors above — rename a builder flavor and re-tick it here if needed.</p>
+        <div id="flSpecialty"></div>
+      </div>
+
+      <div class="fl-savebar">
+        <button class="btn-gold" id="flSave">Save Flavors</button>
+        <button class="refresh" id="flReload">Reload</button>
+        <span class="fl-status" id="flStatus"></span>
+      </div>
     </div>
   </div>
 
@@ -246,6 +325,99 @@
     }catch(err){ btn.disabled=false; }
   });
   $('refreshBtn').addEventListener('click', ()=>{ loadOrders(); loadMessages(); });
+
+  /* ===== FLAVORS TAB ===== */
+  let flavorsState=null;
+  function flStatus(msg,isErr){ const s=$('flStatus'); s.textContent=msg||''; s.className='fl-status '+(msg?(isErr?'err':'ok'):''); }
+  function normFlavors(d){
+    d=d&&typeof d==='object'?d:{};
+    const pp=Number(d.pumpPrice);
+    return {
+      pumpPrice: (isFinite(pp)&&pp>=0)?pp:0.25,
+      builderFlavors: (Array.isArray(d.builderFlavors)?d.builderFlavors:[]).map(f=> typeof f==='string'?{name:f,sugarFree:false,soldOut:false}:{name:String((f&&f.name)||''),sugarFree:!!(f&&f.sugarFree),soldOut:!!(f&&f.soldOut)}),
+      refresherFlavors: (Array.isArray(d.refresherFlavors)?d.refresherFlavors:[]).map(f=> typeof f==='string'?{name:f,soldOut:false}:{name:String((f&&f.name)||''),soldOut:!!(f&&f.soldOut)}),
+      specialtyFlavors: (d.specialtyFlavors&&typeof d.specialtyFlavors==='object')?Object.fromEntries(Object.keys(d.specialtyFlavors).map(k=>[k, Array.isArray(d.specialtyFlavors[k])?d.specialtyFlavors[k].map(String):[]])):{}
+    };
+  }
+  async function loadFlavors(){
+    flStatus('Loading…');
+    let data; try{ data=await api('/api/flavors'); }catch(e){ flStatus('Could not load flavors.',true); return; }
+    flavorsState=normFlavors(data); renderFlavors(); flStatus('');
+  }
+  function builderRow(f,i){
+    return `<div class="fl-row" data-list="builder" data-i="${i}">
+      <input class="fl-txt" data-field="name" value="${esc(f.name)}" placeholder="Flavor name" />
+      <label class="fl-toggle"><input type="checkbox" data-field="sugarFree" ${f.sugarFree?'checked':''}/> Sugar-free</label>
+      <label class="fl-toggle sold"><input type="checkbox" data-field="soldOut" ${f.soldOut?'checked':''}/> Sold out</label>
+      <button class="fl-rm" data-rm="builder" data-i="${i}">Remove</button>
+    </div>`;
+  }
+  function refresherRow(f,i){
+    return `<div class="fl-row" data-list="refresher" data-i="${i}">
+      <input class="fl-txt" data-field="name" value="${esc(f.name)}" placeholder="Flavor name" />
+      <label class="fl-toggle sold"><input type="checkbox" data-field="soldOut" ${f.soldOut?'checked':''}/> Sold out</label>
+      <button class="fl-rm" data-rm="refresher" data-i="${i}">Remove</button>
+    </div>`;
+  }
+  function renderFlavors(){
+    if(!flavorsState) return;
+    $('flPumpPrice').value = flavorsState.pumpPrice;
+    $('flBuilder').innerHTML = flavorsState.builderFlavors.map(builderRow).join('') || '<p class="fl-empty">No flavors yet — add one.</p>';
+    $('flRefresher').innerHTML = flavorsState.refresherFlavors.map(refresherRow).join('') || '<p class="fl-empty">No refresher flavors yet — add one.</p>';
+    const names = flavorsState.builderFlavors.map(f=>f.name).filter(Boolean);
+    const drinks = Object.keys(flavorsState.specialtyFlavors);
+    $('flSpecialty').innerHTML = drinks.length ? drinks.map(drink=>{
+      const chosen = flavorsState.specialtyFlavors[drink]||[];
+      const chips = names.map(n=>`<label class="fl-chip ${chosen.includes(n)?'on':''}"><input type="checkbox" data-spec="${esc(drink)}" value="${esc(n)}" ${chosen.includes(n)?'checked':''}/> ${esc(n)}</label>`).join('');
+      return `<div class="fl-spec"><div class="fl-spec-name">${esc(drink)}</div><div class="fl-chips">${chips||'<span class="fl-empty">Add builder flavors first.</span>'}</div></div>`;
+    }).join('') : '<p class="fl-empty">No specialty drinks configured.</p>';
+  }
+  const flView=$('viewFlavors');
+  flView.addEventListener('input', e=>{
+    const t=e.target; if(!flavorsState) return;
+    if(t.id==='flPumpPrice'){ flavorsState.pumpPrice=t.value; return; }
+    const row=t.closest('.fl-row');
+    if(row && t.dataset.field==='name'){ flavorsState[row.dataset.list==='builder'?'builderFlavors':'refresherFlavors'][+row.dataset.i].name=t.value; }
+  });
+  flView.addEventListener('change', e=>{
+    const t=e.target; if(!flavorsState) return;
+    if(t.dataset.spec!==undefined){
+      const arr = flavorsState.specialtyFlavors[t.dataset.spec] || (flavorsState.specialtyFlavors[t.dataset.spec]=[]);
+      const k=arr.indexOf(t.value);
+      if(t.checked){ if(k<0) arr.push(t.value); } else if(k>=0){ arr.splice(k,1); }
+      const chip=t.closest('.fl-chip'); if(chip) chip.classList.toggle('on', t.checked);
+      return;
+    }
+    const row=t.closest('.fl-row');
+    if(row && (t.dataset.field==='sugarFree'||t.dataset.field==='soldOut')){
+      flavorsState[row.dataset.list==='builder'?'builderFlavors':'refresherFlavors'][+row.dataset.i][t.dataset.field]=t.checked;
+    }
+  });
+  flView.addEventListener('click', e=>{
+    const add=e.target.closest('[data-add]');
+    if(add){ if(!flavorsState) return; if(add.dataset.add==='builder') flavorsState.builderFlavors.push({name:'',sugarFree:false,soldOut:false}); else flavorsState.refresherFlavors.push({name:'',soldOut:false}); renderFlavors(); return; }
+    const rm=e.target.closest('[data-rm]');
+    if(rm){ if(!flavorsState) return; flavorsState[rm.dataset.rm==='builder'?'builderFlavors':'refresherFlavors'].splice(+rm.dataset.i,1); renderFlavors(); return; }
+  });
+  async function saveFlavors(){
+    if(!flavorsState) return;
+    const pp=Number($('flPumpPrice').value); flavorsState.pumpPrice=(isFinite(pp)&&pp>=0)?pp:0.25;
+    flStatus('Saving…');
+    try{
+      const r=await api('/api/flavors',{ method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(flavorsState) });
+      if(r&&r.ok){ flavorsState=normFlavors(r.flavors); renderFlavors(); flStatus('Saved ✓',false); toast('Flavors saved'); }
+      else{ flStatus('Save failed: '+((r&&r.error)||'error'),true); }
+    }catch(e){ flStatus('Save failed. Check connection.',true); }
+  }
+  $('flSave').addEventListener('click', saveFlavors);
+  $('flReload').addEventListener('click', loadFlavors);
+  document.querySelectorAll('.tab-btn').forEach(b=>b.addEventListener('click',()=>{
+    const v=b.dataset.view;
+    document.querySelectorAll('.tab-btn').forEach(x=>x.classList.toggle('active', x===b));
+    $('viewOrders').hidden = v!=='orders';
+    $('viewFlavors').hidden = v!=='flavors';
+    if(v==='flavors' && !flavorsState) loadFlavors();
+  }));
 
   function start(){ showDash(); loadStore(); loadOrders(); loadMessages(); if(pollTimer) clearInterval(pollTimer); pollTimer=setInterval(()=>{ loadOrders(); loadMessages(); }, 8000); }
 

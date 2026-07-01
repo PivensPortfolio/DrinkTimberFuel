@@ -1330,7 +1330,7 @@
      =================================================================== */
   const SIZE_OZ = {Small:'12 oz', Medium:'16 oz', Large:'20 oz'};
   const cart = [];
-  const PUMP_PRICE = 0.25;
+  let PUMP_PRICE = 0.25;              // per-pump price — overridden at runtime by GET /api/flavors
   const OAT_UPCHARGE = 0.50;          // oat milk costs $0.50 extra
   const OAT_MILK = 'Oat Milk';        // milk value that triggers the +$0.50 upcharge
   const isMochaLatte = s => /mocha|latte/i.test(s||''); // matches a Mochas/Lattes category
@@ -1829,21 +1829,62 @@
     {val:'Oat Milk',     up:OAT_UPCHARGE, note:'+$0.50'}, // oat upcharge ($0.50)
     {val:'No Milk',      up:0,            note:'Black'}
   ];
-  const FS_FLAVORS = ['Flavor 1','Flavor 2','Flavor 3']; // specialty drinks — PLACEHOLDERS, swap for real names
-  // Build-your-own flavor-pump list — classic + sugar-free (used by hot build cards & all cold drinks)
-  const BUILDER_FLAVORS = [
-    'Cinnamon','Chocolate','Caramel','Toasted Marshmallow','Vanilla','French Vanilla','Hazelnut','Pumpkin Spice',
-    'Sugar-Free Vanilla','Sugar-Free Caramel','Sugar-Free Hazelnut','Sugar-Free French Vanilla','Sugar-Free Mocha'
-  ];
-  // Specialties open pre-loaded with their recipe (these pumps are included in the price; only pumps beyond cost extra).
-  const SPECIALTY_RECIPE = {
-    'Campfire Mocha':                     ['Chocolate','Toasted Marshmallow'],
-    'French Hazelnut Café':               ['Hazelnut','French Vanilla'],
-    'Toasted Marshmallow Pumpkin Cocoa':  ['Chocolate','Toasted Marshmallow','Pumpkin Spice'],
-    'Cinnamon Roll Latte':                ['Cinnamon','Vanilla'],
-    'Autumn Velvet Latte':                ['Hazelnut','Pumpkin Spice'],
-    'Golden Caramel Macchiato':           ['Caramel','Vanilla']
+  /* ===================================================================
+     FLAVORS — sourced from KV via GET /api/flavors so the client can edit
+     them in the admin without code changes. These hardcoded defaults are the
+     FALLBACK used before the fetch resolves or if the API is unavailable, and
+     mirror api/flavors.js DEFAULT_FLAVORS exactly.
+     =================================================================== */
+  const FLAVORS_DEFAULT = {
+    pumpPrice: 0.25,
+    builderFlavors: [
+      {name:'Cinnamon',sugarFree:false,soldOut:false},
+      {name:'Chocolate',sugarFree:false,soldOut:false},
+      {name:'Caramel',sugarFree:false,soldOut:false},
+      {name:'Toasted Marshmallow',sugarFree:false,soldOut:false},
+      {name:'Vanilla',sugarFree:false,soldOut:false},
+      {name:'French Vanilla',sugarFree:false,soldOut:false},
+      {name:'Hazelnut',sugarFree:false,soldOut:false},
+      {name:'Pumpkin Spice',sugarFree:false,soldOut:false},
+      {name:'Sugar-Free Vanilla',sugarFree:true,soldOut:false},
+      {name:'Sugar-Free Caramel',sugarFree:true,soldOut:false},
+      {name:'Sugar-Free Hazelnut',sugarFree:true,soldOut:false},
+      {name:'Sugar-Free French Vanilla',sugarFree:true,soldOut:false},
+      {name:'Sugar-Free Mocha',sugarFree:true,soldOut:false}
+    ],
+    refresherFlavors: [
+      {name:'Flavor 1',soldOut:false},
+      {name:'Flavor 2',soldOut:false},
+      {name:'Flavor 3',soldOut:false}
+    ],
+    specialtyFlavors: {
+      'Campfire Mocha':                     ['Chocolate','Toasted Marshmallow'],
+      'French Hazelnut Café':               ['Hazelnut','French Vanilla'],
+      'Toasted Marshmallow Pumpkin Cocoa':  ['Chocolate','Toasted Marshmallow','Pumpkin Spice'],
+      'Cinnamon Roll Latte':                ['Cinnamon','Vanilla'],
+      'Autumn Velvet Latte':                ['Hazelnut','Pumpkin Spice'],
+      'Golden Caramel Macchiato':           ['Caramel','Vanilla']
+    }
   };
+  // Working values the builder reads. Names only; sold-out flavors are hidden from customers.
+  let BUILDER_FLAVORS = [];   // build-your-own / cold / hot-specialty flavor-pump list
+  let FS_FLAVORS = [];        // refresher flavor-pump list (their own fruit/candy list)
+  let SPECIALTY_RECIPE = {};  // per-specialty included signature pumps (included in price)
+  function applyFlavorsConfig(cfg){
+    cfg = cfg && typeof cfg==='object' ? cfg : {};
+    const bf = Array.isArray(cfg.builderFlavors) && cfg.builderFlavors.length ? cfg.builderFlavors : FLAVORS_DEFAULT.builderFlavors;
+    const rf = Array.isArray(cfg.refresherFlavors) ? cfg.refresherFlavors : FLAVORS_DEFAULT.refresherFlavors;
+    BUILDER_FLAVORS = bf.filter(f=>f && f.name && !f.soldOut).map(f=>f.name);       // hide sold-out
+    FS_FLAVORS      = rf.filter(f=>f && f.name && !f.soldOut).map(f=>f.name);        // hide sold-out
+    SPECIALTY_RECIPE = (cfg.specialtyFlavors && typeof cfg.specialtyFlavors==='object') ? cfg.specialtyFlavors : FLAVORS_DEFAULT.specialtyFlavors;
+    const pp = Number(cfg.pumpPrice);
+    PUMP_PRICE = (isFinite(pp) && pp>=0) ? pp : FLAVORS_DEFAULT.pumpPrice;
+  }
+  applyFlavorsConfig(FLAVORS_DEFAULT);  // seed immediately so the site works before/without the API
+  async function loadFlavors(){
+    try{ const cfg=await fetch('/api/flavors').then(r=>r.json()); if(cfg && Array.isArray(cfg.builderFlavors)) applyFlavorsConfig(cfg); }
+    catch(e){ /* keep the hardcoded defaults */ }
+  }
   let fsb = null; // active builder state
   function fsbBack(){ if(fsb && fsb.step>0){ fsb.step--; fsbRender(); } }
   function fsUpdateBack(){ if(fsBackBtn) fsBackBtn.style.display = (fsb && fsb.step>0) ? '' : 'none'; }
@@ -1907,7 +1948,7 @@
        <div class="fsb-step" data-fstep="extras">
          ${shotBlock}
          <h4 class="fsb-q"${noShots ? '' : ' style="margin-top:22px;"'}>Extra Flavor Pumps</h4>
-         <p class="fsb-sub">$0.25 per pump</p>
+         <p class="fsb-sub">${fmt(PUMP_PRICE)} per pump</p>
          <div class="fsb-steppers">${pumpRows}</div>
        </div>
        <div class="fsb-step" data-fstep="done">
@@ -2037,6 +2078,7 @@
   /* init */
   loadCart();
   renderCart();
+  loadFlavors();                 // pull editable flavor config from KV (falls back to defaults)
   refreshStoreStatus();
   setInterval(refreshStoreStatus, 60000);
 </script>
