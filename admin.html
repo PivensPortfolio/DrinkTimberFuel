@@ -394,7 +394,10 @@
   async function loadFlavors(){
     flStatus('Loading…');
     let data; try{ data=await api('/api/flavors'); }catch(e){ flStatus('Could not load flavors.',true); return; }
-    flavorsState=normFlavors(data); renderFlavors(); flStatus('');
+    flavorsState=normFlavors(data);
+    const cleaned=pruneSpecialtyFlavors();   // heal any stale/renamed signature flavors left in the data
+    renderFlavors(); flStatus('');
+    if(cleaned) scheduleSave();               // persist the cleanup so the customer site gets it too
   }
   function builderRow(f,i){
     return `<div class="fl-row" data-list="builder" data-i="${i}">
@@ -421,6 +424,18 @@
   const SECTION_LABELS={ hot:'Hot Drinks', cold:'Cold Drinks', refresher:'Refreshers' };
   const SECTION_ORDER=['hot','cold','refresher'];
   function specPool(section){ return (section==='refresher'?flavorsState.refresherFlavors:flavorsState.builderFlavors).map(f=>f.name).filter(Boolean); }
+  // Keep every drink's signature flavors a subset of its pool — drops stale/renamed names.
+  function pruneSpecialtyFlavors(){
+    if(!flavorsState) return false;
+    let changed=false;
+    Object.values(flavorsState.specialtyDrinks).forEach(d=>{
+      if(!Array.isArray(d.flavors)) return;
+      const pool=new Set(specPool(d.section));
+      const kept=d.flavors.filter(n=>pool.has(n));
+      if(kept.length!==d.flavors.length){ d.flavors=kept; changed=true; }
+    });
+    return changed;
+  }
   function specCard(id){
     const d=flavorsState.specialtyDrinks[id]; const flavors=d.flavors||[];
     const open = editingSpec===id;
@@ -491,10 +506,10 @@
       const list=row.dataset.list==='builder'?'builderFlavors':'refresherFlavors';
       const arr=flavorsState[list], i=+row.dataset.i, oldName=arr[i].name, newName=t.value;
       arr[i].name=newName;
-      if(list==='builderFlavors' && oldName && oldName!==newName){
-        // keep each specialty's signature flavor references in sync with the rename
+      if(oldName && oldName!==newName){
+        // keep every drink's signature flavor references in sync (builder OR refresher rename)
         Object.values(flavorsState.specialtyDrinks).forEach(d=>{ d.flavors=(d.flavors||[]).map(n=>n===oldName?newName:n); });
-        renderSpecialty(); // re-render chips only so the builder name input keeps focus
+        renderSpecialty(); // re-render chips only so the flavor name input keeps focus
       }
       scheduleSave();
     }
@@ -532,12 +547,8 @@
     if(rm){
       if(!flavorsState) return;
       const list=rm.dataset.rm==='builder'?'builderFlavors':'refresherFlavors';
-      const removed=flavorsState[list][+rm.dataset.i];
       flavorsState[list].splice(+rm.dataset.i,1);
-      if(list==='builderFlavors' && removed && removed.name){
-        // drop the removed flavor from every specialty's signature list
-        Object.values(flavorsState.specialtyDrinks).forEach(d=>{ d.flavors=(d.flavors||[]).filter(n=>n!==removed.name); });
-      }
+      pruneSpecialtyFlavors();   // drop the removed flavor from every drink's signature list (builder or refresher)
       renderFlavors(); scheduleSave(); return;
     }
   });
