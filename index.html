@@ -1185,7 +1185,7 @@
 <div class="checkout-overlay" id="checkoutOverlay" aria-label="Checkout">
   <div class="checkout" id="checkout">
     <button class="checkout-close" id="checkoutClose" aria-label="Back to order">×</button>
-    <h2>Checkout</h2>
+    <h2 id="coTitle">Checkout</h2>
 
     <div id="coMain">
     <section class="co-section">
@@ -1206,13 +1206,13 @@
         <button type="button" class="co-toggle-btn" data-mode="delivery">Delivery <span>+$3</span></button>
       </div>
       <p class="co-pickup" id="coPickupInfo">Timber Fuel · Cass Lake, MN<br/>Ready for pickup at the counter.</p>
-      <label class="co-field"><span>Name for the order</span><input type="text" id="coName" autocomplete="name" required placeholder="Your name" /></label>
-      <label class="co-field"><span>Phone</span><input type="tel" id="coPhone" autocomplete="tel" required placeholder="Best number to reach you" /></label>
+      <label class="co-field"><span>Name for the order</span><input type="text" id="coName" autocomplete="name" autocapitalize="words" required placeholder="Your name" /></label>
+      <label class="co-field"><span>Phone</span><input type="tel" id="coPhone" inputmode="numeric" autocomplete="tel" maxlength="14" required placeholder="(555) 555-5555" /></label>
       <div id="coAddressFields" hidden>
         <label class="co-field"><span>Street address</span><input type="text" id="coAddr" autocomplete="street-address" placeholder="123 Main St" /></label>
         <div class="co-field-row">
-          <label class="co-field"><span>City</span><input type="text" id="coCity" autocomplete="address-level2" placeholder="Cass Lake" /></label>
-          <label class="co-field co-field-zip"><span>ZIP</span><input type="text" id="coZip" inputmode="numeric" autocomplete="postal-code" placeholder="56633" /></label>
+          <label class="co-field"><span>City</span><input type="text" id="coCity" autocomplete="address-level2" autocapitalize="words" placeholder="Cass Lake" /></label>
+          <label class="co-field co-field-zip"><span>ZIP</span><input type="text" id="coZip" inputmode="numeric" autocomplete="postal-code" maxlength="5" placeholder="56633" /></label>
         </div>
       </div>
     </section>
@@ -1376,6 +1376,7 @@
   }
   function resetCheckoutView(){
     document.getElementById('coMain').hidden=false; document.getElementById('coSuccess').hidden=true;
+    document.getElementById('coTitle').hidden=false;
     const p=document.getElementById('coPay'); p.disabled=false; const n=document.getElementById('coNote'); n.textContent=''; n.classList.remove('err');
     coMode='pickup'; coTipPct=0; coPayMethod='card';
     document.querySelectorAll('.co-toggle-btn[data-mode]').forEach(b=>b.classList.toggle('sel', b.dataset.mode==='pickup'));
@@ -1388,6 +1389,15 @@
   function closeCheckout(){ checkoutOverlay.classList.remove('open'); }
   document.getElementById('cartCheckout').addEventListener('click', openCheckout);
   document.getElementById('checkoutClose').addEventListener('click', closeCheckout);
+  /* live field formatting: phone -> (xxx) xxx-xxxx (max 10 digits), ZIP -> 5 digits */
+  function formatPhone(v){
+    const d=(v||'').replace(/\D/g,'').slice(0,10);
+    if(d.length<=3) return d;
+    if(d.length<=6) return `(${d.slice(0,3)}) ${d.slice(3)}`;
+    return `(${d.slice(0,3)}) ${d.slice(3,6)}-${d.slice(6)}`;
+  }
+  document.getElementById('coPhone').addEventListener('input', e=>{ e.target.value=formatPhone(e.target.value); });
+  document.getElementById('coZip').addEventListener('input', e=>{ e.target.value=e.target.value.replace(/\D/g,'').slice(0,5); });
   document.getElementById('coSuccessDone').addEventListener('click', closeCheckout);
   checkoutOverlay.addEventListener('click', e=>{ if(e.target===checkoutOverlay) closeCheckout(); });
   document.querySelectorAll('.co-toggle-btn[data-mode]').forEach(b=>b.addEventListener('click', ()=>{
@@ -1425,6 +1435,7 @@
   }
   function coShowSuccess(name, isCash, estimate){
     document.getElementById('coMain').hidden=true;
+    document.getElementById('coTitle').hidden=true;   // the confirmation screen has its own heading
     document.getElementById('coSuccessMsg').textContent = isCash
       ? `Thanks, ${name}! Your order is in. ${coMode==='delivery'?'Pay with cash when it arrives.':'Pay with cash at pickup.'}`
       : (coMode==='delivery' ? `Thanks, ${name}! Your order is paid and on its way.` : `Thanks, ${name}! Your order is paid. We'll have it ready at the counter.`);
@@ -1440,13 +1451,13 @@
     const name=document.getElementById('coName').value.trim();
     const phone=document.getElementById('coPhone').value.trim();
     if(!name){ note.classList.add('err'); note.textContent='Please enter a name for the order.'; document.getElementById('coName').focus(); return; }
-    if(!phone){ note.classList.add('err'); note.textContent='Please enter a phone number.'; document.getElementById('coPhone').focus(); return; }
+    if(phone.replace(/\D/g,'').length!==10){ note.classList.add('err'); note.textContent='Please enter a 10-digit phone number.'; document.getElementById('coPhone').focus(); return; }
     let addr='', city='', zip='';
     if(coMode==='delivery'){
       addr=document.getElementById('coAddr').value.trim(); city=document.getElementById('coCity').value.trim(); zip=document.getElementById('coZip').value.trim();
       if(!addr){ note.classList.add('err'); note.textContent='Please enter your delivery street address.'; document.getElementById('coAddr').focus(); return; }
       if(!city){ note.classList.add('err'); note.textContent='Please enter your delivery city.'; document.getElementById('coCity').focus(); return; }
-      if(!zip){ note.classList.add('err'); note.textContent='Please enter your delivery ZIP code.'; document.getElementById('coZip').focus(); return; }
+      if(zip.replace(/\D/g,'').length!==5){ note.classList.add('err'); note.textContent='Please enter a 5-digit ZIP code.'; document.getElementById('coZip').focus(); return; }
     }
     note.classList.remove('err'); note.textContent='';
     const nums = recomputeCheckout();
