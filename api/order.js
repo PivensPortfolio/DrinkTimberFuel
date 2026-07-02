@@ -9,6 +9,15 @@ async function kv(cmd){
   }catch(e){ return { result:null, _err:String(e) }; }
 }
 function getIp(req){ return (req.headers['x-forwarded-for']||'').split(',')[0].trim() || req.headers['x-real-ip'] || 'unknown'; }
+// Estimated delivery window in Central time (America/Chicago, DST-aware): now + admin minutes, +10 min window.
+async function deliveryEstimate(){
+  const dm=await kv(['GET','delivery_minutes']);
+  const n=dm && dm.result!=null ? parseInt(dm.result,10) : NaN;
+  const mins=(isFinite(n) && n>0) ? n : 30;
+  const start=new Date(Date.now()+mins*60000), end=new Date(start.getTime()+10*60000);
+  const f=d=>d.toLocaleTimeString('en-US',{timeZone:'America/Chicago',hour:'numeric',minute:'2-digit'}).replace(/\s/g,'').toLowerCase();
+  return `${f(start)} - ${f(end)}`;
+}
 async function rateLimit(ip, prefix, limit, windowSec){
   const key='rl:'+prefix+':'+ip;
   const c=await kv(['INCR', key]);
@@ -44,11 +53,12 @@ module.exports = async (req,res)=>{
     items: order.items.slice(0,40),
     subtotal: order.subtotal||null, delivery: order.delivery||0, tip: order.tip||0, total: order.total||null
   };
+  if(rec.mode==='delivery'){ rec.deliveryEstimate = await deliveryEstimate(); } // Central-time window shown on the confirmation
   try{
     const g=await kv(['GET','orders']);
     let arr=[]; try{ arr = g && g.result ? JSON.parse(g.result) : []; }catch(e){ arr=[]; }
     arr.unshift(rec); arr=arr.slice(0,100);
     await kv(['SET','orders', JSON.stringify(arr)]);
   }catch(e){ res.status(500).json({ ok:false, error:'Could not save your order.' }); return; }
-  res.status(200).json({ ok:true, id:rec.id });
+  res.status(200).json({ ok:true, id:rec.id, estimate: rec.deliveryEstimate||null });
 };

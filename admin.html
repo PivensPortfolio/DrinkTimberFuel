@@ -29,7 +29,10 @@
   .topbar{ position:sticky; top:0; z-index:5; display:flex; align-items:center; justify-content:space-between; gap:16px; padding:16px 22px; background:var(--bg-tab); border-bottom:1px solid var(--gold-faint); flex-wrap:wrap; }
   .topbar h1{ font-size:22px; }
   .topbar .sub{ font-family:"Oswald",sans-serif; font-size:11px; letter-spacing:2px; text-transform:uppercase; color:var(--muted); }
-  .store-ctl{ display:flex; align-items:center; gap:14px; }
+  .store-ctl{ display:flex; align-items:center; gap:14px; flex-wrap:wrap; }
+  .deliv-ctl{ display:inline-flex; align-items:center; gap:8px; font-family:"Oswald",sans-serif; font-weight:600; font-size:11px; letter-spacing:1px; text-transform:uppercase; color:var(--cream-85); }
+  .deliv-ctl select{ font-family:"Barlow Condensed",sans-serif; font-size:15px; color:var(--cream); background:rgba(255,255,255,.04); border:1px solid var(--gold-20); border-radius:8px; padding:8px 10px; cursor:pointer; }
+  .deliv-ctl select:focus{ outline:none; border-color:var(--gold); }
   .store-state{ font-family:"Anton",sans-serif; text-transform:uppercase; font-size:16px; letter-spacing:1px; }
   .store-state.open{ color:var(--sf); }
   .store-state.closed{ color:var(--fire); }
@@ -56,6 +59,7 @@
   .badge.paid{ color:var(--sf); background:transparent; border:1px solid var(--sf); }
   .badge.unpaid{ color:var(--fire); background:transparent; border:1px solid var(--fire); }
   .order-addr{ font-family:"Barlow Condensed",sans-serif; font-size:14px; color:var(--gold); margin-top:8px; line-height:1.4; }
+  .order-eta{ font-family:"Oswald",sans-serif; font-weight:600; font-size:12px; letter-spacing:.5px; text-transform:uppercase; color:var(--sf); margin-top:6px; }
   .order-time{ font-family:"Oswald",sans-serif; font-size:10px; letter-spacing:1px; text-transform:uppercase; color:var(--muted); margin-top:8px; }
   .order-items{ list-style:none; margin:12px 0 0; padding:12px 0 0; border-top:1px solid rgba(232,224,196,.08); }
   .order-items li{ display:flex; justify-content:space-between; gap:10px; padding:4px 0; font-size:15px; }
@@ -182,6 +186,7 @@
       <div class="store-ctl">
         <span class="store-state" id="storeState">—</span>
         <div class="switch" id="storeSwitch" role="switch" aria-label="Toggle online ordering" tabindex="0"></div>
+        <label class="deliv-ctl">Delivery ETA<select id="deliveryMins" aria-label="Delivery estimate minutes"></select></label>
       </div>
     </div>
     <div class="tabs">
@@ -293,6 +298,15 @@
     switchEl.classList.toggle('on', !!open);
     const s=$('storeState'); s.textContent = open?'Taking Orders':'Closed'; s.className='store-state '+(open?'open':'closed');
   }
+  // delivery ETA dropdown — 5..60 min in 5-min steps
+  const delivEl=$('deliveryMins');
+  for(let m=5;m<=60;m+=5){ const o=document.createElement('option'); o.value=m; o.textContent=m+' min'; delivEl.appendChild(o); }
+  function renderDelivery(mins){ if(mins!=null) delivEl.value=String(mins); }
+  delivEl.addEventListener('change', async ()=>{
+    try{ const r=await api('/api/store', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ deliveryMinutes:+delivEl.value }) });
+      if(r && r.ok){ renderDelivery(r.deliveryMinutes); toast('Delivery ETA set to '+r.deliveryMinutes+' min'); }
+    }catch(e){}
+  });
 
   function orderCard(o){
     const badge = o.mode==='delivery' ? '<span class="badge delivery">Delivery</span>' : '<span class="badge pickup">Pickup</span>';
@@ -301,6 +315,7 @@
       ? `<span class="badge unpaid">${o.mode==='delivery'?'Pay on Delivery':'Pay at Pickup'}</span>`
       : '<span class="badge paid">Paid · Card</span>';
     const addr = (o.mode==='delivery' && o.address) ? `<div class="order-addr">📍 ${esc(o.address)}</div>` : '';
+    const eta = (o.mode==='delivery' && o.deliveryEstimate) ? `<div class="order-eta">🕒 ETA ${esc(o.deliveryEstimate)}</div>` : '';
     const items = (o.items||[]).map(it=>{
       const sub=[it.sizeLabel,it.detail,it.addon].filter(Boolean).join(' · ');
       return `<li><span><span class="oi-name">${esc(it.name||'')}</span>${sub?`<span class="oi-sub">${esc(sub)}</span>`:''}</span><span class="oi-price">${esc(it.price||'')}</span></li>`;
@@ -316,6 +331,7 @@
         <div class="badges">${badge}${payBadge}</div>
       </div>
       ${addr}
+      ${eta}
       <div class="order-time">${ago(o.ts)}</div>
       <ul class="order-items">${items}</ul>
       ${totals}
@@ -334,7 +350,7 @@
     $('empty').hidden = orders.length>0;
     $('orders').innerHTML = orders.map(orderCard).join('');
   }
-  async function loadStore(){ try{ const s=await api('/api/store'); renderStore(s.open); }catch(e){} }
+  async function loadStore(){ try{ const s=await api('/api/store'); renderStore(s.open); renderDelivery(s.deliveryMinutes); }catch(e){} }
 
   function msgCard(m){
     return `<div class="msg" data-id="${esc(m.id)}">

@@ -9,6 +9,15 @@ async function kv(cmd){
     return await r.json();
   }catch(e){ return null; }
 }
+// Estimated delivery window in Central time (America/Chicago, DST-aware): now + admin minutes, +10 min window.
+async function deliveryEstimate(){
+  const dm=await kv(['GET','delivery_minutes']);
+  const n=dm && dm.result!=null ? parseInt(dm.result,10) : NaN;
+  const mins=(isFinite(n) && n>0) ? n : 30;
+  const start=new Date(Date.now()+mins*60000), end=new Date(start.getTime()+10*60000);
+  const f=d=>d.toLocaleTimeString('en-US',{timeZone:'America/Chicago',hour:'numeric',minute:'2-digit'}).replace(/\s/g,'').toLowerCase();
+  return `${f(start)} - ${f(end)}`;
+}
 async function saveOrder(rec){
   try{
     const g=await kv(['GET','orders']);
@@ -62,7 +71,10 @@ module.exports = async (req, res) => {
       return;
     }
     const paymentId = data.payment && data.payment.id;
+    let estimate = null;
     if (order && typeof order === 'object') {
+      const isDelivery = order.mode === 'delivery';
+      if (isDelivery) estimate = await deliveryEstimate();   // Central-time window shown on the confirmation
       await saveOrder({
         id: paymentId || ('o' + Date.now()),
         ts: Date.now(),
@@ -72,16 +84,17 @@ module.exports = async (req, res) => {
         paymentId: paymentId || null,
         name: String(order.name || '').slice(0, 80),
         phone: String(order.phone || '').slice(0, 40),
-        mode: order.mode === 'delivery' ? 'delivery' : 'pickup',
+        mode: isDelivery ? 'delivery' : 'pickup',
         address: order.address ? String(order.address).slice(0, 200) : '',
         items: Array.isArray(order.items) ? order.items.slice(0, 40) : [],
         subtotal: order.subtotal || null,
         delivery: order.delivery || 0,
         tip: order.tip || 0,
-        total: order.total || (cents / 100)
+        total: order.total || (cents / 100),
+        deliveryEstimate: estimate
       });
     }
-    res.status(200).json({ ok: true, paymentId, status: data.payment && data.payment.status });
+    res.status(200).json({ ok: true, paymentId, status: data.payment && data.payment.status, estimate });
   } catch (e) {
     res.status(500).json({ ok: false, error: 'Could not reach the payment service.' });
   }

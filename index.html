@@ -614,7 +614,10 @@
   .co-success{ text-align:center; padding:30px 0 10px; }
   .co-success[hidden]{ display:none; }
   .co-success h2{ margin-top:16px; }
-  .co-success-msg{ font-family:"Barlow Condensed",sans-serif; color:var(--cream-85); font-size:16px; margin:10px 0 24px; line-height:1.5; }
+  .co-success-msg{ font-family:"Barlow Condensed",sans-serif; color:var(--cream-85); font-size:16px; margin:10px 0 20px; line-height:1.5; }
+  .co-est{ font-family:"Oswald",sans-serif; text-transform:uppercase; letter-spacing:1.5px; font-size:13px; color:var(--cream-85); margin:0 auto 24px; padding:14px 18px; max-width:320px; border:1px solid var(--gold-20); border-radius:12px; background:rgba(245,197,24,.06); line-height:1.6; }
+  .co-est[hidden]{ display:none; }
+  .co-est b{ font-family:"Anton",sans-serif; font-size:22px; letter-spacing:.5px; color:var(--gold); }
   #card-container{ min-height:0; }
   .co-toggle{ display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:16px; }
   .co-toggle-btn{ font-family:"Oswald",sans-serif; font-weight:700; text-transform:uppercase; letter-spacing:1px; font-size:14px; color:var(--cream); background:rgba(255,255,255,.04); border:1.5px solid var(--gold-20); border-radius:12px; padding:14px; cursor:pointer; transition:border-color .15s var(--ease), background .15s var(--ease), color .15s; }
@@ -1247,6 +1250,7 @@
       <div class="cb-check">✓</div>
       <h2>Order confirmed!</h2>
       <p class="co-success-msg" id="coSuccessMsg"></p>
+      <p class="co-est" id="coEst" hidden></p>
       <button class="co-pay" id="coSuccessDone">Done</button>
     </div>
   </div>
@@ -1419,11 +1423,14 @@
       const ph=document.getElementById('coCardPlaceholder'); if(ph) ph.style.display='none';
     }catch(e){ sqInitTried=false; }              // keep placeholder, allow retry
   }
-  function coShowSuccess(name, isCash){
+  function coShowSuccess(name, isCash, estimate){
     document.getElementById('coMain').hidden=true;
     document.getElementById('coSuccessMsg').textContent = isCash
       ? `Thanks, ${name}! Your order is in. ${coMode==='delivery'?'Pay with cash when it arrives.':'Pay with cash at pickup.'}`
       : (coMode==='delivery' ? `Thanks, ${name}! Your order is paid and on its way.` : `Thanks, ${name}! Your order is paid. We'll have it ready at the counter.`);
+    const est=document.getElementById('coEst');
+    if(coMode==='delivery' && estimate){ est.innerHTML=`Estimated Delivery<br/><b>${estimate}</b>`; est.hidden=false; }
+    else { est.hidden=true; est.textContent=''; }
     document.getElementById('coSuccess').hidden=false;
     cart.length=0; renderCart();
   }
@@ -1453,7 +1460,7 @@
       payBtn.disabled=true; note.textContent='Placing your order...';
       try{
         const resp=await fetch('/api/order', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ order:{...orderBase, paymentMethod:'cash'}, startedAt:pageLoadTs }) }).then(r=>r.json());
-        if(resp && resp.ok){ coShowSuccess(name, true); }
+        if(resp && resp.ok){ coShowSuccess(name, true, resp.estimate); }
         else { note.classList.add('err'); note.textContent=(resp&&resp.error)||'Could not place your order. Please try again.'; payBtn.disabled=false; }
       }catch(e){ note.classList.add('err'); note.textContent='Something went wrong. Please try again.'; payBtn.disabled=false; }
       return;
@@ -1474,7 +1481,7 @@
       if(nums.tip>0) parts.push(`tip ${fmt(nums.tip)}`);
       const resp = await fetch('/api/charge', { method:'POST', headers:{'Content-Type':'application/json'},
         body: JSON.stringify({ sourceId:result.token, amountCents, idempotencyKey:idem, locationId:sqConfig.locationId, note:parts.join(' | '), order:{...orderBase, paymentMethod:'card'} }) }).then(r=>r.json());
-      if(resp && resp.ok){ coShowSuccess(name, false); }
+      if(resp && resp.ok){ coShowSuccess(name, false, resp.estimate); }
       else { note.classList.add('err'); note.textContent=(resp&&resp.error)||'Payment failed. Please try again.'; payBtn.disabled=false; }
     }catch(e){ note.classList.add('err'); note.textContent='Something went wrong. Please try again.'; payBtn.disabled=false; }
   });
