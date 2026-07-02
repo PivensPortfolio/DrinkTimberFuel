@@ -1,4 +1,6 @@
 // Admin-only. GET lists active orders; POST {action:'done'|'cancel', id} dismisses one.
+// Marking an order DONE archives it to the `receipts` Redis list (permanent record);
+// cancelling just removes it from the active queue.
 async function kv(cmd){
   const url=process.env.KV_REST_API_URL, tok=process.env.KV_REST_API_TOKEN;
   if(!url||!tok) return { result:null, _noKv:true };
@@ -23,7 +25,15 @@ module.exports = async (req,res)=>{
     const { action, id } = body||{};
     if(!id || (action!=='done' && action!=='cancel')){ res.status(400).json({ ok:false, error:'bad request' }); return; }
     let orders = readOrders(await kv(['GET','orders']));
-    orders = orders.filter(o=>o.id!==id);   // done + cancel both dismiss from the active queue
+    if(action==='done'){
+      const done = orders.find(o=>o.id===id);
+      if(done){
+        done.status='done'; done.completedAt=Date.now();
+        await kv(['LPUSH','receipts', JSON.stringify(done)]);   // permanent receipt record
+        await kv(['LTRIM','receipts',0,4999]);                  // keep the archive bounded
+      }
+    }
+    orders = orders.filter(o=>o.id!==id);   // remove from the active queue either way
     await kv(['SET','orders', JSON.stringify(orders)]);
     res.status(200).json({ ok:true, orders });
     return;

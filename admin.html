@@ -33,6 +33,37 @@
   .deliv-ctl{ display:inline-flex; align-items:center; gap:8px; font-family:"Oswald",sans-serif; font-weight:600; font-size:11px; letter-spacing:1px; text-transform:uppercase; color:var(--cream-85); }
   .deliv-ctl select{ font-family:"Barlow Condensed",sans-serif; font-size:15px; color:var(--cream); background:rgba(255,255,255,.04); border:1px solid var(--gold-20); border-radius:8px; padding:8px 10px; cursor:pointer; }
   .deliv-ctl select:focus{ outline:none; border-color:var(--gold); }
+  select option{ background:#0c140f; color:var(--cream); }   /* readable dropdown list on the dark theme */
+
+  /* receipts */
+  .rc-stats{ display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:12px; margin-bottom:16px; }
+  .rc-stat{ background:var(--bg-card); border:1px solid var(--gold-faint); border-radius:12px; padding:14px 16px; }
+  .rc-stat .k{ font-family:"Oswald",sans-serif; font-size:11px; letter-spacing:1.5px; text-transform:uppercase; color:var(--muted); }
+  .rc-stat .v{ font-family:"Anton",sans-serif; font-size:24px; color:#fff; margin-top:6px; }
+  .rc-stat .v b{ color:var(--gold); font-weight:400; }
+  .rc-stat .v small{ font-family:"Oswald",sans-serif; font-size:12px; color:var(--muted); letter-spacing:.5px; }
+  .rc-controls{ display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin-bottom:16px; }
+  .rc-controls input[type=search]{ flex:1; min-width:200px; background:rgba(255,255,255,.04); border:1px solid var(--gold-20); border-radius:10px; padding:11px 14px; color:var(--cream); font-family:"Barlow Condensed",sans-serif; font-size:15px; }
+  .rc-controls input[type=search]:focus{ outline:none; border-color:var(--gold); }
+  .rc-controls select{ background:rgba(255,255,255,.04); border:1px solid var(--gold-20); border-radius:10px; padding:10px 12px; color:var(--cream); font-family:"Barlow Condensed",sans-serif; font-size:14px; cursor:pointer; }
+  .rc-daygroup{ margin-bottom:18px; }
+  .rc-dayhead{ display:flex; justify-content:space-between; align-items:baseline; gap:10px; margin-bottom:8px; padding-bottom:6px; border-bottom:1px solid var(--gold-faint); }
+  .rc-dayhead .d{ font-family:"Oswald",sans-serif; font-weight:700; font-size:13px; letter-spacing:1px; text-transform:uppercase; color:var(--cream); }
+  .rc-dayhead .t{ font-family:"Oswald",sans-serif; font-size:12px; letter-spacing:.5px; color:var(--gold); white-space:nowrap; }
+  .rc-row{ background:var(--bg-card); border:1px solid var(--gold-faint); border-radius:10px; margin-bottom:8px; overflow:hidden; }
+  .rc-head{ display:flex; align-items:center; gap:12px; padding:11px 14px; cursor:pointer; }
+  .rc-head:hover{ background:rgba(255,255,255,.03); }
+  .rc-time{ font-family:"Oswald",sans-serif; font-size:12px; color:var(--muted); width:70px; flex:none; }
+  .rc-name{ font-family:"Anton",sans-serif; font-size:16px; color:#fff; flex:1; min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .rc-badges{ display:flex; gap:6px; flex:none; }
+  .rc-total{ font-family:"Anton",sans-serif; font-size:16px; color:var(--gold); width:74px; text-align:right; flex:none; }
+  .rc-body{ padding:2px 14px 14px 96px; }
+  .rc-body[hidden]{ display:none; }
+  .rc-body ul{ margin:0; padding:0; }
+  .rc-body li{ display:flex; justify-content:space-between; gap:10px; font-family:"Barlow Condensed",sans-serif; font-size:14px; color:var(--cream); padding:3px 0; list-style:none; }
+  .rc-body .oi-sub{ display:block; color:var(--muted); font-size:12px; }
+  .rc-meta{ font-family:"Barlow Condensed",sans-serif; font-size:13px; color:var(--cream-85); margin-top:10px; line-height:1.6; }
+  @media (max-width:560px){ .rc-body{ padding-left:14px; } .rc-name{ font-size:15px; } }
   .store-state{ font-family:"Anton",sans-serif; text-transform:uppercase; font-size:16px; letter-spacing:1px; }
   .store-state.open{ color:var(--sf); }
   .store-state.closed{ color:var(--fire); }
@@ -191,6 +222,7 @@
     </div>
     <div class="tabs">
       <button class="tab-btn active" data-view="orders">Orders</button>
+      <button class="tab-btn" data-view="receipts">Receipts</button>
       <button class="tab-btn" data-view="messages">Messages</button>
       <button class="tab-btn" data-view="flavors">Flavors</button>
     </div>
@@ -203,6 +235,26 @@
       </div>
       <div class="orders" id="orders"></div>
       <div class="empty" id="empty" hidden>No active orders right now.</div>
+    </div>
+
+    <!-- RECEIPTS -->
+    <div class="wrap view" id="viewReceipts" hidden>
+      <div class="rc-stats" id="rcStats"></div>
+      <div class="rc-controls">
+        <input id="rcSearch" type="search" placeholder="Search name, phone, or item…" />
+        <select id="rcRange" aria-label="Date range">
+          <option value="today">Today</option>
+          <option value="7">Last 7 days</option>
+          <option value="30" selected>Last 30 days</option>
+          <option value="all">All time</option>
+        </select>
+        <select id="rcPay" aria-label="Payment"><option value="all">All payments</option><option value="card">Card</option><option value="cash">Cash</option></select>
+        <select id="rcMode" aria-label="Fulfillment"><option value="all">All types</option><option value="pickup">Pickup</option><option value="delivery">Delivery</option></select>
+        <button class="refresh" id="rcExport">⬇ Export CSV</button>
+        <button class="refresh" id="rcRefresh">Refresh</button>
+      </div>
+      <div class="rc-list" id="rcList"></div>
+      <div class="empty" id="rcEmpty" hidden>No completed orders yet. Orders you mark <b>Done</b> are archived here.</div>
     </div>
 
     <!-- MESSAGES -->
@@ -381,7 +433,7 @@
     btn.disabled=true;
     try{
       const r=await api('/api/orders', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ action:act, id }) });
-      if(r && r.ok){ toast(act==='done'?'Order completed':'Order cancelled'); loadOrders(); }
+      if(r && r.ok){ toast(act==='done'?'Order completed':'Order cancelled'); loadOrders(); if(act==='done') receiptsAll=null; } // done → archived; refresh receipts on next open
     }catch(err){ btn.disabled=false; }
   });
   $('refreshBtn').addEventListener('click', ()=>{ loadOrders(); loadMessages(); });
@@ -626,11 +678,92 @@
     const v=b.dataset.view;
     document.querySelectorAll('.tab-btn').forEach(x=>x.classList.toggle('active', x===b));
     $('viewOrders').hidden = v!=='orders';
+    $('viewReceipts').hidden = v!=='receipts';
     $('viewMessages').hidden = v!=='messages';
     $('viewFlavors').hidden = v!=='flavors';
     if(v==='flavors' && !flavorsState) loadFlavors();
+    if(v==='receipts' && !receiptsAll) loadReceipts();
   }));
   $('refreshMsgBtn').addEventListener('click', loadMessages);
+
+  /* ===== RECEIPTS TAB ===== */
+  let receiptsAll=null;
+  const rTime=o=>o.ts||o.completedAt||0;
+  const cKey=ts=>new Date(ts).toLocaleDateString('en-CA',{timeZone:'America/Chicago'});          // YYYY-MM-DD (Central)
+  const cDay=ts=>new Date(ts).toLocaleDateString('en-US',{timeZone:'America/Chicago',weekday:'short',month:'short',day:'numeric'});
+  const cClock=ts=>new Date(ts).toLocaleTimeString('en-US',{timeZone:'America/Chicago',hour:'numeric',minute:'2-digit'});
+  async function loadReceipts(){ let d; try{ d=await api('/api/receipts'); }catch(e){ return; } receiptsAll=(d&&d.receipts)||[]; renderReceipts(); }
+  function rcFiltered(){
+    if(!receiptsAll) return [];
+    const q=$('rcSearch').value.trim().toLowerCase(), range=$('rcRange').value, pay=$('rcPay').value, mode=$('rcMode').value;
+    const now=Date.now(), today=cKey(now);
+    return receiptsAll.filter(o=>{
+      const ts=rTime(o);
+      if(range==='today'){ if(cKey(ts)!==today) return false; }
+      else if(range==='7'){ if(ts<now-7*864e5) return false; }
+      else if(range==='30'){ if(ts<now-30*864e5) return false; }
+      const isCash=o.paymentMethod==='cash'||o.paid===false;
+      if(pay==='cash' && !isCash) return false;
+      if(pay==='card' && isCash) return false;
+      if(mode!=='all' && (o.mode||'pickup')!==mode) return false;
+      if(q){ const hay=[o.name,o.phone,(o.items||[]).map(i=>i.name).join(' ')].join(' ').toLowerCase(); if(!hay.includes(q)) return false; }
+      return true;
+    });
+  }
+  function renderStats(){
+    const now=Date.now(), today=cKey(now); const W={today:[0,0],w7:[0,0],w30:[0,0],all:[0,0]};
+    (receiptsAll||[]).forEach(o=>{ const ts=rTime(o), t=Number(o.total)||0;
+      W.all[0]++; W.all[1]+=t;
+      if(cKey(ts)===today){ W.today[0]++; W.today[1]+=t; }
+      if(ts>=now-7*864e5){ W.w7[0]++; W.w7[1]+=t; }
+      if(ts>=now-30*864e5){ W.w30[0]++; W.w30[1]+=t; }
+    });
+    const card=(k,a)=>`<div class="rc-stat"><div class="k">${k}</div><div class="v">${a[0]} <small>orders</small> · <b>${fmt(a[1])}</b></div></div>`;
+    $('rcStats').innerHTML = card('Today',W.today)+card('Last 7 days',W.w7)+card('Last 30 days',W.w30)+card('All time',W.all);
+  }
+  function receiptRow(o){
+    const isCash=o.paymentMethod==='cash'||o.paid===false;
+    const pay=isCash?'<span class="badge unpaid">Cash</span>':'<span class="badge paid">Card</span>';
+    const mode=(o.mode==='delivery')?'<span class="badge delivery">Delivery</span>':'<span class="badge pickup">Pickup</span>';
+    const items=(o.items||[]).map(it=>{ const sub=[it.sizeLabel,it.detail,it.addon].filter(Boolean).join(' · '); return `<li><span>${esc(it.name||'')}${sub?`<span class="oi-sub">${esc(sub)}</span>`:''}</span><span>${esc(it.price||'')}</span></li>`; }).join('');
+    const meta=[]; if(o.mode==='delivery'&&o.address) meta.push('📍 '+esc(o.address)); if(o.mode==='delivery'&&o.deliveryEstimate) meta.push('🕒 ETA '+esc(o.deliveryEstimate));
+    meta.push('📞 '+esc(o.phone||'')); if(o.delivery) meta.push('Delivery '+fmt(o.delivery)); if(o.tip) meta.push('Tip '+fmt(o.tip)); if(o.completedAt) meta.push('Completed '+cClock(o.completedAt));
+    return `<div class="rc-row"><div class="rc-head" data-rc="1">
+        <span class="rc-time">${cClock(rTime(o))}</span>
+        <span class="rc-name">${esc(o.name||'Order')}</span>
+        <span class="rc-badges">${mode}${pay}</span>
+        <span class="rc-total">${fmt(o.total)}</span>
+      </div>
+      <div class="rc-body" hidden><ul>${items}</ul><div class="rc-meta">${meta.join(' &nbsp;·&nbsp; ')}</div></div>
+    </div>`;
+  }
+  function renderReceipts(){
+    if(!receiptsAll) return;
+    renderStats();
+    const has=receiptsAll.length>0; $('rcEmpty').hidden=has;
+    if(!has){ $('rcList').innerHTML=''; return; }
+    const list=rcFiltered().sort((a,b)=>rTime(b)-rTime(a));
+    if(!list.length){ $('rcList').innerHTML='<p class="fl-empty" style="padding:18px 0;">No receipts match your filters.</p>'; return; }
+    let html='', curKey=null, day=[];
+    const flush=()=>{ if(!day.length) return; const rev=day.reduce((s,o)=>s+(Number(o.total)||0),0);
+      html+=`<div class="rc-daygroup"><div class="rc-dayhead"><span class="d">${cDay(rTime(day[0]))}</span><span class="t">${day.length} order(s) · ${fmt(rev)}</span></div>${day.map(receiptRow).join('')}</div>`; day=[]; };
+    list.forEach(o=>{ const k=cKey(rTime(o)); if(k!==curKey){ flush(); curKey=k; } day.push(o); }); flush();
+    $('rcList').innerHTML=html;
+  }
+  $('rcList').addEventListener('click', e=>{ const h=e.target.closest('[data-rc]'); if(!h) return; const b=h.parentElement.querySelector('.rc-body'); if(b) b.hidden=!b.hidden; });
+  ['rcSearch','rcRange','rcPay','rcMode'].forEach(id=>$(id).addEventListener('input', renderReceipts));
+  $('rcRefresh').addEventListener('click', loadReceipts);
+  $('rcExport').addEventListener('click', ()=>{
+    const rows=rcFiltered().sort((a,b)=>rTime(b)-rTime(a));
+    const cols=['Date','Time','Name','Phone','Type','Payment','Items','Subtotal','Delivery','Tip','Total','Address','ETA'];
+    const q=v=>{ const s=String(v==null?'':v); return /[",\n]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s; };
+    const lines=[cols.join(',')];
+    rows.forEach(o=>{ const ts=rTime(o), isCash=o.paymentMethod==='cash'||o.paid===false;
+      const items=(o.items||[]).map(it=>[it.name,it.sizeLabel,it.detail,it.addon].filter(Boolean).join(' ')).join(' | ');
+      lines.push([cKey(ts),cClock(ts),o.name||'',o.phone||'',o.mode||'pickup',isCash?'Cash':'Card',items,o.subtotal!=null?o.subtotal:'',o.delivery||'',o.tip||'',o.total!=null?o.total:'',o.address||'',o.deliveryEstimate||''].map(q).join(',')); });
+    const blob=new Blob([lines.join('\n')],{type:'text/csv;charset=utf-8'});
+    const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='timber-fuel-receipts.csv'; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+  });
 
   function start(){ showDash(); loadStore(); loadOrders(); loadMessages(); if(pollTimer) clearInterval(pollTimer); pollTimer=setInterval(()=>{ loadOrders(); loadMessages(); }, 8000); }
 
