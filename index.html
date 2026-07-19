@@ -1340,7 +1340,17 @@
     const msg=document.getElementById('coClosedMsg'); if(msg) msg.hidden=!closed;
   }
   function applyStoreState(){ document.querySelectorAll('.js-store-status').forEach(el=>{ el.hidden=false; el.textContent=storeOpen?'Open & Taking Orders':'Currently Closed'; el.classList.remove('open','closed'); el.classList.add(storeOpen?'open':'closed'); }); updateCheckoutBtn(); applyCheckoutClosed(); }
-  async function refreshStoreStatus(){ try{ const s=await fetch('/api/store').then(r=>r.json()); storeOpen = !(s && s.open===false); }catch(e){ storeOpen=true; } applyStoreState(); }
+  function applyHours(hours){
+    if(!Array.isArray(hours)) return;
+    const cells=document.querySelectorAll('#hours .cell');
+    const icons=['☀️','🌤'];
+    hours.slice(0,cells.length).forEach((h,i)=>{
+      const k=cells[i].querySelector('.k'), v=cells[i].querySelector('.v');
+      if(k) k.textContent=(icons[i]?icons[i]+' ':'')+(h.label||'');
+      if(v) v.textContent=h.value||'';
+    });
+  }
+  async function refreshStoreStatus(){ try{ const s=await fetch('/api/store').then(r=>r.json()); storeOpen = !(s && s.open===false); if(s && s.hours) applyHours(s.hours); }catch(e){ storeOpen=true; } applyStoreState(); }
   function cartTotal(){ return cart.reduce((s,o)=>{ const v=parseFloat(String(o.price).replace(/[^0-9.]/g,'')); return s+(isFinite(v)?v:0); },0); }
   let coMode='pickup', coTipPct=0, coPayMethod='card'; const DELIVERY_FEE=3;
   function applyPayMethod(){

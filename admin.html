@@ -33,6 +33,13 @@
   .deliv-ctl{ display:inline-flex; align-items:center; gap:8px; font-family:"Oswald",sans-serif; font-weight:600; font-size:11px; letter-spacing:1px; text-transform:uppercase; color:var(--cream-85); }
   .deliv-ctl select{ font-family:"Barlow Condensed",sans-serif; font-size:15px; color:var(--cream); background:rgba(255,255,255,.04); border:1px solid var(--gold-20); border-radius:8px; padding:8px 10px; cursor:pointer; }
   .deliv-ctl select:focus{ outline:none; border-color:var(--gold); }
+  .hours-ctl{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; background:rgba(255,255,255,.03); border:1px solid var(--gold-20); border-radius:10px; padding:8px 10px; }
+  .hc-title{ font-family:"Oswald",sans-serif; font-weight:600; font-size:11px; letter-spacing:1px; text-transform:uppercase; color:var(--cream-85); }
+  .hc-row{ display:flex; gap:6px; }
+  .hours-ctl input{ background:rgba(255,255,255,.05); border:1px solid var(--gold-20); border-radius:7px; padding:7px 9px; color:var(--cream); font-family:"Barlow Condensed",sans-serif; font-size:14px; width:120px; }
+  .hours-ctl input:focus{ outline:none; border-color:var(--gold); }
+  .hc-save{ font-family:"Oswald",sans-serif; font-weight:700; text-transform:uppercase; letter-spacing:1px; font-size:11px; color:var(--bg); background:var(--gold); border:none; border-radius:7px; padding:8px 13px; cursor:pointer; }
+  .hc-save:hover{ filter:brightness(1.06); }
   select option{ background:#0c140f; color:var(--cream); }   /* readable dropdown list on the dark theme */
 
   /* receipts */
@@ -218,6 +225,18 @@
         <span class="store-state" id="storeState">—</span>
         <div class="switch" id="storeSwitch" role="switch" aria-label="Toggle online ordering" tabindex="0"></div>
         <label class="deliv-ctl">Delivery ETA<select id="deliveryMins" aria-label="Delivery estimate minutes"></select></label>
+        <div class="hours-ctl">
+          <span class="hc-title">Hours</span>
+          <div class="hc-row">
+            <input id="h1Label" maxlength="40" placeholder="Morning Fuel" aria-label="First window label" />
+            <input id="h1Value" maxlength="40" placeholder="6:00–7:45 AM" aria-label="First window hours" />
+          </div>
+          <div class="hc-row">
+            <input id="h2Label" maxlength="40" placeholder="Midday Fuel" aria-label="Second window label" />
+            <input id="h2Value" maxlength="40" placeholder="11:00 AM–12:15 PM" aria-label="Second window hours" />
+          </div>
+          <button class="hc-save" id="hoursSave">Save</button>
+        </div>
       </div>
     </div>
     <div class="tabs">
@@ -359,6 +378,24 @@
       if(r && r.ok){ renderDelivery(r.deliveryMinutes); toast('Delivery ETA set to '+r.deliveryMinutes+' min'); }
     }catch(e){}
   });
+  // hours of operation — two windows shown on the site
+  const h1L=$('h1Label'), h1V=$('h1Value'), h2L=$('h2Label'), h2V=$('h2Value');
+  function renderHours(hours){
+    if(!Array.isArray(hours)) return;
+    if(hours[0]){ h1L.value=hours[0].label||''; h1V.value=hours[0].value||''; }
+    if(hours[1]){ h2L.value=hours[1].label||''; h2V.value=hours[1].value||''; }
+  }
+  $('hoursSave').addEventListener('click', async ()=>{
+    const hours=[
+      { label:h1L.value.trim(), value:h1V.value.trim() },
+      { label:h2L.value.trim(), value:h2V.value.trim() }
+    ];
+    if(!hours.some(h=>h.label||h.value)){ toast('Enter at least one set of hours'); return; }
+    try{
+      const r=await api('/api/store', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ hours }) });
+      if(r && r.ok){ renderHours(r.hours); toast('Hours updated'); }
+    }catch(e){}
+  });
 
   function orderCard(o){
     const badge = o.mode==='delivery' ? '<span class="badge delivery">Delivery</span>' : '<span class="badge pickup">Pickup</span>';
@@ -402,7 +439,7 @@
     $('empty').hidden = orders.length>0;
     $('orders').innerHTML = orders.map(orderCard).join('');
   }
-  async function loadStore(){ try{ const s=await api('/api/store'); renderStore(s.open); renderDelivery(s.deliveryMinutes); }catch(e){} }
+  async function loadStore(){ try{ const s=await api('/api/store'); renderStore(s.open); renderDelivery(s.deliveryMinutes); renderHours(s.hours); }catch(e){} }
 
   function msgCard(m){
     return `<div class="msg" data-id="${esc(m.id)}">
