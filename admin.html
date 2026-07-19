@@ -84,6 +84,8 @@
   .count{ font-family:"Anton",sans-serif; font-size:20px; color:#fff; }
   .count span{ color:var(--gold); }
   .refresh{ font-family:"Oswald",sans-serif; font-size:11px; letter-spacing:1px; text-transform:uppercase; color:var(--muted); background:none; border:1px solid var(--gold-20); border-radius:999px; padding:8px 14px; cursor:pointer; }
+  .rc-danger{ color:var(--fire); border-color:rgba(232,98,10,.45); }
+  .rc-danger:hover{ background:rgba(232,98,10,.1); }
 
   .orders{ display:grid; grid-template-columns:repeat(auto-fill,minmax(320px,1fr)); gap:16px; }
   .order{ background:var(--bg-card); border:1px solid var(--gold-faint); border-radius:14px; padding:18px; display:flex; flex-direction:column; }
@@ -271,6 +273,7 @@
         <select id="rcMode" aria-label="Fulfillment"><option value="all">All types</option><option value="pickup">Pickup</option><option value="delivery">Delivery</option></select>
         <button class="refresh" id="rcExport">⬇ Export CSV</button>
         <button class="refresh" id="rcRefresh">Refresh</button>
+        <button class="refresh rc-danger" id="rcClear">Clear archive</button>
       </div>
       <div class="rc-list" id="rcList"></div>
       <div class="empty" id="rcEmpty" hidden>No completed orders yet. Orders you mark <b>Done</b> are archived here.</div>
@@ -790,6 +793,13 @@
   $('rcList').addEventListener('click', e=>{ const h=e.target.closest('[data-rc]'); if(!h) return; const b=h.parentElement.querySelector('.rc-body'); if(b) b.hidden=!b.hidden; });
   ['rcSearch','rcRange','rcPay','rcMode'].forEach(id=>$(id).addEventListener('input', renderReceipts));
   $('rcRefresh').addEventListener('click', loadReceipts);
+  $('rcClear').addEventListener('click', async ()=>{
+    if(!confirm('Permanently delete the ENTIRE receipt archive?\n\nThis erases your completed-order history and cannot be undone. Export the CSV first if you want a copy.')) return;
+    if(!confirm('Last check — really wipe all receipts?')) return;
+    try{ const r=await api('/api/receipts', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ action:'clear' }) });
+      if(r && r.ok){ receiptsAll=[]; renderReceipts(); toast('Receipt archive cleared'); }
+    }catch(e){}
+  });
   $('rcExport').addEventListener('click', ()=>{
     const rows=rcFiltered().sort((a,b)=>rTime(b)-rTime(a));
     const cols=['Date','Time','Name','Phone','Type','Payment','Items','Subtotal','Delivery','Tip','Total','Address','ETA'];

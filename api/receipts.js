@@ -18,5 +18,14 @@ module.exports = async (req,res)=>{
     res.status(200).json({ ok:true, receipts });
     return;
   }
+  // POST {action:'clear'} — wipes the receipt archive. Destructive: used to purge test data
+  // before going live. The admin UI confirms before calling this.
+  if(req.method==='POST'){
+    let body=req.body; if(typeof body==='string'){ try{ body=JSON.parse(body); }catch(e){ body={}; } }
+    if((body||{}).action!=='clear'){ res.status(400).json({ ok:false, error:'bad request' }); return; }
+    await kv(['DEL','receipts']);
+    res.status(200).json({ ok:true, receipts:[] });
+    return;
+  }
   res.status(405).json({ error:'method not allowed' });
 };
