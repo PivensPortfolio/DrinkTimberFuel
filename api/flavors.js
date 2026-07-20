@@ -42,13 +42,19 @@ const DEFAULT_FLAVORS = {
   // index.html carries the same data-spec-id, so admin edits overlay it live.
   specialtyDrinks: {
     // HOT — Mochas
+    'build-a-mocha':                     { section:'hot', group:'Mochas', name:'Build a Mocha', desc:"Espresso and rich chocolate, made your way. Pick your milk, flavors, and size.", image:'assets/hot-coffee.png', flavors:[] },
     'campfire-mocha':                    { section:'hot', group:'Mochas', name:'Campfire Mocha',                    desc:"Deep chocolate and sweet marshmallow: a fire-roasted s'more in a mug.", image:'assets/campfire-mocha.png', flavors:['Chocolate','Toasted Marshmallow'] },
     'french-hazelnut-cafe':              { section:'hot', group:'Mochas', name:'French Hazelnut Café',              desc:"A clean, sweet aromatic baseline that lets bold, nutty accents take center stage.", image:'assets/french-hazelnut.png', flavors:['Hazelnut','French Vanilla'] },
     'toasted-marshmallow-pumpkin-cocoa': { section:'hot', group:'Mochas', name:'Toasted Marshmallow Pumpkin Cocoa', desc:"Caffeine-free luxury cocoa with toasted marshmallow and warm campfire spice.", image:'assets/hot-coffee.png', flavors:['Chocolate','Toasted Marshmallow','Pumpkin Spice'] },
     // HOT — Lattes
+    'build-a-latte':                     { section:'hot', group:'Lattes', name:'Build a Latte', desc:"Smooth espresso and steamed milk, made your way. Pick your milk, flavors, and size.", image:'assets/hot-coffee.png', flavors:[] },
     'cinnamon-roll-latte':               { section:'hot', group:'Lattes', name:'Cinnamon Roll Latte',               desc:"A warm cinnamon roll fresh from the oven, with a sweet vanilla icing finish.", image:'assets/cinnamon-roll-latte.png', flavors:['Cinnamon','Vanilla'] },
     'autumn-velvet-latte':               { section:'hot', group:'Lattes', name:'Autumn Velvet Latte',               desc:"Toasted nuttiness balanced with bright, aromatic seasonal harvest spice.", image:'assets/hot-coffee.png', flavors:['Hazelnut','Pumpkin Spice'] },
     'golden-caramel-macchiato':          { section:'hot', group:'Lattes', name:'Golden Caramel Macchiato',          desc:"Custard-like vanilla milk and strong espresso, crowned with buttery caramel.", image:'assets/caramel-macchiato.png', flavors:['Caramel','Vanilla'] },
+    // HOT — Black & Bold
+    'drip-coffee':                       { section:'hot', group:'Black & Bold', name:'Drip Coffee', desc:"Fresh-brewed house drip. Clean, classic, bottomless Northwoods comfort.", image:'assets/black-bold.png', flavors:[] },
+    'americano':                         { section:'hot', group:'Black & Bold', name:'Americano',   desc:"Bold espresso cut with hot water. Smooth, rich, and full-bodied.", image:'assets/black-bold.png', flavors:[] },
+    'espresso':                          { section:'hot', group:'Black & Bold', name:'Espresso',    desc:"A concentrated shot of pure, intense Northwoods roast. Straight and strong.", image:'assets/black-bold.png', flavors:[] },
     // COLD — Iced Mochas & Lattes
     'iced-mocha':                        { section:'cold', group:'Iced Mochas & Lattes', name:'Iced Mocha', desc:"Espresso, chocolate & milk over ice. Rich, sweet, indulgent.", image:'assets/cold-brew.png', flavors:[] },
     'iced-latte':                        { section:'cold', group:'Iced Mochas & Lattes', name:'Iced Latte', desc:"Smooth espresso & milk over ice. Mellow and easy-drinking.", image:'assets/cold-brew.png', flavors:[] },
@@ -119,6 +125,25 @@ function sanitize(input){
       imageMobile,
       soldOut: !!v.soldOut,   // out of stock: card stays visible on the site but cannot be ordered
       flavors: cleanFlavors(v.flavors!=null?v.flavors:def.flavors)
+    };
+  });
+
+  // Backfill drinks that exist in the defaults but not in the stored config. The menu is
+  // defined by index.html, not by KV, so a drink added to the site after the config was last
+  // saved would otherwise never appear in the admin. There is no delete-drink action, so this
+  // cannot resurrect something the operator removed on purpose.
+  Object.keys(DEF_SD).forEach(id=>{
+    if (specialtyDrinks[id]) return;
+    const def = DEF_SD[id];
+    specialtyDrinks[id] = {
+      section: str(def.section||'hot',20),
+      group:   str(def.group||'',40),
+      name:    str(def.name||id,80),
+      desc:    str(def.desc||'',300),
+      image:   str(def.image||'',500),
+      imageMobile: str(def.imageMobile||'',500),
+      soldOut: false,
+      flavors: cleanFlavors(def.flavors)
     };
   });
 

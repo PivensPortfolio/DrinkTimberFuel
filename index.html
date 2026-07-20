@@ -799,7 +799,7 @@
             <img class="hot-img" src="assets/hot-coffee.png" alt="Build a Mocha" />
             <h3>Build a Mocha</h3>
             <p>Espresso and rich chocolate, made your way. Pick your milk, flavors, and size.</p>
-            <div class="ord"><button class="ord-btn ord-build" data-build="Mocha">Customize →</button></div>
+            <div class="ord" data-spec-id="build-a-mocha" data-drink="Build a Mocha"><button class="ord-btn ord-build" data-build="Mocha">Customize →</button></div>
           </div>
           <div class="hot-card">
             <img class="hot-img" src="assets/campfire-mocha.png" alt="Campfire Mocha" />
@@ -868,7 +868,7 @@
             <img class="hot-img" src="assets/hot-coffee.png" alt="Build a Latte" />
             <h3>Build a Latte</h3>
             <p>Smooth espresso and steamed milk, made your way. Pick your milk, flavors, and size.</p>
-            <div class="ord"><button class="ord-btn ord-build" data-build="Latte">Customize →</button></div>
+            <div class="ord" data-spec-id="build-a-latte" data-drink="Build a Latte"><button class="ord-btn ord-build" data-build="Latte">Customize →</button></div>
           </div>
           <div class="hot-card">
             <img class="hot-img" src="assets/cinnamon-roll-latte.png" alt="Cinnamon Roll Latte" />
@@ -941,7 +941,7 @@
             <img class="hot-img" src="assets/black-bold.png" alt="Drip Coffee" />
             <h3>Drip Coffee</h3>
             <p>Fresh-brewed house drip. Clean, classic, bottomless Northwoods comfort.</p>
-            <div class="ord ord-spec" data-drink="Drip Coffee" data-kind="black">
+            <div class="ord ord-spec" data-spec-id="drip-coffee" data-drink="Drip Coffee" data-kind="black">
               <button class="ord-btn">Add to Order</button>
               <div class="ord-panel" hidden>
                 <div class="ord-sizes">
@@ -961,7 +961,7 @@
             <img class="hot-img" src="assets/black-bold.png" alt="Americano" />
             <h3>Americano</h3>
             <p>Bold espresso cut with hot water. Smooth, rich, and full-bodied.</p>
-            <div class="ord ord-spec" data-drink="Americano" data-kind="black">
+            <div class="ord ord-spec" data-spec-id="americano" data-drink="Americano" data-kind="black">
               <button class="ord-btn">Add to Order</button>
               <div class="ord-panel" hidden>
                 <div class="ord-sizes">
@@ -981,7 +981,7 @@
             <img class="hot-img" src="assets/black-bold.png" alt="Espresso" />
             <h3>Espresso</h3>
             <p>A concentrated shot of pure, intense Northwoods roast. Straight and strong.</p>
-            <div class="ord ord-spec" data-drink="Espresso" data-kind="black">
+            <div class="ord ord-spec" data-spec-id="espresso" data-drink="Espresso" data-kind="black">
               <button class="ord-btn">Add to Order</button>
               <div class="ord-panel" hidden>
                 <div class="ord-sizes">
@@ -1784,12 +1784,17 @@
       {name:'Flavor 3',soldOut:false}
     ],
     specialtyDrinks: {
+      'build-a-mocha':                     {section:'hot', group:'Mochas', name:'Build a Mocha', desc:"Espresso and rich chocolate, made your way. Pick your milk, flavors, and size.", image:'assets/hot-coffee.png', flavors:[]},
       'campfire-mocha':                    {section:'hot', group:'Mochas', name:'Campfire Mocha',                    desc:"Deep chocolate and sweet marshmallow: a fire-roasted s'more in a mug.", image:'assets/campfire-mocha.png', flavors:['Chocolate','Toasted Marshmallow']},
       'french-hazelnut-cafe':              {section:'hot', group:'Mochas', name:'French Hazelnut Café',              desc:"A clean, sweet aromatic baseline that lets bold, nutty accents take center stage.", image:'assets/french-hazelnut.png', flavors:['Hazelnut','French Vanilla']},
       'toasted-marshmallow-pumpkin-cocoa': {section:'hot', group:'Mochas', name:'Toasted Marshmallow Pumpkin Cocoa', desc:"Caffeine-free luxury cocoa with toasted marshmallow and warm campfire spice.", image:'assets/hot-coffee.png', flavors:['Chocolate','Toasted Marshmallow','Pumpkin Spice']},
+      'build-a-latte':                     {section:'hot', group:'Lattes', name:'Build a Latte', desc:"Smooth espresso and steamed milk, made your way. Pick your milk, flavors, and size.", image:'assets/hot-coffee.png', flavors:[]},
       'cinnamon-roll-latte':               {section:'hot', group:'Lattes', name:'Cinnamon Roll Latte',               desc:"A warm cinnamon roll fresh from the oven, with a sweet vanilla icing finish.", image:'assets/cinnamon-roll-latte.png', flavors:['Cinnamon','Vanilla']},
       'autumn-velvet-latte':               {section:'hot', group:'Lattes', name:'Autumn Velvet Latte',               desc:"Toasted nuttiness balanced with bright, aromatic seasonal harvest spice.", image:'assets/hot-coffee.png', flavors:['Hazelnut','Pumpkin Spice']},
       'golden-caramel-macchiato':          {section:'hot', group:'Lattes', name:'Golden Caramel Macchiato',          desc:"Custard-like vanilla milk and strong espresso, crowned with buttery caramel.", image:'assets/caramel-macchiato.png', flavors:['Caramel','Vanilla']},
+      'drip-coffee':                       {section:'hot', group:'Black & Bold', name:'Drip Coffee', desc:"Fresh-brewed house drip. Clean, classic, bottomless Northwoods comfort.", image:'assets/black-bold.png', flavors:[]},
+      'americano':                         {section:'hot', group:'Black & Bold', name:'Americano',   desc:"Bold espresso cut with hot water. Smooth, rich, and full-bodied.", image:'assets/black-bold.png', flavors:[]},
+      'espresso':                          {section:'hot', group:'Black & Bold', name:'Espresso',    desc:"A concentrated shot of pure, intense Northwoods roast. Straight and strong.", image:'assets/black-bold.png', flavors:[]},
       'iced-mocha':                        {section:'cold', group:'Iced Mochas & Lattes', name:'Iced Mocha', desc:"Espresso, chocolate & milk over ice. Rich, sweet, indulgent.", image:'assets/cold-brew.png', flavors:[]},
       'iced-latte':                        {section:'cold', group:'Iced Mochas & Lattes', name:'Iced Latte', desc:"Smooth espresso & milk over ice. Mellow and easy-drinking.", image:'assets/cold-brew.png', flavors:[]},
       'iced-coffee':                       {section:'cold', group:'Iced Black & Bold', name:'Iced Coffee',    desc:"Brewed hot, flash-chilled over ice. Bright, crisp, clean.", image:'assets/iced-coffee.png', flavors:[]},
