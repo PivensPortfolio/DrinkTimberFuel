@@ -230,14 +230,17 @@
   .energy-head{ text-align:center; margin-bottom:36px; }
   .energy-head h2{ font-family:"Anton",sans-serif; font-size:clamp(38px,5vw,56px); color:#fff; text-transform:uppercase; margin-top:16px; }
   .energy-head h2 em{ color:var(--gold); font-style:normal; }
-  .orb-grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:24px; margin-top:100px; margin-bottom:26px; align-items:start; }
+  /* margin-top was 100px purely to clear the art that used to overflow the card top */
+  .orb-grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:24px; margin-top:40px; margin-bottom:26px; align-items:start; }
   .orb-card{ position:relative; text-align:center; padding:34px 14px 24px; background:var(--bg-card); border:1px solid var(--gold-faint); border-radius:12px; overflow:visible; transition:transform .25s var(--ease), border-color .25s var(--ease), box-shadow .25s var(--ease); }
   .orb-card:hover{ transform:translateY(-6px); border-color:color-mix(in srgb, var(--c) 50%, transparent); box-shadow:0 20px 40px rgba(0,0,0,.45); }
   /* glow sits inside the card so it reads as a halo behind the cup */
   .orb-glow{ position:absolute; left:50%; top:46%; width:118%; aspect-ratio:1; transform:translate(-50%,-50%); border-radius:50%; background:radial-gradient(circle, var(--c), transparent 60%); opacity:.4; filter:blur(13px); z-index:0; transition:opacity .25s var(--ease); }
   .orb-card:hover .orb-glow{ opacity:.6; }
   /* cup breaks out the top of the card for a 2D pop */
-  .orb-img{ position:relative; z-index:1; display:block; height:255px; width:auto; max-width:100%; object-fit:contain; margin:-72px auto 4px; filter:drop-shadow(0 18px 24px rgba(0,0,0,.55)); }
+  /* No negative top margin: the card must wrap the whole image. The old -72px pulled the art
+     38px above the card's top edge (34px padding), so it looked like it was escaping the box. */
+  .orb-img{ position:relative; z-index:1; display:block; height:255px; width:auto; max-width:100%; object-fit:contain; margin:0 auto 4px; filter:drop-shadow(0 18px 24px rgba(0,0,0,.55)); }
   .orb-card h4{ position:relative; z-index:1; font-family:"Anton",sans-serif; font-size:19px; color:#fff; text-transform:uppercase; line-height:1.1; letter-spacing:1.2px; }
   /* optional refresher description (admin-editable) — only shows when set */
   .orb-desc{ position:relative; z-index:1; font-family:"Barlow Condensed",sans-serif; font-size:14px; color:var(--cream-85); line-height:1.4; margin-top:7px; }
@@ -702,7 +705,7 @@
     .cb-close{ top:14px; right:16px; font-size:32px; z-index:2; }
     #cbSignatures{ height:auto; overflow:visible; }
     .cb-fcols{ grid-template-columns:1fr; gap:12px; }
-    .orb-img{ height:auto; width:88%; margin-top:-40px; }
+    .orb-img{ height:auto; width:88%; margin-top:0; }
     .hot-grid{ grid-template-columns:1fr; }
     .cb-showcase{ grid-template-columns:1fr; }
     .orb-grid{ grid-template-columns:1fr; }
