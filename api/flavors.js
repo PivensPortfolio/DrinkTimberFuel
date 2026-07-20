@@ -58,7 +58,9 @@ const DEFAULT_FLAVORS = {
     'iced-americano':                    { section:'cold', group:'Iced Black & Bold', name:'Iced Americano', desc:"Bold espresso over ice and cold water. Smooth and full-bodied.", image:'assets/iced-coffee.png', flavors:[] },
     'iced-espresso':                     { section:'cold', group:'Iced Black & Bold', name:'Iced Espresso',  desc:"A chilled shot of intense Northwoods roast over ice.", image:'assets/iced-coffee.png', flavors:[] },
     // REFRESHERS
-    'spicy-mango':                       { section:'refresher', group:'Refreshers', name:'Spicy Mango',             desc:"", image:'assets/Feature_EnerygyDrink_Desktop.png', flavors:[] },
+    // Spotlight: `image` is the WIDE desktop banner, `imageMobile` the tall phone banner.
+    // Both are full artwork with text baked in, not cup photos.
+    'spicy-mango':                       { section:'refresher', group:'Refreshers', name:'Spicy Mango',             desc:"", image:'assets/Feature_EnerygyDrink_Desktop.png', imageMobile:'assets/Feature_EnerygyDrink_mobile.png', flavors:[] },
     'georgia-peach':                     { section:'refresher', group:'Refreshers', name:'Georgia Peach',           desc:"", image:'assets/peach-lg.png', flavors:[] },
     'green-apple-jolly':                 { section:'refresher', group:'Refreshers', name:'Green Apple Jolly',       desc:"", image:'assets/apple-lg.png', flavors:[] },
     'watermelon-jolly':                  { section:'refresher', group:'Refreshers', name:'Watermelon Jolly',        desc:"", image:'assets/watermelon-lg.png', flavors:[] },
@@ -106,12 +108,15 @@ function sanitize(input){
     const name=str(v.name!=null?v.name:(def.name!=null?def.name:k),80); if(!name) return;
     // keep hosted image URLs / asset paths only — never store a giant inline data URL
     let image=str(v.image!=null?v.image:(def.image||''),500); if(/^data:/i.test(image)) image=def.image||'';
+    // Spotlight drinks carry a second, phone-shaped banner. Empty for every normal drink.
+    let imageMobile=str(v.imageMobile!=null?v.imageMobile:(def.imageMobile||''),500); if(/^data:/i.test(imageMobile)) imageMobile=def.imageMobile||'';
     specialtyDrinks[id]={
       section: str(v.section||def.section||'hot',20),
       group:   str(v.group!=null?v.group:(def.group||''),40),
       name,
       desc:    str(v.desc!=null?v.desc:(def.desc||''),300),
       image,
+      imageMobile,
       flavors: cleanFlavors(v.flavors!=null?v.flavors:def.flavors)
     };
   });

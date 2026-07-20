@@ -1789,7 +1789,7 @@
       'cold-brew':                         {section:'cold', group:'Iced Black & Bold', name:'Cold Brew',      desc:"Steeped cold 18+ hours. Rich, smooth, far less acidic.", image:'assets/iced-coffee.png', flavors:[]},
       'iced-americano':                    {section:'cold', group:'Iced Black & Bold', name:'Iced Americano', desc:"Bold espresso over ice and cold water. Smooth and full-bodied.", image:'assets/iced-coffee.png', flavors:[]},
       'iced-espresso':                     {section:'cold', group:'Iced Black & Bold', name:'Iced Espresso',  desc:"A chilled shot of intense Northwoods roast over ice.", image:'assets/iced-coffee.png', flavors:[]},
-      'spicy-mango':                       {section:'refresher', group:'Refreshers', name:'Spicy Mango',             desc:"", image:'assets/Feature_EnerygyDrink_Desktop.png', flavors:[]},
+      'spicy-mango':                       {section:'refresher', group:'Refreshers', name:'Spicy Mango',             desc:"", image:'assets/Feature_EnerygyDrink_Desktop.png', imageMobile:'assets/Feature_EnerygyDrink_mobile.png', flavors:[]},
       'georgia-peach':                     {section:'refresher', group:'Refreshers', name:'Georgia Peach',           desc:"", image:'assets/peach-lg.png', flavors:[]},
       'green-apple-jolly':                 {section:'refresher', group:'Refreshers', name:'Green Apple Jolly',       desc:"", image:'assets/apple-lg.png', flavors:[]},
       'watermelon-jolly':                  {section:'refresher', group:'Refreshers', name:'Watermelon Jolly',        desc:"", image:'assets/watermelon-lg.png', flavors:[]},
@@ -1813,7 +1813,11 @@
       const card=el.closest('.hot-card') || el.closest('.orb-card') || el.closest('.spot-banner'); if(!card) return;
       if(d.name){ const nm=card.querySelector('h3, h4'); if(nm) nm.textContent=d.name; }
       if(d.desc!=null){ const p=card.querySelector('p'); if(p) p.textContent=d.desc; }
-      if(d.image){ const img=card.querySelector('.hot-img, .orb-img, img'); if(img){ img.src=d.image; img.alt=d.name||img.alt; } const src=card.querySelector('source'); if(src) src.srcset=d.image; }
+      if(d.image){ const img=card.querySelector('.hot-img, .orb-img, img'); if(img){ img.src=d.image; img.alt=d.name||img.alt; } }
+      // The spotlight banner is a <picture> with a separate phone-shaped source. Only ever
+      // fall back to the wide desktop banner when no mobile banner has been uploaded —
+      // pointing <source> at the wide image squeezes it to a thin strip on phones.
+      const src=card.querySelector('source'); if(src){ const m=d.imageMobile||d.image; if(m) src.srcset=m; }
     });
   }
   function applyFlavorsConfig(cfg){

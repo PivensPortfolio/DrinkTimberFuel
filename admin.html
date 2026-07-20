@@ -191,8 +191,14 @@
   /* Spotlight banner: 1100x381 art, so cover-cropping it to a 160 square shows a useless
      slice. Letterbox the real aspect instead, and mark it everywhere so the admin never
      mistakes it for a cup photo. */
-  .fl-img-preview.is-spot, .fl-thumb.is-spot{ object-fit:contain; background:#060c08; }
+  .fl-img-preview.is-spot, .fl-img-preview.is-spotm, .fl-thumb.is-spot{ object-fit:contain; background:#060c08; }
   .fl-img-preview.is-spot{ height:auto; aspect-ratio:1100/381; }
+  .fl-img-preview.is-spotm{ height:auto; aspect-ratio:586/880; }
+  /* one upload slot = label + preview + button + status, grouped so the two banners read
+     as separate uploads rather than one long stack of controls */
+  .fl-slot{ display:flex; flex-direction:column; gap:8px; padding:10px; border-radius:11px; background:rgba(255,255,255,.03); border:1px solid var(--gold-20); }
+  .fl-slot-label{ font-family:"Oswald",sans-serif; font-weight:700; font-size:10px; letter-spacing:1px; text-transform:uppercase; color:var(--cream-85); }
+  .fl-slot-label em{ font-style:normal; font-family:"Barlow Condensed",sans-serif; font-weight:400; letter-spacing:0; text-transform:none; font-size:12px; opacity:.6; display:block; }
   .fl-imghint.is-spot{ border-color:rgba(245,197,24,.45); }
   .fl-spotbadge{ display:inline-block; vertical-align:middle; margin-left:8px; font-family:"Oswald",sans-serif;
                  font-weight:700; font-size:9px; letter-spacing:1.1px; text-transform:uppercase;
@@ -506,7 +512,7 @@
     if(!sd && d.specialtyFlavors && typeof d.specialtyFlavors==='object'){ sd={}; Object.keys(d.specialtyFlavors).forEach(nm=>{ sd[slugify(nm)]={name:nm, flavors:d.specialtyFlavors[nm]}; }); }
     sd=sd||{};
     const specialtyDrinks={};
-    Object.keys(sd).forEach(id=>{ const v=sd[id]||{}; specialtyDrinks[id]={ section:String(v.section||'hot'), group:String(v.group!=null?v.group:''), name:String(v.name!=null?v.name:id), desc:String(v.desc!=null?v.desc:''), image:String(v.image!=null?v.image:''), flavors:Array.isArray(v.flavors)?v.flavors.map(String):[] }; });
+    Object.keys(sd).forEach(id=>{ const v=sd[id]||{}; specialtyDrinks[id]={ section:String(v.section||'hot'), group:String(v.group!=null?v.group:''), name:String(v.name!=null?v.name:id), desc:String(v.desc!=null?v.desc:''), image:String(v.image!=null?v.image:''), imageMobile:String(v.imageMobile!=null?v.imageMobile:''), flavors:Array.isArray(v.flavors)?v.flavors.map(String):[] }; });
     return {
       pumpPrice: (isFinite(pp)&&pp>=0)?pp:0.25,
       builderFlavors: (Array.isArray(d.builderFlavors)?d.builderFlavors:[]).map(f=> typeof f==='string'?{name:f,sugarFree:false,soldOut:false}:{name:String((f&&f.name)||''),sugarFree:!!(f&&f.sugarFree),soldOut:!!(f&&f.soldOut)}),
@@ -563,7 +569,8 @@
   // photo. These render into .spot-banner on the site — see data-spec-id in index.html.
   // Ids are stable slugs, so renaming the drink in the admin does not break this.
   const SPOTLIGHT_IDS=new Set(['spicy-mango']);
-  const SPOT_MAXDIM=1100;   // banner is 1100x381; the default 900 cap would shrink it
+  const SPOT_MAXDIM=1100;   // desktop banner is 1100x381; the default 900 cap would shrink it
+  const SPOTM_MAXDIM=880;   // mobile banner is 586x880 (tall)
   function isSpotlight(id){ return SPOTLIGHT_IDS.has(id); }
   function specCard(id){
     const d=flavorsState.specialtyDrinks[id]; const flavors=d.flavors||[];
@@ -587,14 +594,27 @@
       <div class="fl-drink-body">
         <div class="fl-drink-edit">
           <div class="fl-img-col">
-            <img class="fl-img-preview${spot?' is-spot':''}" src="${esc(d.image||'')}" alt="" onerror="this.style.visibility='hidden'" />
-            <label class="fl-upload">Upload ${spot?'banner':'photo'}<input type="file" accept="image/*" data-upload="${esc(id)}" hidden /></label>
-            <span class="fl-upstatus" data-upstatus="${esc(id)}"></span>
-            ${spot ? `<div class="fl-imghint is-spot">
+            ${spot ? `
+            <div class="fl-slot">
+              <span class="fl-slot-label">Desktop banner <em>1100 × 381</em></span>
+              <img class="fl-img-preview is-spot" src="${esc(d.image||'')}" alt="" onerror="this.style.visibility='hidden'" />
+              <label class="fl-upload">Upload desktop<input type="file" accept="image/*" data-upload="${esc(id)}" data-slot="image" hidden /></label>
+              <span class="fl-upstatus" data-upstatus="${esc(id)}|image"></span>
+            </div>
+            <div class="fl-slot">
+              <span class="fl-slot-label">Mobile banner <em>586 × 880</em></span>
+              <img class="fl-img-preview is-spotm" src="${esc(d.imageMobile||'')}" alt="" onerror="this.style.visibility='hidden'" />
+              <label class="fl-upload">Upload mobile<input type="file" accept="image/*" data-upload="${esc(id)}" data-slot="imageMobile" hidden /></label>
+              <span class="fl-upstatus" data-upstatus="${esc(id)}|imageMobile"></span>
+            </div>
+            <div class="fl-imghint is-spot">
               <b>★ Spotlight banner</b>
-              <span><i>Size</i> 1100 × 381 px (wide)</span>
-              <span class="fl-hint-note">This is the full featured banner across the top of Refreshers, artwork and text baked in. Not a cup photo like the other drinks.</span>
-            </div>` : `<div class="fl-imghint">
+              <span class="fl-hint-note">Two separate images, artwork and text baked in. Phones load the mobile one, everything else the desktop one. Not cup photos like the other drinks.</span>
+            </div>` : `
+            <img class="fl-img-preview" src="${esc(d.image||'')}" alt="" onerror="this.style.visibility='hidden'" />
+            <label class="fl-upload">Upload photo<input type="file" accept="image/*" data-upload="${esc(id)}" data-slot="image" hidden /></label>
+            <span class="fl-upstatus" data-upstatus="${esc(id)}|image"></span>
+            <div class="fl-imghint">
               <b>Photo specs</b>
               <span><i>Size</i> 900 × 900 px (square)</span>
               <span class="fl-hint-note">PNG or JPG. Center the cup with a little room around it.</span>
@@ -654,7 +674,7 @@
   });
   flView.addEventListener('change', e=>{
     const t=e.target; if(!flavorsState) return;
-    if(t.dataset.upload!==undefined){ if(t.files&&t.files[0]) uploadDrinkImage(t.dataset.upload, t.files[0]); return; }
+    if(t.dataset.upload!==undefined){ if(t.files&&t.files[0]) uploadDrinkImage(t.dataset.upload, t.dataset.slot, t.files[0]); return; }
     if(t.dataset.spec!==undefined){
       const d=flavorsState.specialtyDrinks[t.dataset.spec]; if(!d) return;
       const arr=d.flavors||(d.flavors=[]);
@@ -705,28 +725,35 @@
       img.src=url;
     });
   }
-  function setStatus(id, msg, cls){
-    const st=document.querySelector('[data-upstatus="'+CSS.escape(id)+'"]');
+  function setStatus(id, slot, msg, cls){
+    const st=document.querySelector('[data-upstatus="'+CSS.escape(id+'|'+slot)+'"]');
     if(st){ st.textContent=msg||''; st.className='fl-upstatus '+(cls||''); }
   }
-  async function uploadDrinkImage(id, file){
+  // Longest-edge cap per slot, so a banner is not downscaled on its way to Blob.
+  function maxDimFor(id, slot){
+    if(!isSpotlight(id)) return 900;                       // cup photos: 900 square
+    return slot==='imageMobile' ? SPOTM_MAXDIM : SPOT_MAXDIM;
+  }
+  async function uploadDrinkImage(id, slot, file){
+    slot = (slot==='imageMobile') ? 'imageMobile' : 'image';
     // Re-query every time: the card is re-rendered after a successful upload, so a node
     // captured up front would be detached by the time we report the result.
-    const set=(m,cls)=>setStatus(id,m,cls);
+    const set=(m,cls)=>setStatus(id,slot,m,cls);
     if(!/^image\//.test(file.type)){ set('Not an image file','err'); return; }
     set('Uploading…','');
     try{
-      const dataUrl=await resizeImage(file, isSpotlight(id) ? SPOT_MAXDIM : 900);
+      const dataUrl=await resizeImage(file, maxDimFor(id, slot));
       const base64=dataUrl.split(',')[1];
-      const r=await api('/api/upload',{ method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ filename:(flavorsState.specialtyDrinks[id].name||id), contentType:'image/jpeg', dataBase64:base64 }) });
+      const nm=(flavorsState.specialtyDrinks[id].name||id)+(slot==='imageMobile'?'-mobile':'');
+      const r=await api('/api/upload',{ method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ filename:nm, contentType:'image/jpeg', dataBase64:base64 }) });
       if(r&&r.ok&&r.url){
-        flavorsState.specialtyDrinks[id].image=r.url;
+        flavorsState.specialtyDrinks[id][slot]=r.url;
         // Re-render so the big preview AND the collapsed-row thumbnail both pick up the new
         // URL from state. Patching the two <img> nodes by hand left one of them stale, which
         // is why the new photo only appeared after a refresh. Safe here: an upload is not a
         // typing action, so there is no field focus to lose.
         renderFlavors();
-        setStatus(id,'Uploaded ✓','ok');
+        setStatus(id,slot,'Uploaded ✓','ok');
         scheduleSave();
       } else { set((r&&r.error)||'Upload failed','err'); }
     }catch(e){ set('Upload failed','err'); }
