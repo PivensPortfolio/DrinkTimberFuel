@@ -192,7 +192,8 @@
   .fl-imghint i{ font-style:normal; display:block; font-size:10px; letter-spacing:.9px; text-transform:uppercase; opacity:.6; }
   .fl-hint-bg{ display:flex; align-items:baseline; flex-wrap:wrap; gap:0 6px; }
   .fl-hint-bg i{ width:100%; }
-  .fl-swatch{ width:13px; height:13px; border-radius:3px; background:#060C08; border:1px solid var(--gold-20); display:inline-block; transform:translateY(2px); }
+  /* round, not square: a square swatch reads as an unchecked checkbox next to the flavor chips */
+  .fl-swatch{ width:12px; height:12px; border-radius:50%; background:#060C08; border:1px solid rgba(245,197,24,.45); display:inline-block; transform:translateY(2px); }
   .fl-hint-note{ font-size:12px; opacity:.62; }
   .fl-upstatus{ font-family:"Barlow Condensed",sans-serif; font-size:12px; min-height:1em; text-align:center; }
   .fl-upstatus.ok{ color:var(--sf); } .fl-upstatus.err{ color:var(--fire); }
