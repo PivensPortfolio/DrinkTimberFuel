@@ -117,6 +117,7 @@ function sanitize(input){
       desc:    str(v.desc!=null?v.desc:(def.desc||''),300),
       image,
       imageMobile,
+      soldOut: !!v.soldOut,   // out of stock: card stays visible on the site but cannot be ordered
       flavors: cleanFlavors(v.flavors!=null?v.flavors:def.flavors)
     };
   });

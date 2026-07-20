@@ -202,6 +202,16 @@
   .fl-slot-label{ font-family:"Oswald",sans-serif; font-weight:700; font-size:10px; letter-spacing:1px; text-transform:uppercase; color:var(--cream-85); }
   .fl-slot-label em{ font-style:normal; font-family:"Barlow Condensed",sans-serif; font-weight:400; letter-spacing:0; text-transform:none; font-size:12px; opacity:.6; display:block; }
   .fl-imghint.is-spot{ border-color:rgba(245,197,24,.45); }
+  /* out-of-stock switch + badge */
+  .fl-oos{ display:inline-flex; align-items:center; gap:7px; flex:none; cursor:pointer; user-select:none;
+           font-family:"Oswald",sans-serif; font-weight:600; font-size:10px; letter-spacing:1px; text-transform:uppercase;
+           color:var(--cream-85); border:1px solid var(--gold-20); border-radius:999px; padding:7px 12px; transition:color .15s, border-color .15s, background .15s; }
+  .fl-oos input{ accent-color:var(--fire); width:14px; height:14px; margin:0; cursor:pointer; }
+  .fl-oos.on{ color:var(--fire); border-color:rgba(232,98,10,.5); background:rgba(232,98,10,.1); }
+  .fl-drink.is-oos .fl-thumb, .fl-drink.is-oos .fl-spec-name{ opacity:.5; }
+  .fl-oosbadge{ display:inline-block; vertical-align:middle; margin-left:8px; font-family:"Oswald",sans-serif;
+                font-weight:700; font-size:9px; letter-spacing:1.1px; text-transform:uppercase;
+                color:#fff; background:var(--fire); border-radius:3px; padding:3px 7px; }
   .fl-spotbadge{ display:inline-block; vertical-align:middle; margin-left:8px; font-family:"Oswald",sans-serif;
                  font-weight:700; font-size:9px; letter-spacing:1.1px; text-transform:uppercase;
                  color:var(--bg); background:var(--gold); border-radius:3px; padding:3px 7px; }
@@ -514,7 +524,7 @@
     if(!sd && d.specialtyFlavors && typeof d.specialtyFlavors==='object'){ sd={}; Object.keys(d.specialtyFlavors).forEach(nm=>{ sd[slugify(nm)]={name:nm, flavors:d.specialtyFlavors[nm]}; }); }
     sd=sd||{};
     const specialtyDrinks={};
-    Object.keys(sd).forEach(id=>{ const v=sd[id]||{}; specialtyDrinks[id]={ section:String(v.section||'hot'), group:String(v.group!=null?v.group:''), name:String(v.name!=null?v.name:id), desc:String(v.desc!=null?v.desc:''), image:String(v.image!=null?v.image:''), imageMobile:String(v.imageMobile!=null?v.imageMobile:''), flavors:Array.isArray(v.flavors)?v.flavors.map(String):[] }; });
+    Object.keys(sd).forEach(id=>{ const v=sd[id]||{}; specialtyDrinks[id]={ section:String(v.section||'hot'), group:String(v.group!=null?v.group:''), name:String(v.name!=null?v.name:id), desc:String(v.desc!=null?v.desc:''), image:String(v.image!=null?v.image:''), imageMobile:String(v.imageMobile!=null?v.imageMobile:''), soldOut:!!v.soldOut, flavors:Array.isArray(v.flavors)?v.flavors.map(String):[] }; });
     return {
       pumpPrice: (isFinite(pp)&&pp>=0)?pp:0.25,
       builderFlavors: (Array.isArray(d.builderFlavors)?d.builderFlavors:[]).map(f=> typeof f==='string'?{name:f,sugarFree:false,soldOut:false}:{name:String((f&&f.name)||''),sugarFree:!!(f&&f.sugarFree),soldOut:!!(f&&f.soldOut)}),
@@ -583,15 +593,18 @@
     const head = `<div class="fl-drink-head" data-toggle="${esc(id)}">
         <img class="fl-thumb${spot?' is-spot':''}" src="${esc(d.image||'')}" alt="" onerror="this.style.visibility='hidden'" />
         <div class="fl-drink-headmain">
-          <div class="fl-spec-name">${esc(d.name)}${spot?' <span class="fl-spotbadge">Spotlight banner</span>':''}</div>
+          <div class="fl-spec-name">${esc(d.name)}${spot?' <span class="fl-spotbadge">Spotlight banner</span>':''}${d.soldOut?' <span class="fl-oosbadge">Out of stock</span>':''}</div>
           ${open ? '' : `<div class="fl-tags">${tags}</div>`}
         </div>
+        <label class="fl-oos${d.soldOut?' on':''}" title="Hide ordering for this drink on the site">
+          <input type="checkbox" data-soldout="${esc(id)}" ${d.soldOut?'checked':''} /> Out of stock
+        </label>
         <span class="fl-edit" aria-hidden="true">${open?'Close ▲':'Edit ▾'}</span>
       </div>`;
-    if(!open) return `<div class="fl-drink" data-id="${esc(id)}">${head}</div>`;
+    if(!open) return `<div class="fl-drink${d.soldOut?' is-oos':''}" data-id="${esc(id)}">${head}</div>`;
     const pool=specPool(d.section);
     const chips = pool.map(n=>`<label class="fl-chip ${flavors.includes(n)?'on':''}"><input type="checkbox" data-spec="${esc(id)}" value="${esc(n)}" ${flavors.includes(n)?'checked':''}/> ${esc(n)}</label>`).join('') || '<span class="fl-empty">Add flavors in the list above first.</span>';
-    return `<div class="fl-drink editing" data-id="${esc(id)}">
+    return `<div class="fl-drink editing${d.soldOut?' is-oos':''}" data-id="${esc(id)}">
       ${head}
       <div class="fl-drink-body">
         <div class="fl-drink-edit">
@@ -677,6 +690,10 @@
   flView.addEventListener('change', e=>{
     const t=e.target; if(!flavorsState) return;
     if(t.dataset.upload!==undefined){ if(t.files&&t.files[0]) uploadDrinkImage(t.dataset.upload, t.dataset.slot, t.files[0]); return; }
+    if(t.dataset.soldout!==undefined){
+      const d=flavorsState.specialtyDrinks[t.dataset.soldout]; if(!d) return;
+      d.soldOut=t.checked; renderSpecialty(); scheduleSave(); return;
+    }
     if(t.dataset.spec!==undefined){
       const d=flavorsState.specialtyDrinks[t.dataset.spec]; if(!d) return;
       const arr=d.flavors||(d.flavors=[]);
@@ -693,6 +710,8 @@
     }
   });
   flView.addEventListener('click', e=>{
+    // the Out-of-stock switch lives inside the accordion header — don't expand/collapse on it
+    if(e.target.closest('.fl-oos')) return;
     const tg=e.target.closest('[data-toggle]'); if(tg){ editingSpec = (editingSpec===tg.dataset.toggle ? null : tg.dataset.toggle); renderSpecialty(); return; } // accordion open/close (edits already auto-save)
     const add=e.target.closest('[data-add]');
     if(add){ if(!flavorsState) return;

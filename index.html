@@ -259,6 +259,13 @@
   .spotlight .ord{ margin-top:20px; }
   .spotlight .ord-sizes{ margin-inline:0; }
 
+  /* out of stock: card stays on the menu, ordering controls are replaced by a tag */
+  .is-soldout .hot-img, .is-soldout .orb-img, .is-soldout picture{ filter:grayscale(.85) brightness(.72); }
+  .is-soldout h3, .is-soldout h4, .is-soldout p, .is-soldout .orb-desc{ opacity:.6; }
+  .soldout-tag{ display:inline-block; font-family:"Oswald",sans-serif; font-weight:700; text-transform:uppercase;
+                letter-spacing:1.5px; font-size:12px; color:var(--cream); background:rgba(255,255,255,.06);
+                border:1px solid var(--gold-20); border-radius:999px; padding:10px 20px; margin-top:6px; }
+
   /* featured spotlight banner image */
   .spot-banner{ max-width:880px; margin:0 auto 10px; text-align:center; }
   .spot-banner img{ width:100%; height:auto; display:block; border-radius:14px; box-shadow:0 22px 50px rgba(0,0,0,.5); }
@@ -1818,6 +1825,14 @@
       // fall back to the wide desktop banner when no mobile banner has been uploaded —
       // pointing <source> at the wide image squeezes it to a thin strip on phones.
       const src=card.querySelector('source'); if(src){ const m=d.imageMobile||d.image; if(m) src.srcset=m; }
+      // Out of stock: the card stays on the menu (so customers can see what we normally carry)
+      // but everything that starts an order is removed and a badge takes its place.
+      const oos=!!d.soldOut;
+      card.classList.toggle('is-soldout', oos);
+      el.hidden=oos;                      // .ord / .ord-spec / .cold-ord — every add-to-order control
+      let tag=card.querySelector('.soldout-tag');
+      if(oos && !tag){ tag=document.createElement('div'); tag.className='soldout-tag'; tag.textContent='Out of stock'; el.parentNode.insertBefore(tag, el); }
+      else if(!oos && tag){ tag.remove(); }
     });
   }
   function applyFlavorsConfig(cfg){
@@ -1830,6 +1845,15 @@
     SPECIALTY_RECIPE = {};   // rebuild the name->flavors recipe map used by the builder
     Object.values(SPECIALTY_DRINKS).forEach(d=>{ if(d && d.name) SPECIALTY_RECIPE[String(d.name).trim()] = Array.isArray(d.flavors)?d.flavors:[]; });
     applySpecialtyOverlay();
+    // The cart persists for 2h, so a drink can sell out while it is sitting in one. Drop those
+    // lines rather than letting the customer reach checkout and get rejected by the server.
+    const oos=new Set(Object.keys(SPECIALTY_DRINKS).map(k=>SPECIALTY_DRINKS[k])
+      .filter(d=>d && d.soldOut && d.name).map(d=>String(d.name).trim().toLowerCase()));
+    if(oos.size && cart.length){
+      const before=cart.length;
+      for(let i=cart.length-1;i>=0;i--){ if(oos.has(String(cart[i].name||'').trim().toLowerCase())) cart.splice(i,1); }
+      if(cart.length!==before){ bumpCart(); renderCart(); }
+    }
     const pp = Number(cfg.pumpPrice);
     PUMP_PRICE = (isFinite(pp) && pp>=0) ? pp : FLAVORS_DEFAULT.pumpPrice;
   }

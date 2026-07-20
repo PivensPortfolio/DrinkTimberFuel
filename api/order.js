@@ -1,5 +1,6 @@
 // Places a CASH order (pay on delivery / at pickup) — no card charge.
 // Only accepts orders while the store is open. Writes to the same KV order queue.
+const { soldOutNames, firstSoldOut } = require('./_soldout');
 async function kv(cmd){
   const url=process.env.KV_REST_API_URL, tok=process.env.KV_REST_API_TOKEN;
   if(!url||!tok) return { result:null, _noKv:true };
@@ -43,6 +44,9 @@ module.exports = async (req,res)=>{
   if(!order.name || !order.phone || !Array.isArray(order.items) || !order.items.length){
     res.status(400).json({ ok:false, error:'Missing order details.' }); return;
   }
+  // A tab left open before the drink was marked out of stock would still submit it.
+  const gone=firstSoldOut(order.items, await soldOutNames(kv));
+  if(gone){ res.status(409).json({ ok:false, error:gone+' just went out of stock. Please remove it from your cart.' }); return; }
   const rec={
     id: 'c' + Date.now() + Math.random().toString(16).slice(2,6),
     ts: Date.now(), status:'new', paymentMethod:'cash', paid:false,

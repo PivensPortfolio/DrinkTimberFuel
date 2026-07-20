@@ -1,6 +1,7 @@
 // Charges a card using the one-time token (nonce) the Web Payments SDK produced in the browser.
 // The secret Access Token never leaves the server. Sandbox by default (test cards only).
 // On success, saves the order to the KV store so it shows up on the admin page.
+const { soldOutNames, firstSoldOut } = require('./_soldout');
 async function kv(cmd){
   const url=process.env.KV_REST_API_URL, tok=process.env.KV_REST_API_TOKEN;
   if(!url||!tok) return null;
@@ -45,6 +46,13 @@ module.exports = async (req, res) => {
   const cents = Math.round(Number(amountCents));
   if (!sourceId || !idempotencyKey || !locationId || !cents || cents < 1) {
     res.status(400).json({ ok: false, error: 'Missing or invalid payment details.' });
+    return;
+  }
+
+  // Check stock BEFORE charging the card — never take money for a drink we cannot make.
+  const gone = firstSoldOut((order && order.items) || [], await soldOutNames(kv));
+  if (gone) {
+    res.status(409).json({ ok: false, error: gone + ' just went out of stock. Please remove it from your cart.' });
     return;
   }
 
