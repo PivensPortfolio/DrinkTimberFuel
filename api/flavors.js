@@ -74,9 +74,6 @@ const DEFAULT_FLAVORS = {
   }
 };
 
-// Drinks whose display name is load-bearing: index.html looks their prices up by name.
-const NAME_LOCKED_IDS = new Set(['drip-coffee','americano','espresso']);
-
 const slug = s => str(s,80).toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'') || 'drink';
 
 function str(v,max){ return String(v==null?'':v).slice(0,max).trim(); }
@@ -114,10 +111,7 @@ function sanitize(input){
   Object.keys(sd).slice(0,60).forEach(k=>{
     const id=slug(k); if(!id) return;
     const v=sd[k]||{}, def=DEF_SD[id]||{};
-    let name=str(v.name!=null?v.name:(def.name!=null?def.name:k),80); if(!name) return;
-    // HOT_BLACK_PRICES in index.html matches these three by NAME, so a rename would break
-    // their size pricing. The admin renders the field read-only; this is the real enforcement.
-    if(NAME_LOCKED_IDS.has(id) && def.name) name=def.name;
+    const name=str(v.name!=null?v.name:(def.name!=null?def.name:k),80); if(!name) return;
     // keep hosted image URLs / asset paths only — never store a giant inline data URL
     let image=str(v.image!=null?v.image:(def.image||''),500); if(/^data:/i.test(image)) image=def.image||'';
     // Spotlight drinks carry a second, phone-shaped banner. Empty for every normal drink.

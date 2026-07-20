@@ -202,12 +202,6 @@
   .fl-slot-label{ font-family:"Oswald",sans-serif; font-weight:700; font-size:10px; letter-spacing:1px; text-transform:uppercase; color:var(--cream-85); }
   .fl-slot-label em{ font-style:normal; font-family:"Barlow Condensed",sans-serif; font-weight:400; letter-spacing:0; text-transform:none; font-size:12px; opacity:.6; display:block; }
   .fl-imghint.is-spot{ border-color:rgba(245,197,24,.45); }
-  /* locked drink name (pricing is matched by name for Drip/Americano/Espresso) */
-  .fl-lockwrap{ position:relative; }
-  .fl-spec-nameinput.is-locked{ width:100%; box-sizing:border-box; padding-right:34px; color:var(--cream-85); background:rgba(255,255,255,.02); border-style:dashed; cursor:not-allowed; }
-  .fl-lockicon{ position:absolute; top:11px; right:12px; font-size:13px; opacity:.65; pointer-events:none; }
-  .fl-locknote{ display:block; margin-top:6px; font-family:"Barlow Condensed",sans-serif; font-size:12.5px; line-height:1.35; color:var(--cream-85); opacity:.6; }
-
   /* out-of-stock switch + badge */
   .fl-oos{ display:inline-flex; align-items:center; gap:7px; flex:none; cursor:pointer; user-select:none;
            font-family:"Oswald",sans-serif; font-weight:600; font-size:10px; letter-spacing:1px; text-transform:uppercase;
@@ -587,10 +581,6 @@
   // photo. These render into .spot-banner on the site — see data-spec-id in index.html.
   // Ids are stable slugs, so renaming the drink in the admin does not break this.
   const SPOTLIGHT_IDS=new Set(['spicy-mango']);
-  // Size pricing for these three is looked up by drink NAME (HOT_BLACK_PRICES in index.html),
-  // so renaming one would break its prices. Name is locked until that lookup is keyed by id.
-  const NAME_LOCKED_IDS=new Set(['drip-coffee','americano','espresso']);
-  function isNameLocked(id){ return NAME_LOCKED_IDS.has(id); }
   const SPOT_MAXDIM=1100;   // desktop banner is 1100x381; the default 900 cap would shrink it
   const SPOTM_MAXDIM=880;   // mobile banner is 586x880 (tall)
   function isSpotlight(id){ return SPOTLIGHT_IDS.has(id); }
@@ -646,13 +636,7 @@
             </div>`}
           </div>
           <div class="fl-fields">
-            ${isNameLocked(id) ? `
-            <div class="fl-lockwrap">
-              <input class="fl-txt fl-spec-nameinput is-locked" value="${esc(d.name)}" readonly aria-readonly="true" tabindex="-1" title="This drink's name is locked" />
-              <span class="fl-lockicon" aria-hidden="true">🔒</span>
-              <span class="fl-locknote">Name is locked. Size pricing for this drink is matched by name, so renaming it would break its prices. Description, photo and stock can still be changed.</span>
-            </div>`
-            : `<input class="fl-txt fl-spec-nameinput" data-spec-name="${esc(id)}" value="${esc(d.name)}" placeholder="Drink name" />`}
+            <input class="fl-txt fl-spec-nameinput" data-spec-name="${esc(id)}" value="${esc(d.name)}" placeholder="Drink name" />
             <textarea class="fl-txt fl-spec-desc" data-spec-desc="${esc(id)}" rows="2" placeholder="Description">${esc(d.desc||'')}</textarea>
             <div class="fl-flavors-block">
               <div class="fl-poolhint">Flavors this drink comes with:</div>
