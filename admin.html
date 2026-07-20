@@ -188,6 +188,15 @@
   .fl-imghint{ font-family:"Barlow Condensed",sans-serif; font-size:13px; line-height:1.35; color:var(--cream-85);
                display:flex; flex-direction:column; gap:6px; padding:11px 12px; border-radius:11px;
                background:#0c140f; border:1px solid var(--gold-20); }
+  /* Spotlight banner: 1100x381 art, so cover-cropping it to a 160 square shows a useless
+     slice. Letterbox the real aspect instead, and mark it everywhere so the admin never
+     mistakes it for a cup photo. */
+  .fl-img-preview.is-spot, .fl-thumb.is-spot{ object-fit:contain; background:#060c08; }
+  .fl-img-preview.is-spot{ height:auto; aspect-ratio:1100/381; }
+  .fl-imghint.is-spot{ border-color:rgba(245,197,24,.45); }
+  .fl-spotbadge{ display:inline-block; vertical-align:middle; margin-left:8px; font-family:"Oswald",sans-serif;
+                 font-weight:700; font-size:9px; letter-spacing:1.1px; text-transform:uppercase;
+                 color:var(--bg); background:var(--gold); border-radius:3px; padding:3px 7px; }
   .fl-imghint b{ font-family:"Oswald",sans-serif; font-weight:700; font-size:11px; letter-spacing:1.1px; text-transform:uppercase; color:var(--gold); }
   .fl-imghint i{ font-style:normal; display:block; font-size:10px; letter-spacing:.9px; text-transform:uppercase; opacity:.6; }
   .fl-hint-note{ font-size:12px; opacity:.62; }
@@ -550,15 +559,22 @@
     });
     return changed;
   }
+  // Drinks whose image is a full-width featured BANNER (artwork + text baked in), not a cup
+  // photo. These render into .spot-banner on the site — see data-spec-id in index.html.
+  // Ids are stable slugs, so renaming the drink in the admin does not break this.
+  const SPOTLIGHT_IDS=new Set(['spicy-mango']);
+  const SPOT_MAXDIM=1100;   // banner is 1100x381; the default 900 cap would shrink it
+  function isSpotlight(id){ return SPOTLIGHT_IDS.has(id); }
   function specCard(id){
     const d=flavorsState.specialtyDrinks[id]; const flavors=d.flavors||[];
     const open = editingSpec===id;
+    const spot = isSpotlight(id);
     const tags = flavors.length ? flavors.map(n=>`<span class="fl-tag">${esc(n)}</span>`).join('') : '<span class="fl-empty">No signature flavors</span>';
     // accordion header — always visible, click anywhere on it to expand/collapse
     const head = `<div class="fl-drink-head" data-toggle="${esc(id)}">
-        <img class="fl-thumb" src="${esc(d.image||'')}" alt="" onerror="this.style.visibility='hidden'" />
+        <img class="fl-thumb${spot?' is-spot':''}" src="${esc(d.image||'')}" alt="" onerror="this.style.visibility='hidden'" />
         <div class="fl-drink-headmain">
-          <div class="fl-spec-name">${esc(d.name)}</div>
+          <div class="fl-spec-name">${esc(d.name)}${spot?' <span class="fl-spotbadge">Spotlight banner</span>':''}</div>
           ${open ? '' : `<div class="fl-tags">${tags}</div>`}
         </div>
         <span class="fl-edit" aria-hidden="true">${open?'Close ▲':'Edit ▾'}</span>
@@ -571,14 +587,18 @@
       <div class="fl-drink-body">
         <div class="fl-drink-edit">
           <div class="fl-img-col">
-            <img class="fl-img-preview" src="${esc(d.image||'')}" alt="" onerror="this.style.visibility='hidden'" />
-            <label class="fl-upload">Upload photo<input type="file" accept="image/*" data-upload="${esc(id)}" hidden /></label>
+            <img class="fl-img-preview${spot?' is-spot':''}" src="${esc(d.image||'')}" alt="" onerror="this.style.visibility='hidden'" />
+            <label class="fl-upload">Upload ${spot?'banner':'photo'}<input type="file" accept="image/*" data-upload="${esc(id)}" hidden /></label>
             <span class="fl-upstatus" data-upstatus="${esc(id)}"></span>
-            <div class="fl-imghint">
+            ${spot ? `<div class="fl-imghint is-spot">
+              <b>★ Spotlight banner</b>
+              <span><i>Size</i> 1100 × 381 px (wide)</span>
+              <span class="fl-hint-note">This is the full featured banner across the top of Refreshers, artwork and text baked in. Not a cup photo like the other drinks.</span>
+            </div>` : `<div class="fl-imghint">
               <b>Photo specs</b>
               <span><i>Size</i> 900 × 900 px (square)</span>
               <span class="fl-hint-note">PNG or JPG. Center the cup with a little room around it.</span>
-            </div>
+            </div>`}
           </div>
           <div class="fl-fields">
             <input class="fl-txt fl-spec-nameinput" data-spec-name="${esc(id)}" value="${esc(d.name)}" placeholder="Drink name" />
@@ -696,7 +716,7 @@
     if(!/^image\//.test(file.type)){ set('Not an image file','err'); return; }
     set('Uploading…','');
     try{
-      const dataUrl=await resizeImage(file, 900);
+      const dataUrl=await resizeImage(file, isSpotlight(id) ? SPOT_MAXDIM : 900);
       const base64=dataUrl.split(',')[1];
       const r=await api('/api/upload',{ method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ filename:(flavorsState.specialtyDrinks[id].name||id), contentType:'image/jpeg', dataBase64:base64 }) });
       if(r&&r.ok&&r.url){
