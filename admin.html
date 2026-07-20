@@ -190,10 +190,6 @@
                background:#0c140f; border:1px solid var(--gold-20); }
   .fl-imghint b{ font-family:"Oswald",sans-serif; font-weight:700; font-size:11px; letter-spacing:1.1px; text-transform:uppercase; color:var(--gold); }
   .fl-imghint i{ font-style:normal; display:block; font-size:10px; letter-spacing:.9px; text-transform:uppercase; opacity:.6; }
-  .fl-hint-bg{ display:flex; align-items:baseline; flex-wrap:wrap; gap:0 6px; }
-  .fl-hint-bg i{ width:100%; }
-  /* round, not square: a square swatch reads as an unchecked checkbox next to the flavor chips */
-  .fl-swatch{ width:12px; height:12px; border-radius:50%; background:#060C08; border:1px solid rgba(245,197,24,.45); display:inline-block; transform:translateY(2px); }
   .fl-hint-note{ font-size:12px; opacity:.62; }
   .fl-upstatus{ font-family:"Barlow Condensed",sans-serif; font-size:12px; min-height:1em; text-align:center; }
   .fl-upstatus.ok{ color:var(--sf); } .fl-upstatus.err{ color:var(--fire); }
@@ -580,9 +576,8 @@
             <span class="fl-upstatus" data-upstatus="${esc(id)}"></span>
             <div class="fl-imghint">
               <b>Photo specs</b>
-              <span><i>Size</i> 600 × 900 px (tall, 2:3)</span>
-              <span class="fl-hint-bg"><i>Background</i> <em class="fl-swatch"></em> #060C08</span>
-              <span class="fl-hint-note">PNG or JPG. Center the cup with a little room at the bottom.</span>
+              <span><i>Size</i> 900 × 900 px (square)</span>
+              <span class="fl-hint-note">PNG or JPG. Center the cup with a little room around it.</span>
             </div>
           </div>
           <div class="fl-fields">
@@ -690,9 +685,14 @@
       img.src=url;
     });
   }
-  async function uploadDrinkImage(id, file){
+  function setStatus(id, msg, cls){
     const st=document.querySelector('[data-upstatus="'+CSS.escape(id)+'"]');
-    const set=(m,cls)=>{ if(st){ st.textContent=m||''; st.className='fl-upstatus '+(cls||''); } };
+    if(st){ st.textContent=msg||''; st.className='fl-upstatus '+(cls||''); }
+  }
+  async function uploadDrinkImage(id, file){
+    // Re-query every time: the card is re-rendered after a successful upload, so a node
+    // captured up front would be detached by the time we report the result.
+    const set=(m,cls)=>setStatus(id,m,cls);
     if(!/^image\//.test(file.type)){ set('Not an image file','err'); return; }
     set('Uploading…','');
     try{
@@ -701,11 +701,13 @@
       const r=await api('/api/upload',{ method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ filename:(flavorsState.specialtyDrinks[id].name||id), contentType:'image/jpeg', dataBase64:base64 }) });
       if(r&&r.ok&&r.url){
         flavorsState.specialtyDrinks[id].image=r.url;
-        const card=document.querySelector('.fl-drink[data-id="'+CSS.escape(id)+'"]');
-        const prev=card&&card.querySelector('.fl-img-preview'); if(prev){ prev.src=r.url; prev.style.visibility=''; }
-        const th=card&&card.querySelector('.fl-thumb'); if(th){ th.src=r.url; th.style.visibility=''; }
-        const urlIn=card&&card.querySelector('.fl-img-url'); if(urlIn) urlIn.value=r.url;
-        set('Uploaded ✓','ok'); scheduleSave();
+        // Re-render so the big preview AND the collapsed-row thumbnail both pick up the new
+        // URL from state. Patching the two <img> nodes by hand left one of them stale, which
+        // is why the new photo only appeared after a refresh. Safe here: an upload is not a
+        // typing action, so there is no field focus to lose.
+        renderFlavors();
+        setStatus(id,'Uploaded ✓','ok');
+        scheduleSave();
       } else { set((r&&r.error)||'Upload failed','err'); }
     }catch(e){ set('Upload failed','err'); }
   }
