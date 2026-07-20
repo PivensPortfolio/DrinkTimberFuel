@@ -176,12 +176,14 @@
   .fl-drink-head{ display:flex; gap:14px; align-items:center; padding:14px; cursor:pointer; transition:background .12s; }
   .fl-drink-head:hover{ background:rgba(255,255,255,.03); }
   .fl-drink.editing .fl-drink-head{ border-bottom:1px solid var(--gold-faint); }
-  .fl-thumb{ width:60px; height:60px; object-fit:cover; border-radius:10px; background:#0c140f; flex:none; }
+  /* contain, never cover: drink art is taller than it is wide, and cover crops the top and
+     bottom off. The box must always show the WHOLE image. */
+  .fl-thumb{ width:60px; height:60px; object-fit:contain; border-radius:10px; background:#0c140f; flex:none; }
   .fl-drink-headmain{ flex:1; min-width:0; }
   .fl-drink-body{ padding:18px 22px 22px; }
   .fl-drink-edit{ display:flex; gap:26px; }
   .fl-img-col{ display:flex; flex-direction:column; gap:10px; width:160px; flex:none; }
-  .fl-img-preview{ width:160px; height:160px; object-fit:cover; border-radius:12px; background:#0c140f; border:1px solid var(--gold-20); }
+  .fl-img-preview{ width:160px; height:auto; aspect-ratio:1/1; object-fit:contain; border-radius:12px; background:#0c140f; border:1px solid var(--gold-20); }
   .fl-upload{ text-align:center; font-family:"Oswald",sans-serif; font-weight:700; font-size:11px; letter-spacing:1px; text-transform:uppercase; color:#06201b; background:var(--sf); border-radius:9px; padding:11px; cursor:pointer; transition:filter .15s; }
   .fl-upload:hover{ filter:brightness(1.08); }
   /* Photo spec card — replaces the old raw-blob-URL field, which told the admin nothing useful. */
@@ -191,9 +193,9 @@
   /* Spotlight banner: 1100x381 art, so cover-cropping it to a 160 square shows a useless
      slice. Letterbox the real aspect instead, and mark it everywhere so the admin never
      mistakes it for a cup photo. */
-  .fl-img-preview.is-spot, .fl-img-preview.is-spotm, .fl-thumb.is-spot{ object-fit:contain; background:#060c08; }
-  .fl-img-preview.is-spot{ height:auto; aspect-ratio:1100/381; }
-  .fl-img-preview.is-spotm{ height:auto; aspect-ratio:586/880; }
+  .fl-img-preview.is-spot, .fl-img-preview.is-spotm, .fl-thumb.is-spot{ background:#060c08; }
+  .fl-img-preview.is-spot{ aspect-ratio:1100/381; }
+  .fl-img-preview.is-spotm{ aspect-ratio:586/880; }
   /* one upload slot = label + preview + button + status, grouped so the two banners read
      as separate uploads rather than one long stack of controls */
   .fl-slot{ display:flex; flex-direction:column; gap:8px; padding:10px; border-radius:11px; background:rgba(255,255,255,.03); border:1px solid var(--gold-20); }
@@ -215,7 +217,7 @@
   .fl-poolhint{ font-family:"Oswald",sans-serif; font-size:11px; letter-spacing:1.5px; text-transform:uppercase; color:var(--muted); margin-bottom:12px; }
   .fl-drink-edit .fl-chips{ gap:10px; }
   .fl-drink-edit .fl-chip{ padding:9px 15px; }
-  @media (max-width:560px){ .fl-drink-edit{ flex-direction:column; gap:16px; } .fl-img-col{ width:100%; } .fl-img-preview{ width:100%; height:200px; } }
+  @media (max-width:560px){ .fl-drink-edit{ flex-direction:column; gap:16px; } .fl-img-col{ width:100%; } .fl-img-preview{ width:100%; max-width:260px; } }
   .fl-savebar{ position:sticky; bottom:0; z-index:6; display:flex; align-items:center; gap:16px; margin:14px -22px 0; padding:15px 22px calc(15px + env(safe-area-inset-bottom)); background:var(--bg-tab); border-top:1px solid var(--gold-20); box-shadow:0 -10px 24px rgba(0,0,0,.4); }
   .fl-autohint{ font-family:"Oswald",sans-serif; font-weight:600; font-size:12px; letter-spacing:.5px; text-transform:uppercase; color:var(--sf); }
   .fl-savebar .fl-status{ font-family:"Oswald",sans-serif; font-size:12px; letter-spacing:.5px; text-transform:uppercase; }
